@@ -86,6 +86,40 @@ export async function toggleUserStatus(userId: string, newStatus: boolean) {
     return { error: error.message };
   }
 
+  // If approving the user, try to confirm their email in Supabase Auth
+  if (newStatus) {
+    try {
+      const { createClient: createAdminClient } = await import(
+        "@supabase/supabase-js"
+      );
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      if (supabaseUrl && serviceRoleKey) {
+        const supabaseAdmin = createAdminClient(supabaseUrl, serviceRoleKey, {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        });
+
+        const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+          userId,
+          { email_confirm: true }
+        );
+
+        if (authError) {
+          console.error("Failed to confirm user email via Admin API:", authError);
+        }
+      } else {
+        console.warn("Missing SUPABASE_SERVICE_ROLE_KEY to confirm user email.");
+      }
+    } catch (e) {
+      console.error("Error trying to auto-confirm email:", e);
+    }
+  }
+
   revalidatePath("/dashboard/users");
   return { success: true };
 }

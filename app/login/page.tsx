@@ -105,7 +105,7 @@ export default function LoginPage() {
               router.refresh();
             } else {
               setSuccessMessage(
-                "Đăng ký thành công! Vui lòng chờ admin kích hoạt tài khoản để xem nội dung.",
+                "Đăng ký thành công! Quý khách vui lòng liên hệ trực tiếp ố điện thoại/Zalo: 0376939688 hoặc Email : [EMAIL_ADDRESS] của ban quản trị để yêu cầu kích hoạt tài khoản.",
               );
               setIsLogin(true); // Switch back to login view
               setConfirmPassword(""); // clear confirm password

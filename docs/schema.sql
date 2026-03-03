@@ -254,12 +254,14 @@ BEGIN
   VALUES (
     new.id, 
     CASE WHEN is_first_user THEN 'admin'::public.user_role_enum ELSE 'member'::public.user_role_enum END,
-    true
+    is_first_user
   );
 
-  UPDATE public.profiles 
-  SET is_active = true 
-  WHERE id = new.id AND is_first_user = true;
+  IF is_first_user THEN
+    UPDATE public.profiles 
+    SET is_active = true 
+    WHERE id = new.id;
+  END IF;
 
   RETURN new;
 END;
@@ -454,5 +456,12 @@ BEGIN
     UPDATE public.profiles
     SET is_active = new_status
     WHERE id = target_user_id;
+    
+    -- Tự động confirm email nếu người quản trị nhấn Duyệt và chưa confirm
+    IF new_status = true THEN
+        UPDATE auth.users 
+        SET email_confirmed_at = NOW() 
+        WHERE id = target_user_id AND email_confirmed_at IS NULL;
+    END IF;
 END;
 $$;

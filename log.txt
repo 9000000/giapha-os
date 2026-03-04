@@ -1,0 +1,18 @@
+Executing tasks: [updateDaemonJvm, --jvm-version, 21, --jvm-vendor, jetbrains] in project C:\Users\NongTuan\Desktop\Github\giapha-os\android
+
+It is not possible to use the currently selected Gradle JVM for the operation.
+The installation from C:\Users\NongTuan\.gradle\jdks\eclipse_adoptium-17-amd64-windows.2 will be used instead.
+
+> Configure project :app
+AGPBI: {"kind":"warning","text":"Using flatDir should be avoided because it doesn't support any meta-data formats.","sources":[{}]}
+
+> Configure project :capacitor-cordova-android-plugins
+AGPBI: {"kind":"warning","text":"Using flatDir should be avoided because it doesn't support any meta-data formats.","sources":[{}]}
+
+> Task :updateDaemonJvm
+Daemon JVM criteria is an incubating feature.
+
+BUILD SUCCESSFUL in 5s
+1 actionable task: 1 executed
+
+Build Analyzer results available

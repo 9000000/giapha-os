@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createChangeRequest } from "@/app/actions/approvals";
 
 interface MemberFormProps {
   initialData?: Person;
@@ -180,6 +181,29 @@ export default function MemberForm({
       };
 
       let personId = initialData?.id;
+
+      if (!isAdmin) {
+        // Editor workflow -> create change request
+        const res = await createChangeRequest(
+          isEditing ? "update" : "insert",
+          "persons",
+          isEditing ? personId! : null,
+          personData,
+          isEditing ? initialData : null
+        );
+
+        if (res.error) throw new Error(res.error);
+
+        alert("Yêu cầu của bạn đã được gửi và đang chờ Admin phê duyệt.");
+
+        if (onCancel) {
+          onCancel();
+        } else {
+          router.push("/dashboard/members");
+          router.refresh();
+        }
+        return;
+      }
 
       if (isEditing && personId) {
         const { error: updateError } = await supabase

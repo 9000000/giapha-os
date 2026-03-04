@@ -49,7 +49,27 @@ export async function deleteMemberProfile(memberId: string) {
     };
   }
 
-  // 3. Delete the member
+  if (profile?.role === "editor") {
+    // Editor -> Create a change request instead of deleting directly
+    const { error: reqError } = await supabase.from("change_requests").insert({
+      action: "delete",
+      target_table: "persons",
+      target_record_id: memberId,
+      requested_by: user.id,
+      status: "pending",
+    });
+
+    if (reqError) {
+      console.error("Error creating delete request:", reqError);
+      return { error: "Không thể tạo yêu cầu xoá." };
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/members");
+    return { success: true, pending: true, message: "Yêu cầu xoá đã được gửi chờ Admin duyệt." };
+  }
+
+  // Admin -> Delete the member directly
   const { error: deleteError } = await supabase
     .from("persons")
     .delete()

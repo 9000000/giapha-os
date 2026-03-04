@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useContext, useEffect, useState } from "react";
+import { createChangeRequest } from "@/app/actions/approvals";
 import DefaultAvatar from "./DefaultAvatar";
 
 interface RelationshipManagerProps {
@@ -260,14 +261,25 @@ export default function RelationshipManager({
       if (newRelDirection === "spouse") type = "marriage";
       else if (newRelType === "adopted_child") type = "adopted_child";
 
-      const { error } = await supabase.from("relationships").insert({
-        person_a: personA,
-        person_b: personB,
-        type: type,
-        note: newRelNote ? newRelNote : null,
-      });
+      if (!isAdmin) {
+        const res = await createChangeRequest("insert", "relationships", null, {
+          person_a: personA,
+          person_b: personB,
+          type: type,
+          note: newRelNote ? newRelNote : null,
+        });
+        if (res.error) throw new Error(res.error);
+        alert("Yêu cầu thêm quan hệ đã được gửi chờ Admin phê duyệt.");
+      } else {
+        const { error } = await supabase.from("relationships").insert({
+          person_a: personA,
+          person_b: personB,
+          type: type,
+          note: newRelNote ? newRelNote : null,
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+      }
 
       setIsAdding(false);
       setSearchTerm("");
@@ -441,6 +453,13 @@ export default function RelationshipManager({
   const handleDelete = async (relId: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa mối quan hệ này?")) return;
     try {
+      if (!isAdmin) {
+        const res = await createChangeRequest("delete", "relationships", relId);
+        if (res.error) throw new Error(res.error);
+        alert("Yêu cầu xóa đã được gửi chờ Admin phê duyệt.");
+        return;
+      }
+
       const { error } = await supabase
         .from("relationships")
         .delete()
@@ -567,7 +586,6 @@ export default function RelationshipManager({
         );
       })}
 
-      {/* Add Button (Admin) */}
       {canEdit && !isAdding && !isAddingBulk && !isAddingSpouse && (
         <div className="flex flex-col sm:flex-row gap-3 mt-4">
           <button
@@ -577,19 +595,23 @@ export default function RelationshipManager({
             + Thêm Quan Hệ
           </button>
 
-          <button
-            onClick={() => setIsAddingBulk(true)}
-            className="flex-1 py-3 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl sm:rounded-2xl text-stone-500 font-medium text-sm hover:border-sky-400 hover:text-sky-700 transition-all duration-200"
-          >
-            + Thêm Con
-          </button>
+          {isAdmin && (
+            <>
+              <button
+                onClick={() => setIsAddingBulk(true)}
+                className="flex-1 py-3 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl sm:rounded-2xl text-stone-500 font-medium text-sm hover:border-sky-400 hover:text-sky-700 transition-all duration-200"
+              >
+                + Thêm Con
+              </button>
 
-          <button
-            onClick={() => setIsAddingSpouse(true)}
-            className="flex-1 py-3 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl sm:rounded-2xl text-stone-500 font-medium text-sm hover:border-rose-400 hover:text-rose-700 transition-all duration-200"
-          >
-            + Thêm Vợ/Chồng
-          </button>
+              <button
+                onClick={() => setIsAddingSpouse(true)}
+                className="flex-1 py-3 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl sm:rounded-2xl text-stone-500 font-medium text-sm hover:border-rose-400 hover:text-rose-700 transition-all duration-200"
+              >
+                + Thêm Vợ/Chồng
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -709,57 +731,56 @@ export default function RelationshipManager({
                 (searchTerm.length === 0 &&
                   !selectedTargetId &&
                   recentMembers.length > 0)) && (
-                <div className="mt-2 bg-white border border-stone-200 rounded-md shadow-lg max-h-[250px] overflow-y-auto">
-                  <div className="px-3 py-1.5 bg-stone-100 text-[10px] font-bold text-stone-500 uppercase tracking-wide border-b border-stone-200 sticky top-0 z-10">
-                    {searchResults.length > 0
-                      ? "Kết quả tìm kiếm"
-                      : "Thành viên vừa thêm gần đây"}
+                  <div className="mt-2 bg-white border border-stone-200 rounded-md shadow-lg max-h-[250px] overflow-y-auto">
+                    <div className="px-3 py-1.5 bg-stone-100 text-[10px] font-bold text-stone-500 uppercase tracking-wide border-b border-stone-200 sticky top-0 z-10">
+                      {searchResults.length > 0
+                        ? "Kết quả tìm kiếm"
+                        : "Thành viên vừa thêm gần đây"}
+                    </div>
+                    {(searchResults.length > 0
+                      ? searchResults
+                      : recentMembers
+                    ).map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          setSelectedTargetId(p.id);
+                          setSearchTerm(p.full_name);
+                          setSearchResults([]);
+                        }}
+                        className="px-3 py-2 hover:bg-amber-50 text-sm flex items-center justify-between border-b border-stone-100 last:border-0"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`flex items-center justify-center text-[8px] font-bold size-3 rounded-full text-white shrink-0
+                               ${p.gender === "male"
+                                ? "bg-sky-500"
+                                : p.gender === "female"
+                                  ? "bg-rose-500"
+                                  : "bg-stone-400"
+                              }`}
+                          >
+                            {p.gender === "male"
+                              ? "♂"
+                              : p.gender === "female"
+                                ? "♀"
+                                : "?"}
+                          </span>
+                          <span className="font-medium text-stone-800">
+                            {p.full_name}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-stone-400">
+                          {formatDisplayDate(
+                            p.birth_year,
+                            p.birth_month,
+                            p.birth_day,
+                          )}
+                        </span>
+                      </button>
+                    ))}
                   </div>
-                  {(searchResults.length > 0
-                    ? searchResults
-                    : recentMembers
-                  ).map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => {
-                        setSelectedTargetId(p.id);
-                        setSearchTerm(p.full_name);
-                        setSearchResults([]);
-                      }}
-                      className="px-3 py-2 hover:bg-amber-50 text-sm flex items-center justify-between border-b border-stone-100 last:border-0"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`flex items-center justify-center text-[8px] font-bold size-3 rounded-full text-white shrink-0
-                               ${
-                                 p.gender === "male"
-                                   ? "bg-sky-500"
-                                   : p.gender === "female"
-                                     ? "bg-rose-500"
-                                     : "bg-stone-400"
-                               }`}
-                        >
-                          {p.gender === "male"
-                            ? "♂"
-                            : p.gender === "female"
-                              ? "♀"
-                              : "?"}
-                        </span>
-                        <span className="font-medium text-stone-800">
-                          {p.full_name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-stone-400">
-                        {formatDisplayDate(
-                          p.birth_year,
-                          p.birth_month,
-                          p.birth_day,
-                        )}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
+                )}
               {selectedTargetId && (
                 <p className="text-xs text-green-600 mt-1">
                   Đã chọn: {searchTerm}

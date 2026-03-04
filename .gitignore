@@ -44,7 +44,6 @@ next-env.d.ts
 .agent/
 skills-lock.json
 # Auto-generated components
-/docs
 /.editorconfig
 /.gitattributes
 /ERRORS.md

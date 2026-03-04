@@ -186,10 +186,10 @@ function resolveBloodTerms(
 
     if (isPaternalSide) {
       // Bên Nội (Anh em của bố)
-      if (genderB === "female") {
-        termForB = "Cô";
+      if (seniority === "junior") {
+        termForB = "Bác"; // Anh hoặc chị của bố đều gọi là Bác
       } else {
-        termForB = seniority === "junior" ? "Bác" : "Chú";
+        termForB = genderB === "female" ? "Cô" : "Chú"; // Dưới tuổi bố thì gái là Cô, trai là Chú
       }
     } else {
       // Bên Ngoại (Anh em của mẹ)
@@ -254,12 +254,11 @@ function resolveBloodTerms(
         if (genDiff === 1) {
           const isPaternalSide = branchA.gender === "male";
           if (isPaternalSide) {
-            termForB =
-              genderB === "female"
-                ? "Cô họ"
-                : seniority === "junior"
-                  ? "Bác họ"
-                  : "Chú họ";
+            if (seniority === "junior") {
+              termForB = "Bác họ"; // Hơn tuổi bố hoặc chi trên bố
+            } else {
+              termForB = genderB === "female" ? "Cô họ" : "Chú họ"; // Ít tuổi hơn bố
+            }
           } else {
             termForB = genderB === "female" ? "Dì họ" : "Cậu họ";
           }

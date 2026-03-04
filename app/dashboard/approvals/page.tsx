@@ -35,7 +35,7 @@ export default async function ApprovalsPage() {
         .from("change_requests")
         .select(`
       *,
-      requester:profiles!change_requests_requested_by_fkey(full_name, email)
+      requester:profiles!requested_by(full_name, email)
     `)
         .eq("status", "pending")
         .order("created_at", { ascending: false });

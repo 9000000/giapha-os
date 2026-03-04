@@ -94,64 +94,75 @@ export default function HistoryClient({ initialRequests }: { initialRequests: an
 
     return (
         <div className="space-y-4">
-            {requests.map((req) => (
-                <div key={req.id} className="bg-white rounded-xl p-4 border border-stone-200 shadow-sm transition-all hover:shadow-md">
-                    <div className="flex flex-col sm:flex-row justify-between gap-3 mb-3 border-b border-stone-100 pb-3">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1.5">
-                                <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full uppercase tracking-wider
+            {requests.map((req) => {
+                const isExpanded = expandedIds.has(req.id);
+                return (
+                    <div key={req.id} className="bg-white rounded-xl p-4 border border-stone-200 shadow-sm transition-all hover:shadow-md">
+                        <div className={`flex flex-col sm:flex-row justify-between gap-3 ${isExpanded ? 'mb-3 border-b border-stone-100 pb-3' : ''}`}>
+                            <div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full uppercase tracking-wider
                   ${req.action === 'insert' ? 'bg-sky-100 text-sky-700' :
-                                        req.action === 'update' ? 'bg-amber-100 text-amber-700' :
-                                            'bg-red-100 text-red-700'}`}>
-                                    {formatAction(req.action, req.target_table)}
-                                </span>
-                                <span className="text-[11px] text-stone-500 flex items-center gap-1">
-                                    <Clock className="size-3" />
-                                    {new Date(req.created_at).toLocaleString('vi-VN')}
-                                </span>
+                                            req.action === 'update' ? 'bg-amber-100 text-amber-700' :
+                                                'bg-red-100 text-red-700'}`}>
+                                        {formatAction(req.action, req.target_table)}
+                                    </span>
+                                    <span className="text-[11px] text-stone-500 flex items-center gap-1">
+                                        <Clock className="size-3" />
+                                        {new Date(req.created_at).toLocaleString('vi-VN')}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm">
+                                    <p className="text-stone-600">
+                                        <span className="font-medium text-stone-900">{req.requester?.full_name || req.requester?.email || "Unknown"}</span>
+                                    </p>
+                                    {req.target_table === 'persons' && req.new_data?.full_name && (
+                                        <>
+                                            <span className="text-stone-300">•</span>
+                                            <p className="text-stone-600">
+                                                Mục tiêu: <span className="font-medium text-stone-900">{req.new_data.full_name}</span>
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            <div className="flex items-center gap-3 text-sm">
-                                <p className="text-stone-600">
-                                    <span className="font-medium text-stone-900">{req.requester?.full_name || req.requester?.email || "Unknown"}</span>
-                                </p>
-                                {req.target_table === 'persons' && req.new_data?.full_name && (
-                                    <>
-                                        <span className="text-stone-300">•</span>
-                                        <p className="text-stone-600">
-                                            Mục tiêu: <span className="font-medium text-stone-900">{req.new_data.full_name}</span>
-                                        </p>
-                                    </>
+
+                            <div className="flex flex-wrap items-center gap-2 h-fit mt-1 sm:mt-0">
+                                {req.status === 'pending' && (
+                                    <span className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/50 rounded-md">
+                                        <Clock className="size-3" /> Đang chờ duyệt
+                                    </span>
                                 )}
+                                {req.status === 'approved' && (
+                                    <span className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/50 rounded-md">
+                                        <Check className="size-3" /> Đã được duyệt
+                                    </span>
+                                )}
+                                {req.status === 'rejected' && (
+                                    <span className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-rose-700 bg-rose-50 border border-rose-200/50 rounded-md">
+                                        <X className="size-3" /> Đã bị từ chối
+                                    </span>
+                                )}
+                                <button
+                                    onClick={() => toggleExpand(req.id)}
+                                    className="text-xs font-medium text-stone-500 hover:text-stone-900 px-2 py-1 rounded-md bg-stone-50 hover:bg-stone-100 transition-colors border border-stone-200"
+                                >
+                                    {isExpanded ? "Thu gọn" : "Chi tiết"}
+                                </button>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 h-fit mt-1 sm:mt-0">
-                            {req.status === 'pending' && (
-                                <span className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/50 rounded-md">
-                                    <Clock className="size-3" /> Đang chờ duyệt
-                                </span>
-                            )}
-                            {req.status === 'approved' && (
-                                <span className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/50 rounded-md">
-                                    <Check className="size-3" /> Đã được duyệt
-                                </span>
-                            )}
-                            {req.status === 'rejected' && (
-                                <span className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-rose-700 bg-rose-50 border border-rose-200/50 rounded-md">
-                                    <X className="size-3" /> Đã bị từ chối
-                                </span>
-                            )}
-                        </div>
+                        {isExpanded && (
+                            <div className="bg-white rounded-lg overflow-hidden border-t border-stone-50 pt-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {renderDataView(req.old_data, "Dữ liệu ban đầu", "bg-rose-50/30 border-rose-100/60", "text-rose-900")}
+                                    {renderDataView(req.new_data, req.action === 'insert' ? "Tạo mới" : "Cập nhật thành", "bg-emerald-50/30 border-emerald-100/60", "text-emerald-900")}
+                                </div>
+                            </div>
+                        )}
                     </div>
-
-                    <div className="bg-white rounded-lg overflow-hidden border-t border-stone-50 pt-3">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {renderDataView(req.old_data, "Dữ liệu ban đầu", "bg-rose-50/30 border-rose-100/60", "text-rose-900")}
-                            {renderDataView(req.new_data, req.action === 'insert' ? "Tạo mới" : "Cập nhật thành", "bg-emerald-50/30 border-emerald-100/60", "text-emerald-900")}
-                        </div>
-                    </div>
-                </div>
-            ))}
+                )
+            })}
         </div>
     );
 }

@@ -12,6 +12,7 @@ import {
   UserCircle,
   Users,
   ClipboardCheck,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -110,6 +111,14 @@ export default function HeaderMenu({ isAdmin, userEmail }: HeaderMenuProps) {
                   </Link>
                 </>
               )}
+              <Link
+                href="/dashboard/history"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+              >
+                <History className="size-4" />
+                Lịch sử đề xuất
+              </Link>
               <Link
                 href="/dashboard/events"
                 onClick={() => setIsOpen(false)}

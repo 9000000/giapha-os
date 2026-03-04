@@ -1,40 +1,10 @@
 "use client";
 
-import { approveChangeRequest, rejectChangeRequest } from "@/app/actions/approvals";
 import { useState } from "react";
 import { Check, X, Clock, AlertCircle } from "lucide-react";
 
-export default function ApprovalsClient({ initialRequests }: { initialRequests: any[] }) {
-    const [requests, setRequests] = useState(initialRequests);
-    const [processingId, setProcessingId] = useState<string | null>(null);
-
-    const handleApprove = async (id: string) => {
-        setProcessingId(id);
-        try {
-            const res = await approveChangeRequest(id);
-            if (res.error) throw new Error(res.error);
-            setRequests((prev) => prev.filter((r) => r.id !== id));
-            alert("Đã phê duyệt thành công.");
-        } catch (err: any) {
-            alert("Lỗi: " + err.message);
-        } finally {
-            setProcessingId(null);
-        }
-    };
-
-    const handleReject = async (id: string) => {
-        setProcessingId(id);
-        try {
-            const res = await rejectChangeRequest(id, "Bị từ chối bởi Quản trị viên");
-            if (res.error) throw new Error(res.error);
-            setRequests((prev) => prev.filter((r) => r.id !== id));
-            alert("Đã từ chối yêu cầu.");
-        } catch (err: any) {
-            alert("Lỗi: " + err.message);
-        } finally {
-            setProcessingId(null);
-        }
-    };
+export default function HistoryClient({ initialRequests }: { initialRequests: any[] }) {
+    const [requests] = useState(initialRequests);
 
     const formatAction = (type: string, table: string) => {
         const tableNames: Record<string, string> = {
@@ -104,16 +74,16 @@ export default function ApprovalsClient({ initialRequests }: { initialRequests: 
         return (
             <div className="bg-white rounded-2xl p-8 border border-stone-200 shadow-sm text-center flex flex-col items-center">
                 <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mb-4 text-stone-400">
-                    <Check className="size-8" />
+                    <Clock className="size-8" />
                 </div>
-                <h3 className="text-lg font-medium text-stone-900 mb-1">Không có yêu cầu chờ duyệt</h3>
-                <p className="text-stone-500 text-sm">Tất cả các thay đổi từ Editor đã được xử lý.</p>
+                <h3 className="text-lg font-medium text-stone-900 mb-1">Không có lịch sử đề xuất nào</h3>
+                <p className="text-stone-500 text-sm">Bạn chưa từng gửi yêu cầu thay đổi nào, hoặc tất cả đề xuất đã bị xóa do các điều chỉnh đồng nhất của Admin.</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             {requests.map((req) => (
                 <div key={req.id} className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm transition-all hover:shadow-md">
                     <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4 border-b border-stone-100 pb-4">
@@ -141,26 +111,27 @@ export default function ApprovalsClient({ initialRequests }: { initialRequests: 
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => handleReject(req.id)}
-                                disabled={processingId !== null}
-                                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
-                            >
-                                <X className="size-4" /> Từ chối
-                            </button>
-                            <button
-                                onClick={() => handleApprove(req.id)}
-                                disabled={processingId !== null}
-                                className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
-                            >
-                                <Check className="size-4" /> Phê duyệt
-                            </button>
+                            {req.status === 'pending' && (
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <Clock className="size-4" /> Đang chờ duyệt
+                                </span>
+                            )}
+                            {req.status === 'approved' && (
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">
+                                    <Check className="size-4" /> Đã được duyệt
+                                </span>
+                            )}
+                            {req.status === 'rejected' && (
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-lg">
+                                    <X className="size-4" /> Đã bị từ chối
+                                </span>
+                            )}
                         </div>
                     </div>
 
                     <div className="bg-white rounded-xl overflow-hidden mt-6 border-t border-stone-100 pt-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                            {renderDataView(req.old_data, "Dữ liệu cũ trước khi đổi", "bg-rose-50/30 border-rose-100/60", "text-rose-900")}
+                            {renderDataView(req.old_data, "Dữ liệu ban đầu", "bg-rose-50/30 border-rose-100/60", "text-rose-900")}
                             {renderDataView(req.new_data, req.action === 'insert' ? "Dữ liệu tạo mới" : "Dữ liệu mới yêu cầu cập nhật", "bg-emerald-50/30 border-emerald-100/60", "text-emerald-900")}
                         </div>
                     </div>

@@ -5,6 +5,16 @@ import { Check, X, Clock, AlertCircle } from "lucide-react";
 
 export default function HistoryClient({ initialRequests }: { initialRequests: any[] }) {
     const [requests] = useState(initialRequests);
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+    const toggleExpand = (id: string) => {
+        setExpandedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
 
     const formatAction = (type: string, table: string) => {
         const tableNames: Record<string, string> = {

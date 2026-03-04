@@ -30,15 +30,20 @@ export default async function HistoryPage() {
         redirect("/dashboard");
     }
 
-    // Lấy danh sách các yêu cầu của user hiện tại
-    const { data: requests, error } = await supabase
+    // Lấy danh sách các yêu cầu
+    let query = supabase
         .from("change_requests")
         .select(`
       *,
       requester:profiles!requested_by(id, role)
     `)
-        .eq("requested_by", user.id)
         .order("created_at", { ascending: false });
+
+    if (profile.role !== "admin") {
+        query = query.eq("requested_by", user.id);
+    }
+
+    const { data: requests, error } = await query;
 
     if (error) {
         console.error("Error fetching history change requests:", error);

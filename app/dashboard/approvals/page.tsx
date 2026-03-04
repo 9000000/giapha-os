@@ -35,7 +35,7 @@ export default async function ApprovalsPage() {
         .from("change_requests")
         .select(`
       *,
-      requester:profiles!requested_by(full_name, email)
+      requester:profiles!requested_by(id, role)
     `)
         .eq("status", "pending")
         .order("created_at", { ascending: false });
@@ -43,6 +43,22 @@ export default async function ApprovalsPage() {
     if (error) {
         console.error("Error fetching change requests:", error);
     }
+
+    // Lấy danh sách users (chi tiết có email từ auth.users) bằng RPC cho Admin
+    const { data: adminUsers } = await supabase.rpc("get_admin_users");
+
+    // Ghép email vào cho từng request
+    const enrichedRequests = requests?.map((req) => {
+        const userDetail = adminUsers?.find((u: any) => u.id === req.requested_by);
+        return {
+            ...req,
+            requester: {
+                ...(req.requester || {}),
+                email: userDetail?.email || "Unknown",
+                full_name: userDetail?.email?.split('@')[0] || "Unknown" // Không có full_name nên lấy log id
+            },
+        };
+    });
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -55,7 +71,7 @@ export default async function ApprovalsPage() {
                 </p>
             </div>
 
-            <ApprovalsClient initialRequests={requests || []} />
+            <ApprovalsClient initialRequests={enrichedRequests || []} />
         </div>
     );
 }

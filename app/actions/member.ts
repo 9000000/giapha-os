@@ -39,7 +39,7 @@ export async function deleteMemberProfile(memberId: string) {
       action: "delete",
       target_table: "persons",
       target_record_id: memberId,
-      requested_by: user.id,
+      requested_by: profile?.id,
       status: "pending",
     });
 

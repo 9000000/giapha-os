@@ -17,13 +17,11 @@ import {
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import LogoutButton from "./LogoutButton";
+import { useUser } from "./UserProvider";
 
-interface HeaderMenuProps {
-  isAdmin: boolean;
-  userEmail?: string;
-}
-
-export default function HeaderMenu({ isAdmin, userEmail }: HeaderMenuProps) {
+export default function HeaderMenu() {
+  const { user, isAdmin } = useUser();
+  const userEmail = user?.email;
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 

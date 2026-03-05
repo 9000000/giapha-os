@@ -16,6 +16,7 @@ interface FamilyNodeCardProps {
   isExpanded?: boolean;
   isRingVisible?: boolean;
   isPlusVisible?: boolean;
+  level: number;
 }
 
 export default function FamilyNodeCard({
@@ -34,22 +35,32 @@ export default function FamilyNodeCard({
   const content = (
     <div
       onClick={onClickCard}
-      className={`group py-2 px-1 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative bg-white/70 rounded-2xl${isDeceased ? " grayscale-[0.4] opacity-80" : ""}${showAvatar ? " w-20 sm:w-24 md:w-28 h-22 sm:h-26 md:h-28" : " px-2 w-18 h-20"}`}
+      className={`
+        group py-2 px-1 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 rounded-2xl relative h-full
+        ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
+        ${showAvatar ? "w-20 sm:w-24 md:w-28 bg-white/70 hover:shadow-xl" : "px-3"}
+      `}
     >
       {isRingVisible && (
-        <div className="absolute top-[15%] -left-2.5 sm:-left-4 size-5 sm:size-6 rounded-full shadow-sm bg-white z-100 flex items-center justify-center text-[10px] sm:text-sm">
-          <span className="leading-none pt-px pl-0.5">💍</span>
+        <div
+          className={`
+            absolute top-[15%] -left-2.5 sm:-left-3.5 size-5 sm:size-6 rounded-full z-100 flex items-center justify-center text-[10px] sm:text-sm font-medium text-stone-500
+            ${showAvatar ? "shadow-sm bg-white" : ""}
+          `}
+        >
+          <span className="leading-none">💍</span>
         </div>
       )}
       {isPlusVisible && (
-        <div className="absolute top-[15%] -left-2.5 sm:-left-4 size-5 sm:size-6 rounded-full shadow-sm bg-white z-100 flex items-center justify-center text-[10px] sm:text-sm font-medium text-stone-500">
-          <span className="leading-none mb-px pl-0.5">+</span>
+        <div
+          className={`
+            absolute top-[15%] -left-2.5 sm:-left-3.5 size-5 sm:size-6 rounded-full z-100 flex items-center justify-center text-[10px] sm:text-sm font-medium text-stone-500
+            ${showAvatar ? "shadow-sm bg-white" : ""}
+          `}
+        >
+          <span className="leading-none">+</span>
         </div>
       )}
-      {/* Decorative gradient blob for the card background hover */}
-      {/* <div
-        className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300 z-0 ${person.gender === "male" ? "bg-sky-400" : person.gender === "female" ? "bg-rose-400" : "bg-stone-400"}`}
-      /> */}
 
       {/* Expand/Collapse Indicator */}
       {isExpandable && (
@@ -66,14 +77,16 @@ export default function FamilyNodeCard({
       {showAvatar && (
         <div className="relative z-10 mb-1.5 sm:mb-2">
           <div
-            className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
+            className={`
+              h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
               ${
                 person.gender === "male"
                   ? "bg-linear-to-br from-sky-400 to-sky-700"
                   : person.gender === "female"
                     ? "bg-linear-to-br from-rose-400 to-rose-700"
                     : "bg-linear-to-br from-stone-400 to-stone-600"
-              }`}
+              }
+            `}
           >
             {person.avatar_url ? (
               <Image
@@ -94,8 +107,10 @@ export default function FamilyNodeCard({
       {/* 2. Gender Icon + Name */}
       <div className="flex flex-col items-center justify-center gap-1 w-full px-0.5 sm:px-1 relative z-10">
         <div
-          className={`text-[10px] sm:text-[11px] md:text-xs font-bold text-center leading-tight transition-colors cursor-pointer
-            ${onClickName ? "text-stone-800 group-hover:text-amber-700 hover:underline" : "text-stone-800 group-hover:text-amber-800"}`}
+          className={`
+            text-[10px] sm:text-[11px] md:text-xs font-bold text-center leading-tight transition-colors cursor-pointer
+            ${onClickName ? "text-stone-800 group-hover:text-amber-700 hover:underline" : "text-stone-800 group-hover:text-amber-800"}
+          `}
           title={person.full_name}
           onClick={(e) => {
             if (onClickName) {
@@ -113,29 +128,7 @@ export default function FamilyNodeCard({
                 </span>
               ))}
         </div>
-        {/* {person.birth_order != null && (
-          <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200/60 leading-none">
-            {person.birth_order === 1 ? "Trưởng" : `Thứ ${person.birth_order}`}
-          </span>
-        )} */}
-        {/* {person.generation != null && (
-          <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200/60 leading-none">
-            Đ.{person.generation}
-          </span>
-        )} */}
-        {/* {isDeceased && (
-          <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold bg-stone-100 text-stone-400 uppercase tracking-wider border border-stone-200/50">
-            Đã mất
-          </span>
-        )} */}
       </div>
-
-      {/* 3. Role */}
-      {/* {role && (
-        <span className="mt-1 px-2.5 py-0.5 bg-stone-100/80 border border-stone-200 text-stone-500 font-medium tracking-wide w-auto text-center leading-tight rounded-full text-[10px] shadow-sm">
-          {role} {note && `(${note})`}
-        </span>
-      )} */}
     </div>
   );
 

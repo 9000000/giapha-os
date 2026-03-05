@@ -2,11 +2,13 @@
 
 import { useDashboard } from "@/components/DashboardContext";
 import DashboardMemberList from "@/components/DashboardMemberList";
-import FamilyTree from "@/components/FamilyTree";
-import MindmapTree from "@/components/MindmapTree";
 import RootSelector from "@/components/RootSelector";
 import { Person, Relationship } from "@/types";
 import { useMemo } from "react";
+import dynamic from "next/dynamic";
+
+const FamilyTree = dynamic(() => import("@/components/FamilyTree"));
+const MindmapTree = dynamic(() => import("@/components/MindmapTree"));
 
 interface DashboardViewsProps {
   persons: Person[];

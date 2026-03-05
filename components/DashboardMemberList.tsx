@@ -3,8 +3,8 @@
 import PersonCard from "@/components/PersonCard";
 import { Person } from "@/types";
 import { ArrowUpDown, Filter, Plus, Search } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useDashboard } from "./DashboardContext";
 
 export default function DashboardMemberList({
   initialPersons,
@@ -13,79 +13,84 @@ export default function DashboardMemberList({
   initialPersons: Person[];
   canEdit?: boolean;
 }) {
+  const { setShowCreateMember } = useDashboard();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("updated_desc");
 
   const [filterOption, setFilterOption] = useState("all");
 
-  const filteredPersons = initialPersons.filter((person) => {
-    const matchesSearch = person.full_name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+  const filteredPersons = useMemo(() => {
+    return initialPersons.filter((person) => {
+      const matchesSearch = person.full_name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
-    let matchesFilter = true;
-    switch (filterOption) {
-      case "male":
-        matchesFilter = person.gender === "male";
-        break;
-      case "female":
-        matchesFilter = person.gender === "female";
-        break;
-      case "in_law_female":
-        matchesFilter = person.gender === "female" && person.is_in_law;
-        break;
-      case "in_law_male":
-        matchesFilter = person.gender === "male" && person.is_in_law;
-        break;
-      case "deceased":
-        matchesFilter = person.is_deceased;
-        break;
-      case "first_child":
-        matchesFilter = person.birth_order === 1;
-        break;
-      case "all":
-      default:
-        matchesFilter = true;
-        break;
-    }
+      let matchesFilter = true;
+      switch (filterOption) {
+        case "male":
+          matchesFilter = person.gender === "male";
+          break;
+        case "female":
+          matchesFilter = person.gender === "female";
+          break;
+        case "in_law_female":
+          matchesFilter = person.gender === "female" && person.is_in_law;
+          break;
+        case "in_law_male":
+          matchesFilter = person.gender === "male" && person.is_in_law;
+          break;
+        case "deceased":
+          matchesFilter = person.is_deceased;
+          break;
+        case "first_child":
+          matchesFilter = person.birth_order === 1;
+          break;
+        case "all":
+        default:
+          matchesFilter = true;
+          break;
+      }
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    });
+  }, [initialPersons, searchTerm, filterOption]);
 
-  const sortedPersons = [...filteredPersons].sort((a, b) => {
-    switch (sortOption) {
-      case "birth_asc":
-        return (a.birth_year || 9999) - (b.birth_year || 9999);
-      case "birth_desc":
-        return (b.birth_year || 0) - (a.birth_year || 0);
-      case "name_asc":
-        return a.full_name.localeCompare(b.full_name, "vi");
-      case "name_desc":
-        return b.full_name.localeCompare(a.full_name, "vi");
-      case "updated_desc":
-        return (
-          new Date(b.updated_at || 0).getTime() -
-          new Date(a.updated_at || 0).getTime()
-        );
-      case "updated_asc":
-        return (
-          new Date(a.updated_at || 0).getTime() -
-          new Date(b.updated_at || 0).getTime()
-        );
-      case "generation_asc":
-        if (a.generation !== b.generation) {
-          return (a.generation || 999) - (b.generation || 999);
-        }
-        return (a.birth_order || 999) - (b.birth_order || 999);
-      case "generation_desc":
-        if (b.generation !== a.generation) {
-          return (b.generation || 0) - (a.generation || 0);
-        }
-        return (b.birth_order || 0) - (a.birth_order || 0);
-      default:
-        return 0;
-    }
-  });
+  const sortedPersons = useMemo(() => {
+    return [...filteredPersons].sort((a, b) => {
+      switch (sortOption) {
+        case "birth_asc":
+          return (a.birth_year || 9999) - (b.birth_year || 9999);
+        case "birth_desc":
+          return (b.birth_year || 0) - (a.birth_year || 0);
+        case "name_asc":
+          return a.full_name.localeCompare(b.full_name, "vi");
+        case "name_desc":
+          return b.full_name.localeCompare(a.full_name, "vi");
+        case "updated_desc":
+          return (
+            new Date(b.updated_at || 0).getTime() -
+            new Date(a.updated_at || 0).getTime()
+          );
+        case "updated_asc":
+          return (
+            new Date(a.updated_at || 0).getTime() -
+            new Date(b.updated_at || 0).getTime()
+          );
+        case "generation_asc":
+          if (a.generation !== b.generation) {
+            return (a.generation || 999) - (b.generation || 999);
+          }
+          return (a.birth_order || 999) - (b.birth_order || 999);
+        case "generation_desc":
+          if (b.generation !== a.generation) {
+            return (b.generation || 0) - (a.generation || 0);
+          }
+          return (b.birth_order || 0) - (a.birth_order || 0);
+        default:
+          return 0;
+      }
+    });
+  }, [filteredPersons, sortOption]);
 
   return (
     <>
@@ -149,7 +154,9 @@ export default function DashboardMemberList({
                   <option value="updated_desc">Cập nhật (Mới nhất)</option>
                   <option value="updated_asc">Cập nhật (Cũ nhất)</option>
                   <option value="generation_asc">Theo thế hệ (Tăng dần)</option>
-                  <option value="generation_desc">Theo thế hệ (Giảm dần)</option>
+                  <option value="generation_desc">
+                    Theo thế hệ (Giảm dần)
+                  </option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                   <svg
@@ -170,10 +177,13 @@ export default function DashboardMemberList({
             </div>
           </div>
           {canEdit && (
-            <Link href="/dashboard/members/new" className="btn-primary">
+            <button
+              onClick={() => setShowCreateMember(true)}
+              className="btn-primary"
+            >
               <Plus className="size-4" strokeWidth={2.5} />
               Thêm thành viên
-            </Link>
+            </button>
           )}
         </div>
       </div>

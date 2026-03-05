@@ -13,7 +13,7 @@ export default function DataImportExport() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importStatus, setImportStatus] = useState<{
     type: "success" | "error";
-    message: string;
+    message: string | undefined;
   } | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

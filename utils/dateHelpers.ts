@@ -56,7 +56,10 @@ export function calculateAge(
   return { age: new Date().getFullYear() - birthYear, isDeceased: false };
 }
 
-export function getZodiacSign(day: number | null, month: number | null): string | null {
+export function getZodiacSign(
+  day: number | null,
+  month: number | null,
+): string | null {
   if (!day || !month) return null;
   const d = day;
   const m = month;
@@ -77,22 +80,106 @@ export function getZodiacSign(day: number | null, month: number | null): string 
   return null;
 }
 
-export function getZodiacAnimal(year: number | null, month: number | null = null, day: number | null = null): string | null {
+export function getZodiacAnimal(
+  year: number | null,
+  month: number | null = null,
+  day: number | null = null,
+): string | null {
   if (!year) return null;
   const animals = [
-    "Thân", "Dậu", "Tuất", "Hợi", "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi"
+    "Thân",
+    "Dậu",
+    "Tuất",
+    "Hợi",
+    "Tý",
+    "Sửu",
+    "Dần",
+    "Mão",
+    "Thìn",
+    "Tỵ",
+    "Ngọ",
+    "Mùi",
   ];
-  
+
   let targetYear = year;
-  
+
   if (month && day) {
     try {
-      const solar = Solar.fromYmd(year, parseInt(month.toString()), parseInt(day.toString()));
+      const solar = Solar.fromYmd(
+        year,
+        parseInt(month.toString()),
+        parseInt(day.toString()),
+      );
       targetYear = solar.getLunar().getYear();
     } catch (error) {
       console.error("Lunar conversion error in zodiac:", error);
     }
   }
-  
+
   return animals[targetYear % 12];
+}
+
+/* ── Thiên Can & Địa Chi (Vietnamese Can Chi) ─────────────────────── */
+const THIEN_CAN: Record<string, string> = {
+  甲: "Giáp",
+  乙: "Ất",
+  丙: "Bính",
+  丁: "Đinh",
+  戊: "Mậu",
+  己: "Kỷ",
+  庚: "Canh",
+  辛: "Tân",
+  壬: "Nhâm",
+  癸: "Quý",
+};
+
+const DIA_CHI: Record<string, string> = {
+  子: "Tý",
+  丑: "Sửu",
+  寅: "Dần",
+  卯: "Mão",
+  辰: "Thìn",
+  巳: "Tỵ",
+  午: "Ngọ",
+  未: "Mùi",
+  申: "Thân",
+  酉: "Dậu",
+  戌: "Tuất",
+  亥: "Hợi",
+};
+
+/**
+ * Convert a Chinese Gan-Zhi string (e.g. "丙午") to Vietnamese (e.g. "Bính Ngọ").
+ */
+function ganZhiToVietnamese(ganZhi: string): string {
+  if (!ganZhi || ganZhi.length < 2) return ganZhi;
+  const can = THIEN_CAN[ganZhi[0]] ?? ganZhi[0];
+  const chi = DIA_CHI[ganZhi[1]] ?? ganZhi[1];
+  return `${can} ${chi}`;
+}
+
+/**
+ * Get today's solar and lunar date info for display.
+ */
+export function getTodayLunar() {
+  const now = new Date();
+  const solar = Solar.fromYmd(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    now.getDate(),
+  );
+  const lunar = solar.getLunar();
+
+  return {
+    solarStr: now.toLocaleDateString("vi-VN", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }),
+    lunarDay: lunar.getDay(),
+    lunarMonth: Math.abs(lunar.getMonth()),
+    lunarYear: ganZhiToVietnamese(lunar.getYearInGanZhi()),
+    lunarDayStr: `${lunar.getDay()} tháng ${Math.abs(lunar.getMonth())}`,
+  };
 }

@@ -7,6 +7,8 @@ import { ViewMode } from "./ViewToggle";
 interface DashboardState {
   memberModalId: string | null;
   setMemberModalId: (id: string | null) => void;
+  showCreateMember: boolean;
+  setShowCreateMember: (show: boolean) => void;
   showAvatar: boolean;
   setShowAvatar: (show: boolean) => void;
   view: ViewMode;
@@ -22,6 +24,7 @@ export const DashboardContext = createContext<DashboardState | undefined>(
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const [memberModalId, setMemberModalId] = useState<string | null>(null);
+  const [showCreateMember, setShowCreateMember] = useState(false);
   const [showAvatar, setShowAvatar] = useState<boolean>(true);
   const [view, setViewState] = useState<ViewMode>("list");
   const [rootId, setRootIdState] = useState<string | null>(null);
@@ -105,6 +108,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       value={{
         memberModalId,
         setMemberModalId: updateModalId,
+        showCreateMember,
+        setShowCreateMember,
         showAvatar,
         setShowAvatar: updateAvatar,
         view,
@@ -126,6 +131,8 @@ export function useDashboard(): DashboardState {
     return {
       memberModalId: null,
       setMemberModalId: () => {},
+      showCreateMember: false,
+      setShowCreateMember: () => {},
       showAvatar: true,
       setShowAvatar: () => {},
       view: "list",

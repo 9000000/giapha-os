@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { Person, Relationship } from "@/types";
@@ -10,10 +10,7 @@ import { useDashboard } from "./DashboardContext";
 import ExportButton from "./ExportButton";
 import FamilyNodeCard from "./FamilyNodeCard";
 
-interface SpouseData {
-  person: Person;
-  note?: string | null;
-}
+import { buildAdjacencyLists, getFilteredTreeData } from "@/utils/treeHelpers";
 
 export default function FamilyTree({
   personsMap,
@@ -113,65 +110,17 @@ export default function FamilyTree({
     }
   };
 
-  // Helper function to resolve tree connections for a person
-  const getTreeData = (personId: string) => {
-    const spousesList: SpouseData[] = relationships
-      .filter(
-        (r) =>
-          r.type === "marriage" &&
-          (r.person_a === personId || r.person_b === personId),
-      )
-      .map((r) => {
-        const spouseId = r.person_a === personId ? r.person_b : r.person_a;
-        return {
-          person: personsMap.get(spouseId)!,
-          note: r.note,
-        };
-      })
-      .filter((s) => s.person)
-      .filter((s) => {
-        if (hideSpouses) return false;
-        if (hideMales && s.person.gender === "male") return false;
-        if (hideFemales && s.person.gender === "female") return false;
-        return true;
-      });
+  const adj = useMemo(
+    () => buildAdjacencyLists(relationships, personsMap),
+    [relationships, personsMap],
+  );
 
-    const childRels = relationships.filter(
-      (r) =>
-        (r.type === "biological_child" || r.type === "adopted_child") &&
-        r.person_a === personId,
-    );
-
-    const childrenList = (
-      childRels
-        .map((r) => personsMap.get(r.person_b))
-        .filter(Boolean) as Person[]
-    )
-      .filter((c) => {
-        if (hideMales && c.gender === "male") return false;
-        if (hideFemales && c.gender === "female") return false;
-        return true;
-      })
-      .sort((a, b) => {
-        // 1. birth_order ascending (null → pushed to end)
-        const aOrder = a.birth_order ?? Infinity;
-        const bOrder = b.birth_order ?? Infinity;
-        if (aOrder !== bOrder) return aOrder - bOrder;
-        // 2. birth_year ascending (null → pushed to end)
-        const aYear = a.birth_year ?? Infinity;
-        const bYear = b.birth_year ?? Infinity;
-        return aYear - bYear;
-      });
-
-    // If there is only one spouse, or NO spouse, we can just lump all children together.
-    // Standard family trees often combine all children under the main node
-    // for simplicity of drawing, especially when dealing with CSS-based trees.
-    return {
-      person: personsMap.get(personId)!,
-      spouses: spousesList,
-      children: childrenList,
-    };
-  };
+  const getTreeData = (personId: string) =>
+    getFilteredTreeData(personId, personsMap, adj, {
+      hideSpouses,
+      hideMales,
+      hideFemales,
+    });
 
   // Recursive function for rendering nodes
   // Tracks visited IDs to prevent infinite loops from circular relationships

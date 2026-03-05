@@ -75,6 +75,9 @@ export default function MemberForm({
   const [birthOrder, setBirthOrder] = useState<number | "">(
     initialData?.birth_order || "",
   );
+  const [generation, setGeneration] = useState<number | "">(
+    initialData?.generation || "",
+  );
 
   const [avatarUrl, setAvatarUrl] = useState(initialData?.avatar_url || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -175,6 +178,7 @@ export default function MemberForm({
         is_deceased: isDeceased,
         is_in_law: isInLaw,
         birth_order: birthOrder === "" ? null : Number(birthOrder),
+        generation: generation === "" ? null : Number(generation),
         other_names: otherNames || null,
         avatar_url: finalAvatarUrl || null,
         note: note || null,
@@ -377,7 +381,26 @@ export default function MemberForm({
               className={inputClasses}
             />
             <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
-              <span>💡</span> Để trống nếu không rõ hoặc không có anh/chị/em
+              <span>💡</span> Để trống nếu không rõ
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+              Thuộc đời thứ
+            </label>
+            <input
+              type="number"
+              min="1"
+              placeholder="Ví dụ: 1, 2, 3..."
+              value={generation}
+              onChange={(e) =>
+                setGeneration(e.target.value ? Number(e.target.value) : "")
+              }
+              className={inputClasses}
+            />
+            <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
+              <span>💡</span> Để trống nếu không rõ
             </p>
           </div>
 

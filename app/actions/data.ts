@@ -1,9 +1,8 @@
 "use server";
 
 import { Relationship } from "@/types";
-import { createClient } from "@/utils/supabase/server";
+import { getIsAdmin, getSupabase } from "@/utils/supabase/queries";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,27 +51,6 @@ interface BackupPayload {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Vui lòng đăng nhập." };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin")
-    return { error: "Từ chối truy cập. Chỉ admin mới có quyền này." };
-
-  return supabase;
-}
-
 // Các field được phép insert vào bảng persons (loại bỏ created_at/updated_at)
 function sanitizePerson(
   p: PersonExport,
@@ -112,9 +90,12 @@ function sanitizeRelationship(
 export async function exportData(
   exportRootId?: string,
 ): Promise<BackupPayload | { error: string }> {
-  const supabaseResult = await verifyAdmin();
-  if ("error" in supabaseResult) return supabaseResult;
-  const supabase = supabaseResult;
+  const isAdmin = await getIsAdmin();
+  if (!isAdmin) {
+    return { error: "Từ chối truy cập. Chỉ admin mới có quyền này." };
+  }
+
+  const supabase = await getSupabase();
 
   // Fetch ALL persons and relationships first to perform traversal in memory.
   // This is safe since typical family trees are < 10,000 nodes, easily fitting in memory.
@@ -203,9 +184,12 @@ export async function importData(
         relationships: Relationship[];
       },
 ) {
-  const supabaseResult = await verifyAdmin();
-  if ("error" in supabaseResult) return supabaseResult;
-  const supabase = supabaseResult;
+  const isAdmin = await getIsAdmin();
+  if (!isAdmin) {
+    return { error: "Từ chối truy cập. Chỉ admin mới có quyền này." };
+  }
+
+  const supabase = await getSupabase();
 
   if (!importPayload?.persons || !importPayload?.relationships) {
     return { error: "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại file JSON." };
@@ -260,8 +244,8 @@ export async function importData(
       };
   }
 
-  revalidatePath("/");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/members");
   revalidatePath("/dashboard/data");
 
   return {

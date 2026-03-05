@@ -1,14 +1,17 @@
 "use client";
 
-"use client";
-
-"use client";
-
 import { CustomEventRecord } from "@/utils/eventHelpers";
 import { createClient } from "@/utils/supabase/client";
-import { useState, useEffect } from "react";
-import { X, Calendar as CalendarIcon, MapPin, AlignLeft, AlertCircle, Loader2, Star } from "lucide-react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import {
+  AlertCircle,
+  AlignLeft,
+  Calendar as CalendarIcon,
+  Loader2,
+  MapPin,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface CustomEventModalProps {
   isOpen: boolean;
@@ -153,13 +156,10 @@ export default function CustomEventModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-stone-900/40 backdrop-blur-sm"
+          className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 bg-stone-900/40 backdrop-blur-sm"
         >
           {/* Click-away backdrop */}
-          <div
-            className="absolute inset-0 cursor-pointer"
-            onClick={onClose}
-          />
+          <div className="absolute inset-0 cursor-pointer" onClick={onClose} />
 
           {/* Modal Content */}
           <motion.div
@@ -182,8 +182,7 @@ export default function CustomEventModal({
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-8 pt-16 pb-8">
-              <h2 className="text-xl sm:text-2xl font-serif font-bold leading-6 text-stone-800 mb-6 flex items-center gap-2">
-                <Star className="size-6 text-amber-600" />
+              <h2 className="text-xl font-serif font-bold text-stone-800 mb-6">
                 {eventToEdit ? "Sửa Sự Kiện" : "Thêm Sự Kiện Tuỳ Chỉnh"}
               </h2>
 
@@ -208,108 +207,109 @@ export default function CustomEventModal({
                   animate="show"
                   className="bg-white/80 p-5 sm:p-6 rounded-2xl shadow-sm border border-stone-200/80 space-y-5"
                 >
-                    <div>
-                      <label className="block text-sm font-semibold text-stone-700 mb-1.5">
-                        Tên sự kiện <span className="text-red-500">*</span>
-                      </label>
+                  <div>
+                    <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+                      Tên sự kiện <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      className={inputClasses}
+                      placeholder="VD: Lễ Tảo Mộ Kỷ Tỵ"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+                      Ngày diễn ra (Dương lịch){" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
                       <input
                         required
-                        type="text"
-                        className={inputClasses}
-                        placeholder="VD: Lễ Tảo Mộ Kỷ Tỵ"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        type="date"
+                        className={`${inputClasses} pl-11`}
+                        value={eventDate}
+                        onChange={(e) => setEventDate(e.target.value)}
                       />
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-stone-700 mb-1.5">
-                        Ngày diễn ra (Dương lịch) <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
-                        <input
-                          required
-                          type="date"
-                          className={`${inputClasses} pl-11`}
-                          value={eventDate}
-                          onChange={(e) => setEventDate(e.target.value)}
-                        />
-                      </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+                      Địa điểm
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
+                      <input
+                        type="text"
+                        className={`${inputClasses} pl-11`}
+                        placeholder="VD: Khu lăng mộ dòng họ"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-stone-700 mb-1.5">
-                        Địa điểm
-                      </label>
-                      <div className="relative">
-                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
-                        <input
-                          type="text"
-                          className={`${inputClasses} pl-11`}
-                          placeholder="VD: Khu lăng mộ dòng họ"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                        />
-                      </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+                      Nội dung chi tiết
+                    </label>
+                    <div className="relative">
+                      <AlignLeft className="absolute left-4 top-4 size-4 text-stone-400" />
+                      <textarea
+                        rows={3}
+                        className={`${inputClasses} pl-11 resize-none custom-scrollbar`}
+                        placeholder="Ghi chú thêm về sự kiện..."
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                      />
                     </div>
+                  </div>
+                </motion.div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-stone-700 mb-1.5">
-                        Nội dung chi tiết
-                      </label>
-                      <div className="relative">
-                        <AlignLeft className="absolute left-4 top-4 size-4 text-stone-400" />
-                        <textarea
-                          rows={3}
-                          className={`${inputClasses} pl-11 resize-none custom-scrollbar`}
-                          placeholder="Ghi chú thêm về sự kiện..."
-                          value={content}
-                          onChange={(e) => setContent(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
+                <motion.div
+                  variants={formSectionVariants}
+                  initial="hidden"
+                  animate="show"
+                  transition={{ delay: 0.1 }}
+                  className="flex justify-between items-center gap-4 pt-4 sm:pt-6"
+                >
+                  {eventToEdit ? (
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={loading}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors disabled:opacity-50 border border-rose-200/50"
+                    >
+                      Xoá sự kiện
+                    </button>
+                  ) : (
+                    <div /> /* Empty div to push right buttons to end */
+                  )}
 
-                  <motion.div
-                    variants={formSectionVariants}
-                    initial="hidden"
-                    animate="show"
-                    transition={{ delay: 0.1 }}
-                    className="flex justify-between items-center gap-4 pt-4 sm:pt-6"
-                  >
-                    {eventToEdit ? (
-                      <button
-                        type="button"
-                        onClick={handleDelete}
-                        disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors disabled:opacity-50 border border-rose-200/50"
-                      >
-                        Xoá sự kiện
-                      </button>
-                    ) : (
-                      <div /> /* Empty div to push right buttons to end */
-                    )}
-                    
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        disabled={loading}
-                        className="btn"
-                      >
-                        Huỷ bỏ
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="btn-primary"
-                      >
-                        {loading && <Loader2 className="size-4 animate-spin" />}
-                        {loading ? "Đang lưu..." : "Lưu sự kiện"}
-                      </button>
-                    </div>
-                  </motion.div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      disabled={loading}
+                      className="btn"
+                    >
+                      Huỷ bỏ
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="btn-primary"
+                    >
+                      {loading && <Loader2 className="size-4 animate-spin" />}
+                      {loading ? "Đang lưu..." : "Lưu sự kiện"}
+                    </button>
+                  </div>
+                </motion.div>
               </form>
             </div>
           </motion.div>

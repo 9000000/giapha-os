@@ -197,13 +197,12 @@ export default function AdminUserList({
             initial={{ opacity: 0, y: -20, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: -20, x: "-50%" }}
-            className={`fixed top-1/2 left-1/2 z-100 px-6 py-3 rounded-xl shadow-lg border flex items-center gap-3 min-w-[320px] max-w-[90vw] ${
-              notification.type === "success"
+            className={`fixed top-1/2 left-1/2 z-100 px-6 py-3 rounded-xl shadow-lg border flex items-center gap-3 min-w-[320px] max-w-[90vw] ${notification.type === "success"
                 ? "bg-emerald-50/90 border-emerald-200 text-emerald-800"
                 : notification.type === "error"
                   ? "bg-red-50/90 border-red-200 text-red-800"
                   : "bg-amber-50/90 border-amber-200 text-amber-800"
-            }`}
+              }`}
           >
             {notification.type === "success" && (
               <svg
@@ -300,92 +299,100 @@ export default function AdminUserList({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {users.map((user) => (
-                <tr
-                  key={user.id}
-                  className="hover:bg-stone-50/80 transition-colors"
-                >
-                  <td className="px-6 py-4 font-medium text-stone-900">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4">
-                    {user.id === currentUserId ? (
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                          user.role === "admin"
-                            ? "bg-amber-100 text-amber-800 border border-amber-200"
-                            : user.role === "editor"
-                              ? "bg-sky-100 text-sky-800 border border-sky-200"
-                              : "bg-stone-100 text-stone-600 border border-stone-200"
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    ) : (
-                      <select
-                        value={user.role}
-                        onChange={(e) =>
-                          handleRoleChange(user.id, e.target.value as UserRole)
-                        }
-                        disabled={loadingId === user.id}
-                        className="bg-stone-50 text-stone-700 border border-stone-200 text-xs rounded-md focus:ring-amber-500 focus:border-amber-500 px-2 py-1 hover:border-stone-300 transition-colors disabled:opacity-50 outline-none"
-                      >
-                        <option value="admin">Admin</option>
-                        <option value="editor">Editor</option>
-                        <option value="member">Member</option>
-                      </select>
-                    )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <button
-                      disabled={
-                        loadingId === user.id || user.id === currentUserId
-                      }
-                      onClick={() =>
-                        handleStatusChange(user.id, !user.is_active)
-                      }
-                      className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                        user.is_active
-                          ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                          : "bg-stone-100 text-stone-800 border border-stone-200"
-                      } ${
-                        user.id !== currentUserId
-                          ? "hover:opacity-80 cursor-pointer"
-                          : "opacity-50 cursor-not-allowed"
-                      } disabled:opacity-50`}
-                      title={
-                        user.id !== currentUserId
-                          ? user.is_active
-                            ? "Nhấn để khoá"
-                            : "Nhấn để duyệt"
-                          : "Không thể thay đổi trạng thái của chính bạn"
-                      }
-                    >
-                      {user.is_active ? "Đã duyệt" : "Chờ duyệt"}
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 text-stone-500">
-                    {new Date(user.created_at).toLocaleDateString("vi-VN")}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    {user.id !== currentUserId && (
-                      <div className="flex justify-end items-center gap-2">
-                        <button
-                          title="Xoá người dùng"
-                          disabled={loadingId === user.id}
-                          onClick={() => handleDelete(user.id)}
-                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+              {users.map((user) => {
+                // Xác định current user
+                const currentUser = users.find(u => u.id === currentUserId);
+                // Xác định quyền: Không được phép thao tác lên Admin tạo trước
+                const isTargetAdmin = user.role === "admin";
+                const isHierarchicallyProtected = currentUser && isTargetAdmin && new Date(user.created_at) <= new Date(currentUser.created_at);
+                const isSelf = user.id === currentUserId;
+                const disableActions = loadingId === user.id || isSelf || isHierarchicallyProtected;
+
+                return (
+                  <tr
+                    key={user.id}
+                    className={`hover:bg-stone-50/80 transition-colors ${isHierarchicallyProtected && !isSelf ? "bg-stone-50/30" : ""}`}
+                  >
+                    <td className="px-6 py-4 font-medium text-stone-900">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4">
+                      {isSelf || isHierarchicallyProtected ? (
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${user.role === "admin"
+                              ? "bg-amber-100 text-amber-800 border border-amber-200"
+                              : user.role === "editor"
+                                ? "bg-sky-100 text-sky-800 border border-sky-200"
+                                : "bg-stone-100 text-stone-600 border border-stone-200"
+                            }`}
+                          title={isHierarchicallyProtected && !isSelf ? "Không thể thay đổi quyền của Quản trị viên cấp cao hơn" : ""}
                         >
-                          <Trash className="size-4" />
-                        </button>
-                      </div>
-                    )}
-                    {user.id === currentUserId && (
-                      <span className="text-stone-400 italic text-xs">Bạn</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                          {user.role}
+                        </span>
+                      ) : (
+                        <select
+                          value={user.role}
+                          onChange={(e) =>
+                            handleRoleChange(user.id, e.target.value as UserRole)
+                          }
+                          disabled={loadingId === user.id}
+                          className="bg-stone-50 text-stone-700 border border-stone-200 text-xs rounded-md focus:ring-amber-500 focus:border-amber-500 px-2 py-1 hover:border-stone-300 transition-colors disabled:opacity-50 outline-none"
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="editor">Editor</option>
+                          <option value="member">Member</option>
+                        </select>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        disabled={disableActions}
+                        onClick={() =>
+                          handleStatusChange(user.id, !user.is_active)
+                        }
+                        className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium transition-colors ${user.is_active
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            : "bg-stone-100 text-stone-800 border border-stone-200"
+                          } ${!disableActions
+                            ? "hover:opacity-80 cursor-pointer"
+                            : "opacity-50 cursor-not-allowed"
+                          } disabled:opacity-50`}
+                        title={
+                          isSelf
+                            ? "Không thể thay đổi trạng thái của chính bạn"
+                            : isHierarchicallyProtected
+                              ? "Không thể khoá/duyệt Quản trị viên cấp cao hơn"
+                              : user.is_active
+                                ? "Nhấn để khoá"
+                                : "Nhấn để duyệt"
+                        }
+                      >
+                        {user.is_active ? "Đã duyệt" : "Chờ duyệt"}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 text-stone-500">
+                      {new Date(user.created_at).toLocaleDateString("vi-VN")}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      {!isSelf && (
+                        <div className="flex justify-end items-center gap-2">
+                          <button
+                            title={isHierarchicallyProtected ? "Không thể xoá Quản trị viên cấp cao hơn" : "Xoá người dùng"}
+                            disabled={disableActions}
+                            onClick={() => handleDelete(user.id)}
+                            className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-stone-400"
+                          >
+                            <Trash className="size-4" />
+                          </button>
+                        </div>
+                      )}
+                      {isSelf && (
+                        <span className="text-stone-400 italic text-xs">Bạn</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
               {users.length === 0 && (
                 <tr>
                   <td

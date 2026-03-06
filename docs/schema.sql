@@ -357,9 +357,22 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth
 AS $$
+DECLARE
+    caller_role text;
+    caller_created_at timestamptz;
+    target_role text;
+    target_created_at timestamptz;
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
-        RAISE EXCEPTION 'Access denied.';
+    SELECT role, created_at INTO caller_role, caller_created_at FROM public.profiles WHERE id = auth.uid();
+
+    IF caller_role IS NULL OR caller_role != 'admin' THEN
+        RAISE EXCEPTION 'Access denied. Bạn không có quyền Admin.';
+    END IF;
+
+    SELECT role, created_at INTO target_role, target_created_at FROM public.profiles WHERE id = target_user_id;
+
+    IF target_role = 'admin' AND target_created_at <= caller_created_at THEN
+        RAISE EXCEPTION 'Hierarchy violation: Bạn không có quyền thay đổi vai trò của người quản trị được tạo trước bạn.';
     END IF;
 
     UPDATE public.profiles
@@ -375,13 +388,26 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth
 AS $$
+DECLARE
+    caller_role text;
+    caller_created_at timestamptz;
+    target_role text;
+    target_created_at timestamptz;
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
-        RAISE EXCEPTION 'Access denied.';
+    SELECT role, created_at INTO caller_role, caller_created_at FROM public.profiles WHERE id = auth.uid();
+
+    IF caller_role IS NULL OR caller_role != 'admin' THEN
+        RAISE EXCEPTION 'Access denied. Bạn không có quyền Admin.';
     END IF;
     
     IF auth.uid() = target_user_id THEN
-        RAISE EXCEPTION 'Cannot delete yourself.';
+        RAISE EXCEPTION 'Cannot delete yourself. Bạn không thể tự xoá chính mình.';
+    END IF;
+
+    SELECT role, created_at INTO target_role, target_created_at FROM public.profiles WHERE id = target_user_id;
+
+    IF target_role = 'admin' AND target_created_at <= caller_created_at THEN
+        RAISE EXCEPTION 'Hierarchy violation: Bạn không có quyền xoá người quản trị được tạo trước bạn.';
     END IF;
 
     DELETE FROM auth.users WHERE id = target_user_id;
@@ -448,9 +474,22 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth
 AS $$
+DECLARE
+    caller_role text;
+    caller_created_at timestamptz;
+    target_role text;
+    target_created_at timestamptz;
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
-        RAISE EXCEPTION 'Access denied.';
+    SELECT role, created_at INTO caller_role, caller_created_at FROM public.profiles WHERE id = auth.uid();
+
+    IF caller_role IS NULL OR caller_role != 'admin' THEN
+        RAISE EXCEPTION 'Access denied. Bạn không có quyền Admin.';
+    END IF;
+
+    SELECT role, created_at INTO target_role, target_created_at FROM public.profiles WHERE id = target_user_id;
+
+    IF target_role = 'admin' AND target_created_at <= caller_created_at THEN
+        RAISE EXCEPTION 'Hierarchy violation: Bạn không có quyền thay đổi trạng thái của người quản trị được tạo trước bạn.';
     END IF;
 
     UPDATE public.profiles

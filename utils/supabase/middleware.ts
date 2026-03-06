@@ -55,23 +55,6 @@ export async function updateSession(request: NextRequest) {
 
   const isLoginPage = request.nextUrl.pathname.startsWith("/login");
 
-  // Check if DB schema is initialized by checking if profiles table exists
-  if (isProtectedPath || isLoginPage) {
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .select("id")
-      .limit(1);
-
-    if (
-      profileError &&
-      (profileError.code === "PGRST205" || profileError.code === "42P01")
-    ) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/setup";
-      return NextResponse.redirect(url);
-    }
-  }
-
   if (isProtectedPath && !user) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();

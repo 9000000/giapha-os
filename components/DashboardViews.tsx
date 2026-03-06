@@ -6,9 +6,20 @@ import RootSelector from "@/components/RootSelector";
 import { Person, Relationship } from "@/types";
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
+import { Loader2 } from "lucide-react";
 
-const FamilyTree = dynamic(() => import("@/components/FamilyTree"));
-const MindmapTree = dynamic(() => import("@/components/MindmapTree"));
+const TreeLoadingFallback = () => (
+  <div className="w-full h-full flex items-center justify-center min-h-[300px]">
+    <Loader2 className="size-8 text-amber-600 animate-spin" />
+  </div>
+);
+
+const FamilyTree = dynamic(() => import("@/components/FamilyTree"), {
+  loading: TreeLoadingFallback,
+});
+const MindmapTree = dynamic(() => import("@/components/MindmapTree"), {
+  loading: TreeLoadingFallback,
+});
 
 interface DashboardViewsProps {
   persons: Person[];

@@ -1,5 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
+import { getProfile, getSupabase, getUser } from "@/utils/supabase/queries";
 import { redirect } from "next/navigation";
 import ApprovalsClient from "./ApprovalsClient";
 import { Metadata } from "next";
@@ -9,43 +8,34 @@ export const metadata: Metadata = {
 };
 
 export default async function ApprovalsPage() {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const [user, profile] = await Promise.all([getUser(), getProfile()]);
 
     if (!user) {
         redirect("/login");
     }
 
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
     if (profile?.role !== "admin") {
         redirect("/dashboard");
     }
 
-    // Lấy danh sách các yêu cầu đang chờ phê duyệt
-    const { data: requests, error } = await supabase
-        .from("change_requests")
-        .select(`
+    const supabase = await getSupabase();
+
+    // Lấy danh sách các yêu cầu đang chờ phê duyệt và danh sách users song song
+    const [{ data: requests, error }, { data: adminUsers }] = await Promise.all([
+        supabase
+            .from("change_requests")
+            .select(`
       *,
       requester:profiles!requested_by(id, role)
     `)
-        .eq("status", "pending")
-        .order("created_at", { ascending: false });
+            .eq("status", "pending")
+            .order("created_at", { ascending: false }),
+        supabase.rpc("get_admin_users"),
+    ]);
 
     if (error) {
         console.error("Error fetching change requests:", error);
     }
-
-    // Lấy danh sách users (chi tiết có email từ auth.users) bằng RPC cho Admin
-    const { data: adminUsers } = await supabase.rpc("get_admin_users");
 
     // Ghép email vào cho từng request
     const enrichedRequests = requests?.map((req) => {
@@ -55,7 +45,7 @@ export default async function ApprovalsPage() {
             requester: {
                 ...(req.requester || {}),
                 email: userDetail?.email || "Unknown",
-                full_name: userDetail?.email?.split('@')[0] || "Unknown" // Không có full_name nên lấy log id
+                full_name: userDetail?.email?.split('@')[0] || "Unknown"
             },
         };
     });

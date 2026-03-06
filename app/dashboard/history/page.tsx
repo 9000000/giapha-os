@@ -1,5 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
+import { getProfile, getSupabase, getUser } from "@/utils/supabase/queries";
 import { redirect } from "next/navigation";
 import HistoryClient from "./HistoryClient";
 import { Metadata } from "next";
@@ -9,28 +8,19 @@ export const metadata: Metadata = {
 };
 
 export default async function HistoryPage() {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const [user, profile] = await Promise.all([getUser(), getProfile()]);
 
     if (!user) {
         redirect("/login");
     }
 
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
     if (!profile) {
         redirect("/dashboard");
     }
 
-    // Lấy danh sách các yêu cầu
+    const supabase = await getSupabase();
+
+    // Lấy danh sách các yêu cầu và admin users song song
     let query = supabase
         .from("change_requests")
         .select(`
@@ -43,17 +33,16 @@ export default async function HistoryPage() {
         query = query.eq("requested_by", user.id);
     }
 
-    const { data: requests, error } = await query;
+    const [{ data: requests, error }, { data: adminUsers }] = await Promise.all([
+        query,
+        supabase.rpc("get_admin_users"),
+    ]);
 
     if (error) {
         console.error("Error fetching history change requests:", error);
     }
 
-    // Lấy thông tin admin nếu cần map email
-    const { data: adminUsers } = await supabase.rpc("get_admin_users");
-
-    // Chỉ áp dụng map email nếu có quyền gọi rpc get_admin_users (thường chỉ admin mới gọi được)
-    // Đối với Editor chỉ xem của chính họ nên để mặc định theo log auth
+    // Ghép email vào cho từng request
     const enrichedRequests = requests?.map((req) => {
         if (profile.role === 'admin' && adminUsers) {
             const userDetail = adminUsers.find((u: any) => u.id === req.requested_by);

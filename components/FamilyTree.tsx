@@ -103,7 +103,6 @@ export default function FamilyTree({
     personsMap,
     relationships,
     showAvatar,
-    scale,
     hideSpouses,
     hideMales,
     hideFemales,
@@ -114,67 +113,83 @@ export default function FamilyTree({
     [relationships, personsMap],
   );
 
-  const getTreeData = (personId: string) =>
-    getFilteredTreeData(personId, personsMap, adj, {
-      hideSpouses,
-      hideMales,
-      hideFemales,
-    });
+  const treeNodes = useMemo(() => {
+    const getTreeData = (personId: string) =>
+      getFilteredTreeData(personId, personsMap, adj, {
+        hideSpouses,
+        hideMales,
+        hideFemales,
+      });
 
-  // Recursive function for rendering nodes
-  // Tracks visited IDs to prevent infinite loops from circular relationships
-  const renderTreeNode = (
-    personId: string,
-    visited: Set<string> = new Set(),
-    level: number = 0,
-  ): React.ReactNode => {
-    if (visited.has(personId)) return null; // cycle guard
-    visited.add(personId);
+    // Recursive function for rendering nodes
+    // Tracks visited IDs to prevent infinite loops from circular relationships
+    const renderTreeNode = (
+      personId: string,
+      visited: Set<string> = new Set(),
+      level: number = 0,
+    ): React.ReactNode => {
+      if (visited.has(personId)) return null; // cycle guard
+      visited.add(personId);
 
-    const data = getTreeData(personId);
-    if (!data.person) return null;
+      const data = getTreeData(personId);
+      if (!data.person) return null;
 
-    return (
-      <li>
-        <div
-          className="node-container inline-flex flex-col items-center"
-          data-level={level}
-        >
-          {/* Main Person & Spouses Row */}
+      return (
+        <li>
           <div
-            className={`flex relative z-10 items-stretch h-full${showAvatar ? " bg-white rounded-2xl shadow-md border border-stone-200/80 transition-opacity" : ""}`}
+            className="node-container inline-flex flex-col items-center"
+            data-level={level}
           >
-            <FamilyNodeCard person={data.person} level={level} />
+            {/* Main Person & Spouses Row */}
+            <div
+              className={`flex relative z-10 items-stretch h-full${showAvatar ? " bg-white rounded-2xl shadow-md border border-stone-200/80 transition-opacity" : ""}`}
+            >
+              <FamilyNodeCard person={data.person} level={level} />
 
-            {data.spouses.length > 0 &&
-              data.spouses.map((spouseData, idx) => (
-                <div key={spouseData.person.id} className="flex relative">
-                  <FamilyNodeCard
-                    isRingVisible={idx === 0}
-                    isPlusVisible={idx > 0}
-                    person={spouseData.person}
-                    role={spouseData.person.gender === "male" ? "Chồng" : "Vợ"}
-                    note={spouseData.note}
-                    level={level}
-                  />
-                </div>
-              ))}
+              {data.spouses.length > 0 &&
+                data.spouses.map((spouseData, idx) => (
+                  <div key={spouseData.person.id} className="flex relative">
+                    <FamilyNodeCard
+                      isRingVisible={idx === 0}
+                      isPlusVisible={idx > 0}
+                      person={spouseData.person}
+                      role={spouseData.person.gender === "male" ? "Chồng" : "Vợ"}
+                      note={spouseData.note}
+                      level={level}
+                    />
+                  </div>
+                ))}
+            </div>
           </div>
-        </div>
 
-        {/* Render Children (if any) */}
-        {data.children.length > 0 && (
-          <ul>
-            {data.children.map((child) => (
-              <React.Fragment key={child.id}>
-                {renderTreeNode(child.id, new Set(visited), level + 1)}
-              </React.Fragment>
-            ))}
-          </ul>
-        )}
-      </li>
-    );
-  };
+          {/* Render Children (if any) */}
+          {data.children.length > 0 && (
+            <ul>
+              {data.children.map((child) => (
+                <React.Fragment key={child.id}>
+                  {renderTreeNode(child.id, new Set(visited), level + 1)}
+                </React.Fragment>
+              ))}
+            </ul>
+          )}
+        </li>
+      );
+    };
+
+    return roots.map((root) => (
+      <React.Fragment key={root.id}>
+        {renderTreeNode(root.id)}
+      </React.Fragment>
+    ));
+  }, [
+    roots,
+    personsMap,
+    adj,
+    hideSpouses,
+    hideMales,
+    hideFemales,
+    showAvatar,
+  ]);
 
   if (roots.length === 0)
     return (
@@ -302,11 +317,7 @@ export default function FamilyTree({
           }}
         >
           <ul>
-            {roots.map((root) => (
-              <React.Fragment key={root.id}>
-                {renderTreeNode(root.id)}
-              </React.Fragment>
-            ))}
+            {treeNodes}
           </ul>
         </div>
       </div>

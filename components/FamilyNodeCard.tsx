@@ -38,7 +38,7 @@ export default function FamilyNodeCard({
       className={`
         group py-2 px-1 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 rounded-2xl relative h-full
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
-        ${showAvatar ? "w-20 sm:w-24 md:w-28 bg-white/70 hover:shadow-xl" : "px-3"}
+        ${showAvatar ? "w-20 sm:w-24 md:w-28 bg-white/70 hover:shadow-lg hover:ring-2 hover:ring-amber-400/30 hover:border hover:border-amber-400 hover:bg-white" : "px-3"}
       `}
     >
       {isRingVisible && (
@@ -79,12 +79,11 @@ export default function FamilyNodeCard({
           <div
             className={`
               h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
-              ${
-                person.gender === "male"
-                  ? "bg-linear-to-br from-sky-400 to-sky-700"
-                  : person.gender === "female"
-                    ? "bg-linear-to-br from-rose-400 to-rose-700"
-                    : "bg-linear-to-br from-stone-400 to-stone-600"
+              ${person.gender === "male"
+                ? "bg-linear-to-br from-sky-400 to-sky-700"
+                : person.gender === "female"
+                  ? "bg-linear-to-br from-rose-400 to-rose-700"
+                  : "bg-linear-to-br from-stone-400 to-stone-600"
               }
             `}
           >
@@ -123,10 +122,10 @@ export default function FamilyNodeCard({
           {showAvatar
             ? person.full_name
             : person.full_name.split(" ").map((word, i) => (
-                <span key={i} className="block">
-                  {word}
-                </span>
-              ))}
+              <span key={i} className="block">
+                {word}
+              </span>
+            ))}
         </div>
       </div>
     </div>

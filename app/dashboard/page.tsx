@@ -71,7 +71,7 @@ export default async function DashboardLaunchpad() {
       href: "/dashboard/members",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-200/60",
-      hoverColor: "hover:border-amber-400 hover:shadow-amber-100",
+      hoverColor: "hover:border-amber-500 hover:shadow-md hover:ring-1 hover:ring-amber-500/30",
     },
     // {
     //   title: "Sự kiện",
@@ -80,7 +80,7 @@ export default async function DashboardLaunchpad() {
     //   href: "/dashboard/events",
     //   bgColor: "bg-emerald-50",
     //   borderColor: "border-emerald-200/60",
-    //   hoverColor: "hover:border-emerald-400 hover:shadow-emerald-100",
+    //   hoverColor: "hover:border-emerald-500 hover:shadow-md hover:ring-1 hover:ring-emerald-500/30",
     // },
     {
       title: "Tra cứu danh xưng",
@@ -89,7 +89,7 @@ export default async function DashboardLaunchpad() {
       href: "/dashboard/kinship",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200/60",
-      hoverColor: "hover:border-blue-400 hover:shadow-blue-100",
+      hoverColor: "hover:border-blue-500 hover:shadow-md hover:ring-1 hover:ring-blue-500/30",
     },
     {
       title: "Thống kê gia phả",
@@ -98,7 +98,7 @@ export default async function DashboardLaunchpad() {
       href: "/dashboard/stats",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200/60",
-      hoverColor: "hover:border-purple-400 hover:shadow-purple-100",
+      hoverColor: "hover:border-purple-500 hover:shadow-md hover:ring-1 hover:ring-purple-500/30",
     },
     // {
     //   title: "Giới thiệu & Liên hệ",
@@ -107,7 +107,7 @@ export default async function DashboardLaunchpad() {
     //   href: "/about",
     //   bgColor: "bg-stone-50",
     //   borderColor: "border-stone-200/60",
-    //   hoverColor: "hover:border-stone-400 hover:shadow-stone-100",
+    //   hoverColor: "hover:border-stone-500 hover:shadow-md hover:ring-1 hover:ring-stone-500/30",
     // },
   ];
 
@@ -119,7 +119,7 @@ export default async function DashboardLaunchpad() {
       href: "/dashboard/users",
       bgColor: "bg-rose-50",
       borderColor: "border-rose-200/60",
-      hoverColor: "hover:border-rose-400 hover:shadow-rose-100",
+      hoverColor: "hover:border-rose-500 hover:shadow-md hover:ring-1 hover:ring-rose-500/30",
     },
     {
       title: "Thứ tự gia phả",
@@ -128,7 +128,7 @@ export default async function DashboardLaunchpad() {
       href: "/dashboard/lineage",
       bgColor: "bg-indigo-50",
       borderColor: "border-indigo-200/60",
-      hoverColor: "hover:border-indigo-400 hover:shadow-indigo-100",
+      hoverColor: "hover:border-indigo-500 hover:shadow-md hover:ring-1 hover:ring-indigo-500/30",
     },
     {
       title: "Sao lưu & Phục hồi",
@@ -137,7 +137,7 @@ export default async function DashboardLaunchpad() {
       href: "/dashboard/data",
       bgColor: "bg-teal-50",
       borderColor: "border-teal-200/60",
-      hoverColor: "hover:border-teal-400 hover:shadow-teal-100",
+      hoverColor: "hover:border-teal-500 hover:shadow-md hover:ring-1 hover:ring-teal-500/30",
     },
   ];
 
@@ -150,7 +150,7 @@ export default async function DashboardLaunchpad() {
       {/* ── Today's Date & Upcoming Events ─────────────────── */}
       <Link
         href="/dashboard/events"
-        className="group relative block overflow-hidden rounded-3xl bg-white border border-stone-200/60 shadow-sm hover:shadow-stone-100 hover:border-stone-400 mb-10 transition-all duration-300 hover:-translate-y-1"
+        className="group relative block overflow-hidden rounded-3xl bg-white border border-stone-200/60 shadow-sm hover:shadow-md hover:border-amber-400 hover:ring-1 hover:ring-amber-400/50 mb-10 transition-all duration-300 hover:-translate-y-1"
       >
         {/* Subtle background flair */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-50"></div>

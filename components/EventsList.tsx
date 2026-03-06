@@ -80,13 +80,13 @@ function EventCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
       onClick={handleClick}
-      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md group ${isToday
-        ? "bg-amber-50 border-amber-300 shadow-sm"
+      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all duration-200 cursor-pointer group ${isToday
+        ? "bg-amber-50 border-amber-300 shadow-sm hover:shadow-md hover:border-amber-500 hover:ring-1 hover:ring-amber-500/40"
         : isBirthday
-          ? "bg-white/80 border-stone-200/60 hover:border-blue-200"
+          ? "bg-white/80 border-stone-200/60 hover:shadow-md hover:border-blue-400 hover:ring-1 hover:ring-blue-400/40"
           : isCustom
-            ? "bg-white/80 border-stone-200/60 hover:border-purple-200"
-            : "bg-white/80 border-stone-200/60 hover:border-rose-200"
+            ? "bg-white/80 border-stone-200/60 hover:shadow-md hover:border-purple-400 hover:ring-1 hover:ring-purple-400/40"
+            : "bg-white/80 border-stone-200/60 hover:shadow-md hover:border-rose-400 hover:ring-1 hover:ring-rose-400/40"
         }`}
     >
       {/* Icon */}
@@ -271,7 +271,7 @@ export default function EventsList({
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/60 shadow-sm hover:shadow-stone-100 hover:border-stone-400 transition-all duration-300 mb-8 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6"
+        className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/60 shadow-sm hover:shadow-md hover:border-amber-400 hover:ring-1 hover:ring-amber-400/50 transition-all duration-300 mb-8 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6"
       >
         {/* Subtle background flair */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-50"></div>

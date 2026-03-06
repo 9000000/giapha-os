@@ -211,18 +211,23 @@ export default async function DashboardLaunchpad() {
                           <span className="text-sm font-semibold text-stone-700 truncate block">
                             {evt.personName}
                           </span>
-                          <span className="text-xs text-stone-500 font-medium pt-0.5 block flex flex-wrap gap-1 items-center">
+                          <div className="text-xs text-stone-500 font-medium pt-1 flex flex-col gap-0.5">
                             {evt.type === "death_anniversary" ? (
-                              <>
-                                Ngày giỗ Âm: {evt.lunarDateLabel} (Còn {evt.lunarDaysUntil} ngày nữa)
-                              </>
+                              <span>
+                                Ngày giỗ Âm: <span className="text-stone-600">{evt.lunarDateLabel}</span> (Còn {evt.lunarDaysUntil} ngày nữa)
+                              </span>
                             ) : (
                               <>
-                                {evt.type === "birthday" ? "Sinh nhật" : "Sự kiện"} -{" "}
-                                Dương: {evt.solarDateLabel} (Còn {evt.solarDaysUntil} ngày) · Âm: {evt.lunarDateLabel} (Còn {evt.lunarDaysUntil} ngày)
+                                <span>
+                                  {evt.type === "birthday" ? "Sinh nhật" : "Sự kiện"} -{" "}
+                                  Dương: <span className="text-stone-600">{evt.solarDateLabel}</span> (Còn {evt.solarDaysUntil} ngày)
+                                </span>
+                                <span>
+                                  Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> (Còn {evt.lunarDaysUntil} ngày)
+                                </span>
                               </>
                             )}
-                          </span>
+                          </div>
                         </div>
                       </div>
                     );

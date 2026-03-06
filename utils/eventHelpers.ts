@@ -138,12 +138,9 @@ export function computeEvents(
     // ── Death anniversary (lunar) ────────────────────────────────────
     if (p.is_deceased && p.death_month && p.death_day) {
       try {
-        // Convert the solar death date to a lunar date
-        const deathYear = p.death_year ?? new Date().getFullYear();
-        const solar = Solar.fromYmd(deathYear, p.death_month, p.death_day);
-        const lunar = solar.getLunar();
-        const lMonth = Math.abs(lunar.getMonth()); // abs to handle leap month
-        const lDay = lunar.getDay();
+        // Assume user inputs LUNAR date for death anniversary (traditional in Vietnam)
+        const lMonth = p.death_month;
+        const lDay = p.death_day;
 
         const next = nextSolarForLunar(lMonth, lDay, today);
         if (!next) continue;

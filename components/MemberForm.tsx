@@ -15,8 +15,9 @@ import {
   Trash2,
   User,
 } from "lucide-react";
+import { Solar, Lunar } from "lunar-javascript";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createChangeRequest } from "@/app/actions/approvals";
 
 interface MemberFormProps {
@@ -55,6 +56,10 @@ export default function MemberForm({
     initialData?.birth_day || "",
   );
 
+  const [lunarBirthYear, setLunarBirthYear] = useState<number | "">("");
+  const [lunarBirthMonth, setLunarBirthMonth] = useState<number | "">("");
+  const [lunarBirthDay, setLunarBirthDay] = useState<number | "">("");
+
   const [deathYear, setDeathYear] = useState<number | "">(
     initialData?.death_year || "",
   );
@@ -64,6 +69,112 @@ export default function MemberForm({
   const [deathDay, setDeathDay] = useState<number | "">(
     initialData?.death_day || "",
   );
+
+  const [lunarDeathYear, setLunarDeathYear] = useState<number | "">("");
+  const [lunarDeathMonth, setLunarDeathMonth] = useState<number | "">("");
+  const [lunarDeathDay, setLunarDeathDay] = useState<number | "">("");
+
+  // Initialize lunar dates from provided solar dates
+  useEffect(() => {
+    if (initialData?.birth_year && initialData?.birth_month && initialData?.birth_day) {
+      try {
+        const solar = Solar.fromYmd(initialData.birth_year, initialData.birth_month, initialData.birth_day);
+        const lunar = solar.getLunar();
+        setLunarBirthYear(lunar.getYear());
+        setLunarBirthMonth(Math.abs(lunar.getMonth()));
+        setLunarBirthDay(lunar.getDay());
+      } catch (e) { }
+    }
+    if (initialData?.death_year && initialData?.death_month && initialData?.death_day) {
+      try {
+        const solar = Solar.fromYmd(initialData.death_year, initialData.death_month, initialData.death_day);
+        const lunar = solar.getLunar();
+        setLunarDeathYear(lunar.getYear());
+        setLunarDeathMonth(Math.abs(lunar.getMonth()));
+        setLunarDeathDay(lunar.getDay());
+      } catch (e) { }
+    }
+  }, [initialData]);
+
+  const handleSolarChange = (type: "year" | "month" | "day", val: number | "", isDeath: boolean) => {
+    if (!isDeath) {
+      if (type === "year") setBirthYear(val);
+      if (type === "month") setBirthMonth(val);
+      if (type === "day") setBirthDay(val);
+
+      const y = type === "year" ? val : birthYear;
+      const m = type === "month" ? val : birthMonth;
+      const d = type === "day" ? val : birthDay;
+
+      if (y && m && d) {
+        try {
+          const solar = Solar.fromYmd(Number(y), Number(m), Number(d));
+          const lunar = solar.getLunar();
+          setLunarBirthYear(lunar.getYear());
+          setLunarBirthMonth(Math.abs(lunar.getMonth()));
+          setLunarBirthDay(lunar.getDay());
+        } catch (e) { }
+      }
+    } else {
+      if (type === "year") setDeathYear(val);
+      if (type === "month") setDeathMonth(val);
+      if (type === "day") setDeathDay(val);
+
+      const y = type === "year" ? val : deathYear;
+      const m = type === "month" ? val : deathMonth;
+      const d = type === "day" ? val : deathDay;
+
+      if (y && m && d) {
+        try {
+          const solar = Solar.fromYmd(Number(y), Number(m), Number(d));
+          const lunar = solar.getLunar();
+          setLunarDeathYear(lunar.getYear());
+          setLunarDeathMonth(Math.abs(lunar.getMonth()));
+          setLunarDeathDay(lunar.getDay());
+        } catch (e) { }
+      }
+    }
+  };
+
+  const handleLunarChange = (type: "year" | "month" | "day", val: number | "", isDeath: boolean) => {
+    if (!isDeath) {
+      if (type === "year") setLunarBirthYear(val);
+      if (type === "month") setLunarBirthMonth(val);
+      if (type === "day") setLunarBirthDay(val);
+
+      const y = type === "year" ? val : lunarBirthYear;
+      const m = type === "month" ? val : lunarBirthMonth;
+      const d = type === "day" ? val : lunarBirthDay;
+
+      if (y && m && d) {
+        try {
+          const lunar = Lunar.fromYmd(Number(y), Number(m), Number(d));
+          const solar = (lunar as any).getSolar();
+          setBirthYear(solar.getYear());
+          setBirthMonth(solar.getMonth());
+          setBirthDay(solar.getDay());
+        } catch (e) { }
+      }
+    } else {
+      if (type === "year") setLunarDeathYear(val);
+      if (type === "month") setLunarDeathMonth(val);
+      if (type === "day") setLunarDeathDay(val);
+
+      const y = type === "year" ? val : lunarDeathYear;
+      const m = type === "month" ? val : lunarDeathMonth;
+      const d = type === "day" ? val : lunarDeathDay;
+
+      if (y && m && d) {
+        try {
+          const lunar = Lunar.fromYmd(Number(y), Number(m), Number(d));
+          const solar = (lunar as any).getSolar();
+          setDeathYear(solar.getYear());
+          setDeathMonth(solar.getMonth());
+          setDeathDay(solar.getDay());
+        } catch (e) { }
+      }
+    }
+  };
 
   const [isDeceased, setIsDeceased] = useState<boolean>(
     initialData?.is_deceased || false,
@@ -503,41 +614,74 @@ export default function MemberForm({
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
-              Ngày sinh dương lịch
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              <input
-                type="number"
-                placeholder="Ngày"
-                min="1"
-                max="31"
-                value={birthDay}
-                onChange={(e) =>
-                  setBirthDay(e.target.value ? Number(e.target.value) : "")
-                }
-                className={inputClasses}
-              />
-              <input
-                type="number"
-                placeholder="Tháng"
-                min="1"
-                max="12"
-                value={birthMonth}
-                onChange={(e) =>
-                  setBirthMonth(e.target.value ? Number(e.target.value) : "")
-                }
-                className={inputClasses}
-              />
-              <input
-                type="number"
-                placeholder="Năm"
-                value={birthYear}
-                onChange={(e) =>
-                  setBirthYear(e.target.value ? Number(e.target.value) : "")
-                }
-                className={inputClasses}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-stone-700 mb-1.5 flex justify-between items-center">
+                  <span>Ngày sinh (Dương lịch)</span>
+                  <span className="text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100 hidden sm:inline-block">Tự quy đổi</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Ngày"
+                    min="1"
+                    max="31"
+                    value={birthDay}
+                    onChange={(e) => handleSolarChange("day", e.target.value ? Number(e.target.value) : "", false)}
+                    className={inputClasses}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Tháng"
+                    min="1"
+                    max="12"
+                    value={birthMonth}
+                    onChange={(e) => handleSolarChange("month", e.target.value ? Number(e.target.value) : "", false)}
+                    className={inputClasses}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Năm"
+                    value={birthYear}
+                    onChange={(e) => handleSolarChange("year", e.target.value ? Number(e.target.value) : "", false)}
+                    className={inputClasses}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-stone-700 mb-1.5 flex justify-between items-center">
+                  <span>Ngày sinh (Âm lịch)</span>
+                  <span className="text-[10px] text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100 hidden sm:inline-block">Tự quy đổi</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Ngày"
+                    min="1"
+                    max="30"
+                    value={lunarBirthDay}
+                    onChange={(e) => handleLunarChange("day", e.target.value ? Number(e.target.value) : "", false)}
+                    className={inputClasses}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Tháng"
+                    min="1"
+                    max="12"
+                    value={lunarBirthMonth}
+                    onChange={(e) => handleLunarChange("month", e.target.value ? Number(e.target.value) : "", false)}
+                    className={inputClasses}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Năm"
+                    value={lunarBirthYear}
+                    onChange={(e) => handleLunarChange("year", e.target.value ? Number(e.target.value) : "", false)}
+                    className={inputClasses}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -593,47 +737,72 @@ export default function MemberForm({
                   exit={{ opacity: 0, height: 0, marginTop: 0 }}
                   className="overflow-hidden"
                 >
-                  <label className="block text-sm font-semibold text-stone-700 mb-1.5">
-                    Ngày mất
-                  </label>
-                  <div className="grid grid-cols-3 gap-3 pt-1">
-                    <input
-                      type="number"
-                      placeholder="Ngày"
-                      min="1"
-                      max="31"
-                      value={deathDay}
-                      onChange={(e) =>
-                        setDeathDay(
-                          e.target.value ? Number(e.target.value) : "",
-                        )
-                      }
-                      className={inputClasses}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Tháng"
-                      min="1"
-                      max="12"
-                      value={deathMonth}
-                      onChange={(e) =>
-                        setDeathMonth(
-                          e.target.value ? Number(e.target.value) : "",
-                        )
-                      }
-                      className={inputClasses}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Năm"
-                      value={deathYear}
-                      onChange={(e) =>
-                        setDeathYear(
-                          e.target.value ? Number(e.target.value) : "",
-                        )
-                      }
-                      className={inputClasses}
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-1">
+                    <div>
+                      <label className="block text-sm font-semibold text-stone-700 mb-1.5 flex justify-between items-center">
+                        <span>Ngày mất (Dương lịch)</span>
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <input
+                          type="number"
+                          placeholder="Ngày"
+                          min="1"
+                          max="31"
+                          value={deathDay}
+                          onChange={(e) => handleSolarChange("day", e.target.value ? Number(e.target.value) : "", true)}
+                          className={inputClasses}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Tháng"
+                          min="1"
+                          max="12"
+                          value={deathMonth}
+                          onChange={(e) => handleSolarChange("month", e.target.value ? Number(e.target.value) : "", true)}
+                          className={inputClasses}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Năm"
+                          value={deathYear}
+                          onChange={(e) => handleSolarChange("year", e.target.value ? Number(e.target.value) : "", true)}
+                          className={inputClasses}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-stone-700 mb-1.5 flex justify-between items-center">
+                        <span>Ngày Giỗ (Âm lịch)</span>
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <input
+                          type="number"
+                          placeholder="Ngày"
+                          min="1"
+                          max="30"
+                          value={lunarDeathDay}
+                          onChange={(e) => handleLunarChange("day", e.target.value ? Number(e.target.value) : "", true)}
+                          className={inputClasses}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Tháng"
+                          min="1"
+                          max="12"
+                          value={lunarDeathMonth}
+                          onChange={(e) => handleLunarChange("month", e.target.value ? Number(e.target.value) : "", true)}
+                          className={inputClasses}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Năm"
+                          value={lunarDeathYear}
+                          onChange={(e) => handleLunarChange("year", e.target.value ? Number(e.target.value) : "", true)}
+                          className={inputClasses}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}

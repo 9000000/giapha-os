@@ -116,6 +116,7 @@ export function computeEvents(
       let lunarDateLabel = "";
       let lunarDaysUntil: number | undefined = undefined;
       let nextLunarOccurrence: Date | null = null;
+      let nextLunarYear: number | undefined = undefined;
       try {
         const sDate = Solar.fromYmd(lunarOriginYear, p.birth_month, p.birth_day);
         const lDate = sDate.getLunar();
@@ -123,13 +124,15 @@ export function computeEvents(
         const lMonthRaw = lDate.getMonth();
         const isLMonthLeap = lMonthRaw < 0;
         const lMonthStr = Math.abs(lMonthRaw).toString().padStart(2, "0");
-        lunarDateLabel = `${lDay.toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""} ÂL`;
 
         // Calculate days until LUNAR birthday
         nextLunarOccurrence = nextSolarForLunar(Math.abs(lMonthRaw), lDay, today);
         if (nextLunarOccurrence) {
           lunarDaysUntil = Math.round((nextLunarOccurrence.getTime() - today.getTime()) / 86400000);
+          const sOcc = Solar.fromYmd(nextLunarOccurrence.getFullYear(), nextLunarOccurrence.getMonth() + 1, nextLunarOccurrence.getDate());
+          nextLunarYear = sOcc.getLunar().getYear();
         }
+        lunarDateLabel = `${lDay.toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""}/${nextLunarYear || today.getFullYear()} ÂL`;
       } catch (e) {
         console.error(e);
       }
@@ -140,7 +143,7 @@ export function computeEvents(
         type: "birthday",
         nextOccurrence: next,
         daysUntil: Math.min(daysUntil, lunarDaysUntil ?? daysUntil),
-        solarDateLabel: `${p.birth_day.toString().padStart(2, "0")}/${p.birth_month.toString().padStart(2, "0")}`,
+        solarDateLabel: `${p.birth_day.toString().padStart(2, "0")}/${p.birth_month.toString().padStart(2, "0")}/${next.getFullYear()}`,
         solarDaysUntil: daysUntil,
         lunarDateLabel,
         lunarDaysUntil,
@@ -165,14 +168,17 @@ export function computeEvents(
           (next.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
         );
 
+        const sOcc = Solar.fromYmd(next.getFullYear(), next.getMonth() + 1, next.getDate());
+        const lOccYear = sOcc.getLunar().getYear();
+
         events.push({
           personId: p.id,
           personName: p.full_name,
           type: "death_anniversary",
           nextOccurrence: next,
           daysUntil,
-          solarDateLabel: `${next.getDate().toString().padStart(2, "0")}/${(next.getMonth() + 1).toString().padStart(2, "0")}`,
-          lunarDateLabel: `${lDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")} ÂL`,
+          solarDateLabel: `${next.getDate().toString().padStart(2, "0")}/${(next.getMonth() + 1).toString().padStart(2, "0")}/${next.getFullYear()}`,
+          lunarDateLabel: `${lDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")}/${lOccYear} ÂL`,
           lunarDaysUntil: daysUntil,
           originYear: p.death_year,
           isDeceased: p.is_deceased,
@@ -196,6 +202,7 @@ export function computeEvents(
 
     let lunarDateLabel = "";
     let lunarDaysUntil: number | undefined = undefined;
+    let nextLunarYear: number | undefined = undefined;
     try {
       const sDate = Solar.fromYmd(y, m, d);
       const lDate = sDate.getLunar();
@@ -203,12 +210,14 @@ export function computeEvents(
       const lMonthRaw = lDate.getMonth();
       const isLMonthLeap = lMonthRaw < 0;
       const lMonthStr = Math.abs(lMonthRaw).toString().padStart(2, "0");
-      lunarDateLabel = `${lDay.toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""} ÂL`;
 
       const nextLunarOcc = nextSolarForLunar(Math.abs(lMonthRaw), lDay, today);
       if (nextLunarOcc) {
         lunarDaysUntil = Math.round((nextLunarOcc.getTime() - today.getTime()) / 86400000);
+        const sOcc = Solar.fromYmd(nextLunarOcc.getFullYear(), nextLunarOcc.getMonth() + 1, nextLunarOcc.getDate());
+        nextLunarYear = sOcc.getLunar().getYear();
       }
+      lunarDateLabel = `${lDay.toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""}/${nextLunarYear || today.getFullYear()} ÂL`;
     } catch (e) {
       console.error(e);
     }
@@ -219,7 +228,7 @@ export function computeEvents(
       type: "custom_event",
       nextOccurrence: next,
       daysUntil: Math.min(daysUntil, lunarDaysUntil ?? daysUntil),
-      solarDateLabel: `${d.toString().padStart(2, "0")}/${m.toString().padStart(2, "0")}/${y}`,
+      solarDateLabel: `${d.toString().padStart(2, "0")}/${m.toString().padStart(2, "0")}/${next.getFullYear()}`,
       solarDaysUntil: daysUntil,
       lunarDateLabel,
       lunarDaysUntil,

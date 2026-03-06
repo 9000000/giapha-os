@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, UserPlus, FileEdit, Clock } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 
 interface NotificationItem {
@@ -26,6 +27,7 @@ export default function NotificationBell() {
 
     const menuRef = useRef<HTMLDivElement>(null);
     const supabase = useMemo(() => createClient(), []);
+    const router = useRouter();
 
     // 1. Load Last Read Timestamp from LocalStorage
     useEffect(() => {
@@ -140,6 +142,7 @@ export default function NotificationBell() {
                 { event: "INSERT", schema: "public", table: "persons" },
                 (_payload) => {
                     fetchNotifications();
+                    router.refresh(); // Tự động làm mới UI trang 
                 }
             )
             .subscribe();
@@ -154,6 +157,7 @@ export default function NotificationBell() {
                     { event: "*", schema: "public", table: "change_requests" },
                     (_payload) => {
                         fetchNotifications();
+                        router.refresh();
                     }
                 )
                 .subscribe();
@@ -165,6 +169,7 @@ export default function NotificationBell() {
                     { event: "INSERT", schema: "public", table: "profiles" },
                     (_payload) => {
                         fetchNotifications();
+                        router.refresh();
                     }
                 )
                 .subscribe();

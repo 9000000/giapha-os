@@ -40,7 +40,7 @@ export default function HeaderMenu() {
   return (
     <div className="flex items-center gap-1 sm:gap-2">
       <Link
-        href="/dashboard?view=tree"
+        href="/dashboard/members"
         className="p-2 rounded-full hover:bg-stone-100 transition-colors flex items-center justify-center relative"
         title="Xem Cây Gia Phả"
       >

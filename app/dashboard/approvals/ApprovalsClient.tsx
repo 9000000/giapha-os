@@ -24,9 +24,8 @@ export default function ApprovalsClient({ initialRequests }: { initialRequests: 
             const res = await approveChangeRequest(id);
             if (res.error) throw new Error(res.error);
             setRequests((prev) => prev.filter((r) => r.id !== id));
-            alert("Đã phê duyệt thành công.");
         } catch (err: any) {
-            alert("Lỗi: " + err.message);
+            console.error("Lỗi: ", err.message);
         } finally {
             setProcessingId(null);
         }
@@ -38,9 +37,8 @@ export default function ApprovalsClient({ initialRequests }: { initialRequests: 
             const res = await rejectChangeRequest(id, "Bị từ chối bởi Quản trị viên");
             if (res.error) throw new Error(res.error);
             setRequests((prev) => prev.filter((r) => r.id !== id));
-            alert("Đã từ chối yêu cầu.");
         } catch (err: any) {
-            alert("Lỗi: " + err.message);
+            console.error("Lỗi: ", err.message);
         } finally {
             setProcessingId(null);
         }

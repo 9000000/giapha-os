@@ -309,8 +309,6 @@ export default function MemberForm({
 
         if (res.error) throw new Error(res.error);
 
-        alert("Yêu cầu của bạn đã được gửi và đang chờ Admin phê duyệt.");
-
         if (onCancel) {
           onCancel();
         } else {

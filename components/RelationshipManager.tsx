@@ -269,7 +269,6 @@ export default function RelationshipManager({
           note: newRelNote ? newRelNote : null,
         });
         if (res.error) throw new Error(res.error);
-        alert("Yêu cầu thêm quan hệ đã được gửi chờ Admin phê duyệt.");
       } else {
         const { error } = await supabase.from("relationships").insert({
           person_a: personA,
@@ -460,7 +459,6 @@ export default function RelationshipManager({
       if (!isAdmin) {
         const res = await createChangeRequest("delete", "relationships", relId);
         if (res.error) throw new Error(res.error);
-        alert("Yêu cầu xóa đã được gửi chờ Admin phê duyệt.");
         return;
       }
 

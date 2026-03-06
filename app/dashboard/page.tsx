@@ -57,7 +57,7 @@ export default async function DashboardLaunchpad() {
 
   const allEvents = computeEvents(persons ?? [], customEvents ?? []);
   const upcomingEvents = allEvents.filter(
-    (e) => e.daysUntil >= 0 && e.daysUntil <= 30,
+    (e) => e.daysUntil >= 0 && e.daysUntil <= 30 && !(e.type === "birthday" && e.isDeceased),
   );
 
   const lunar = getTodayLunar();

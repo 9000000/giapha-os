@@ -222,9 +222,11 @@ export default function NotificationBell() {
             >
                 <Bell className="size-5 text-stone-600" />
 
-                {/* Unread dot */}
+                {/* Unread count badge */}
                 {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 size-2.5 bg-red-500 rounded-full border-2 border-white pointer-events-none" />
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-white pointer-events-none shadow-sm">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
                 )}
             </button>
 

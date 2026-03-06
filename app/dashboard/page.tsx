@@ -212,12 +212,16 @@ export default async function DashboardLaunchpad() {
                             {evt.personName}
                           </span>
                           <span className="text-xs text-stone-500 font-medium pt-0.5 block flex flex-wrap gap-1 items-center">
-                            {evt.daysUntil === 0
-                              ? "Hôm nay"
-                              : evt.daysUntil === 1
-                                ? "Ngày mai"
-                                : `${evt.daysUntil} ngày nữa`}{" "}
-                            · Dương: {evt.solarDateLabel} · Âm: {evt.lunarDateLabel}
+                            {evt.type === "death_anniversary" ? (
+                              <>
+                                Ngày giỗ Âm: {evt.lunarDateLabel} (Còn {evt.lunarDaysUntil} ngày nữa)
+                              </>
+                            ) : (
+                              <>
+                                {evt.type === "birthday" ? "Sinh nhật" : "Sự kiện"} -{" "}
+                                Dương: {evt.solarDateLabel} (Còn {evt.solarDaysUntil} ngày) · Âm: {evt.lunarDateLabel} (Còn {evt.lunarDaysUntil} ngày)
+                              </>
+                            )}
                           </span>
                         </div>
                       </div>

@@ -127,19 +127,25 @@ function EventCard({
             )}
         </div>
         <div className="flex flex-col gap-1 mt-1">
-          <p className="text-sm text-stone-500 flex items-center gap-1.5 leading-tight">
-            <CalendarDays className="size-3.5 shrink-0" />
-            {isBirthday
-              ? "Sinh nhật"
-              : isCustom
-                ? "Sự kiện"
-                : "Ngày giỗ"} —{" "}
-            <span className="font-medium text-stone-600">
-              Dương: {event.solarDateLabel} · Âm: {event.lunarDateLabel}
+          <p className="text-sm text-stone-500 flex items-start sm:items-center gap-1.5 leading-snug">
+            <CalendarDays className="size-3.5 mt-0.5 sm:mt-0 shrink-0" />
+            <span>
+              {event.type === "death_anniversary" ? (
+                <>
+                  Ngày giỗ Âm: <span className="font-medium text-stone-600">{event.lunarDateLabel}</span> (Còn {event.lunarDaysUntil} ngày)
+                </>
+              ) : (
+                <>
+                  {isBirthday ? "Sinh nhật" : "Sự kiện"} —{" "}
+                  <span className="font-medium text-stone-600">
+                    Dương: {event.solarDateLabel} (Còn {event.solarDaysUntil} ngày) · Âm: {event.lunarDateLabel} (Còn {event.lunarDaysUntil} ngày)
+                  </span>
+                </>
+              )}
+              {event.originYear && (
+                <span className="text-stone-400 ml-1">({event.originYear})</span>
+              )}
             </span>
-            {event.originYear && (
-              <span className="text-stone-400">({event.originYear})</span>
-            )}
           </p>
           {event.location && (
             <p className="text-sm text-stone-500 flex items-center gap-1.5 leading-tight">

@@ -106,10 +106,12 @@ export function computeEvents(
         (next.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
       );
 
-      // Convert the next solar occurrence to lunar to display both
+      // Convert the ORIGINAL solar occurrence to lunar to display both
+      // If no birth_year, fallback to today's year
+      const lunarOriginYear = p.birth_year || today.getFullYear();
       let lunarDateLabel = "";
       try {
-        const sDate = Solar.fromYmd(next.getFullYear(), next.getMonth() + 1, next.getDate());
+        const sDate = Solar.fromYmd(lunarOriginYear, p.birth_month, p.birth_day);
         const lDate = sDate.getLunar();
         const lDay = lDate.getDay().toString().padStart(2, "0");
         const lMonthRaw = lDate.getMonth();
@@ -179,7 +181,7 @@ export function computeEvents(
 
     let lunarDateLabel = "";
     try {
-      const sDate = Solar.fromYmd(next.getFullYear(), next.getMonth() + 1, next.getDate());
+      const sDate = Solar.fromYmd(y, m, d);
       const lDate = sDate.getLunar();
       const lDay = lDate.getDay().toString().padStart(2, "0");
       const lMonthRaw = lDate.getMonth();

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { usePanZoom } from "@/hooks/usePanZoom";
 import { Person, Relationship } from "@/types";
@@ -25,6 +26,7 @@ export default function FamilyTree({
   const [hideSpouses, setHideSpouses] = useState(false);
   const [hideMales, setHideMales] = useState(false);
   const [hideFemales, setHideFemales] = useState(false);
+  const [expandedInLawNodes, setExpandedInLawNodes] = useState<Set<string>>(new Set());
 
   const { showAvatar } = useDashboard();
 
@@ -134,10 +136,17 @@ export default function FamilyTree({
       const data = getTreeData(personId);
       if (!data.person) return null;
 
+      const isHusbandInLaw = data.spouses.some(s => s.person.gender === "male" && s.person.is_in_law);
+      const selfIsHusbandInLaw = data.person.gender === "male" && data.person.is_in_law;
+      const hasInLawHusband = isHusbandInLaw || selfIsHusbandInLaw;
+      const hasChildren = data.children.length > 0;
+      const isExpanded = expandedInLawNodes.has(personId);
+      const shouldShowChildren = !hasInLawHusband || isExpanded;
+
       return (
         <li>
           <div
-            className="node-container inline-flex flex-col items-center"
+            className="node-container inline-flex flex-col items-center relative"
             data-level={level}
           >
             {/* Main Person & Spouses Row */}
@@ -160,10 +169,34 @@ export default function FamilyTree({
                   </div>
                 ))}
             </div>
+
+            {hasInLawHusband && hasChildren && (
+              <div className="absolute -bottom-[22px] left-1/2 -translate-x-1/2 z-20">
+                <button
+                  onMouseDown={(e) => {
+                    // Ngăn chặn sự kiện kéo (pan) của sơ đồ khi click vào nút 
+                    e.stopPropagation();
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedInLawNodes(prev => {
+                      const next = new Set(prev);
+                      if (next.has(personId)) next.delete(personId);
+                      else next.add(personId);
+                      return next;
+                    });
+                  }}
+                  className="bg-white border border-stone-200 rounded-full p-0.5 text-stone-400 hover:text-amber-600 hover:border-amber-300 hover:bg-amber-50 focus:outline-none shadow-[0_2px_4px_rgba(0,0,0,0.05)] transition-all flex items-center justify-center cursor-pointer"
+                  title={isExpanded ? "Ẩn danh sách con" : "Xem danh sách con"}
+                >
+                  {isExpanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Render Children (if any) */}
-          {data.children.length > 0 && (
+          {shouldShowChildren && hasChildren && (
             <ul>
               {data.children.map((child) => (
                 <React.Fragment key={child.id}>
@@ -189,6 +222,7 @@ export default function FamilyTree({
     hideMales,
     hideFemales,
     showAvatar,
+    expandedInLawNodes,
   ]);
 
   if (roots.length === 0)

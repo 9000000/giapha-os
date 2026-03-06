@@ -29,18 +29,27 @@ export default function NotificationBell() {
     const supabase = useMemo(() => createClient(), []);
     const router = useRouter();
 
-    // 1. Load Last Read Timestamp from LocalStorage
+    // 1. Load Last Read Timestamp from User Metadata or LocalStorage
     useEffect(() => {
         if (typeof window !== "undefined" && user?.id) {
-            const stored = localStorage.getItem(`giapha_last_read_notifications_${user.id}`);
-            if (stored) {
-                setLastReadTimestamp(parseInt(stored, 10));
+            // Ưu tiên lấy từ metadata (đã đồng bộ trên DB)
+            const metadataLastRead = user.user_metadata?.last_read_notifications;
+
+            if (metadataLastRead && !isNaN(parseInt(metadataLastRead, 10))) {
+                setLastReadTimestamp(parseInt(metadataLastRead, 10));
+                localStorage.setItem(`giapha_last_read_notifications_${user.id}`, metadataLastRead.toString());
             } else {
-                // If first time, set to a week ago so they don't get overwhelmed
-                setLastReadTimestamp(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                // Fallback về localStorage nếu metadata chưa có
+                const stored = localStorage.getItem(`giapha_last_read_notifications_${user.id}`);
+                if (stored) {
+                    setLastReadTimestamp(parseInt(stored, 10));
+                } else {
+                    // Nếu lần đầu tiên, set về 7 ngày trước để không bị quá tải
+                    setLastReadTimestamp(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                }
             }
         }
-    }, [user?.id]);
+    }, [user?.id, user?.user_metadata]);
 
     // 2. Fetch Notifications (Merge 2 sources)
     const fetchNotifications = async () => {
@@ -198,7 +207,7 @@ export default function NotificationBell() {
     }, []);
 
     // 5. Mở danh sách và đánh dấu đã đọc
-    const handleToggleMenu = () => {
+    const handleToggleMenu = async () => {
         const opening = !isOpen;
         setIsOpen(opening);
         if (opening && user?.id) {
@@ -209,6 +218,13 @@ export default function NotificationBell() {
 
             // Đánh dấu tất cả là đã đọc
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+
+            // Xử lý lưu đồng bộ lên user_metadata của Supabase Auth KHÔNG chặn UI
+            supabase.auth.updateUser({
+                data: {
+                    last_read_notifications: now,
+                }
+            }).catch(console.error);
         }
     };
 

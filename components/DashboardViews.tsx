@@ -79,11 +79,13 @@ export default function DashboardViews({
       <main className="flex-1 overflow-auto bg-stone-50/50 flex flex-col">
         {currentView !== "list" && persons.length > 0 && activeRootId && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
-            <div className="flex flex-row items-center gap-3">
-              <RootSelector persons={persons} currentRootId={activeRootId} />
+            <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
+              <div className="flex-1 min-w-0">
+                <RootSelector persons={persons} currentRootId={activeRootId} />
+              </div>
               <Link
                 href="/dashboard/members/new"
-                className="flex items-center gap-2 px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-xl shadow-sm transition-colors border border-amber-500/50"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-xl shadow-sm transition-colors border border-amber-500/50 shrink-0"
               >
                 <Plus className="size-4" />
                 <span className="hidden sm:inline">Thêm vào Cây</span>
@@ -92,7 +94,7 @@ export default function DashboardViews({
             </div>
             <div
               id="tree-toolbar-portal"
-              className="flex items-center gap-2 flex-wrap justify-center"
+              className="flex items-center gap-2 flex-wrap justify-center sm:ml-auto"
             />
           </div>
         )}

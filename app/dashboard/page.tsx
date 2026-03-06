@@ -211,13 +211,13 @@ export default async function DashboardLaunchpad() {
                           <span className="text-sm font-semibold text-stone-700 truncate block">
                             {evt.personName}
                           </span>
-                          <span className="text-xs text-stone-500 font-medium pt-0.5 block">
+                          <span className="text-xs text-stone-500 font-medium pt-0.5 block flex flex-wrap gap-1 items-center">
                             {evt.daysUntil === 0
                               ? "Hôm nay"
                               : evt.daysUntil === 1
                                 ? "Ngày mai"
                                 : `${evt.daysUntil} ngày nữa`}{" "}
-                            · {evt.eventDateLabel}
+                            · Dương: {evt.solarDateLabel} · Âm: {evt.lunarDateLabel}
                           </span>
                         </div>
                       </div>

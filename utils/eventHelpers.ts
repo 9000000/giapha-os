@@ -10,8 +10,9 @@ export interface FamilyEvent {
   nextOccurrence: Date;
   /** Days until the next occurrence (negative = already passed this year, shown for context) */
   daysUntil: number;
-  /** Display label for the date of the event (e.g., "12/03" solar or "05/02 ÂL") */
-  eventDateLabel: string;
+  /** Display label for both solar and lunar representation */
+  solarDateLabel: string;
+  lunarDateLabel: string;
   /** The actual year of original event (birth year or death year) */
   originYear?: number | null;
   originMonth?: number | null;
@@ -105,13 +106,28 @@ export function computeEvents(
         (next.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
       );
 
+      // Convert the next solar occurrence to lunar to display both
+      let lunarDateLabel = "";
+      try {
+        const sDate = Solar.fromYmd(next.getFullYear(), next.getMonth() + 1, next.getDate());
+        const lDate = sDate.getLunar();
+        const lDay = lDate.getDay().toString().padStart(2, "0");
+        const lMonthRaw = lDate.getMonth();
+        const isLMonthLeap = lMonthRaw < 0;
+        const lMonthStr = Math.abs(lMonthRaw).toString().padStart(2, "0");
+        lunarDateLabel = `${lDay}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""} ÂL`;
+      } catch (e) {
+        console.error(e);
+      }
+
       events.push({
         personId: p.id,
         personName: p.full_name,
         type: "birthday",
         nextOccurrence: next,
         daysUntil,
-        eventDateLabel: `${p.birth_day.toString().padStart(2, "0")}/${p.birth_month.toString().padStart(2, "0")}`,
+        solarDateLabel: `${p.birth_day.toString().padStart(2, "0")}/${p.birth_month.toString().padStart(2, "0")}`,
+        lunarDateLabel,
         originYear: p.birth_year || null,
         originMonth: p.birth_month,
         originDay: p.birth_day,
@@ -142,7 +158,8 @@ export function computeEvents(
           type: "death_anniversary",
           nextOccurrence: next,
           daysUntil,
-          eventDateLabel: `${lDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")} ÂL`,
+          solarDateLabel: `${next.getDate().toString().padStart(2, "0")}/${(next.getMonth() + 1).toString().padStart(2, "0")}`,
+          lunarDateLabel: `${lDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")} ÂL`,
           originYear: p.death_year,
           isDeceased: p.is_deceased,
         });
@@ -163,13 +180,27 @@ export function computeEvents(
       (next.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
     );
 
+    let lunarDateLabel = "";
+    try {
+      const sDate = Solar.fromYmd(next.getFullYear(), next.getMonth() + 1, next.getDate());
+      const lDate = sDate.getLunar();
+      const lDay = lDate.getDay().toString().padStart(2, "0");
+      const lMonthRaw = lDate.getMonth();
+      const isLMonthLeap = lMonthRaw < 0;
+      const lMonthStr = Math.abs(lMonthRaw).toString().padStart(2, "0");
+      lunarDateLabel = `${lDay}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""} ÂL`;
+    } catch (e) {
+      console.error(e);
+    }
+
     events.push({
       personId: ce.id, // using event id here
       personName: ce.name, // mapping custom event name to personName
       type: "custom_event",
       nextOccurrence: next,
       daysUntil,
-      eventDateLabel: `${d.toString().padStart(2, "0")}/${m.toString().padStart(2, "0")}/${y}`,
+      solarDateLabel: `${d.toString().padStart(2, "0")}/${m.toString().padStart(2, "0")}/${y}`,
+      lunarDateLabel,
       originYear: y,
       isDeceased: false,
       location: ce.location,

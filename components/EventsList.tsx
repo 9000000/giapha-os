@@ -117,6 +117,9 @@ function EventCard({
           >
             {event.personName}
           </p>
+          <span className="shrink-0 text-[10px] font-sans font-bold text-stone-500 bg-stone-100 border border-stone-200/60 rounded-md px-1.5 py-0.5 whitespace-nowrap tracking-wider">
+            {isBirthday ? "Sinh nhật" : isCustom ? "Sự kiện" : "Ngày giỗ"}
+          </span>
           {isBirthday &&
             event.originDay &&
             event.originMonth &&
@@ -133,11 +136,11 @@ function EventCard({
               <span>
                 {event.type === "death_anniversary" ? (
                   <>
-                    Ngày giỗ Âm: <span className="font-bold text-stone-700">{event.lunarDateLabel}</span> (Còn {event.lunarDaysUntil} ngày)
+                    Âm lịch (Ngày giỗ): <span className="font-bold text-stone-700">{event.lunarDateLabel}</span> (Còn {event.lunarDaysUntil} ngày)
                   </>
                 ) : (
                   <>
-                    {isBirthday ? "Sinh nhật" : "Sự kiện"} — Dương: <span className="font-bold text-stone-700">{event.solarDateLabel}</span> (Còn {event.solarDaysUntil} ngày)
+                    Dương: <span className="font-bold text-stone-700">{event.solarDateLabel}</span> (Còn {event.solarDaysUntil} ngày)
                   </>
                 )}
                 {event.originYear && (

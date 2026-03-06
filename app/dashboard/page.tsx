@@ -208,18 +208,20 @@ export default async function DashboardLaunchpad() {
                           <Icon className={`size-4 ${cfg.color}`} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <span className="text-sm font-semibold text-stone-700 truncate block">
+                          <div className="text-sm font-semibold text-stone-700 truncate flex items-center gap-2">
                             {evt.personName}
-                          </span>
+                            <span className="text-xs font-medium text-stone-400 bg-stone-100/80 px-1.5 py-0.5 rounded-md">
+                              {evt.type === "birthday" ? "Sinh nhật" : evt.type === "death_anniversary" ? "Ngày giỗ" : "Sự kiện"}
+                            </span>
+                          </div>
                           <div className="text-xs text-stone-500 font-medium pt-1 flex flex-col gap-0.5">
                             {evt.type === "death_anniversary" ? (
                               <span>
-                                Ngày giỗ Âm: <span className="text-stone-600">{evt.lunarDateLabel}</span> (Còn {evt.lunarDaysUntil} ngày nữa)
+                                Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> (Còn {evt.lunarDaysUntil} ngày nữa)
                               </span>
                             ) : (
                               <>
                                 <span>
-                                  {evt.type === "birthday" ? "Sinh nhật" : "Sự kiện"} -{" "}
                                   Dương: <span className="text-stone-600">{evt.solarDateLabel}</span> (Còn {evt.solarDaysUntil} ngày)
                                 </span>
                                 <span>

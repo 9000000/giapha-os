@@ -198,10 +198,10 @@ export default function AdminUserList({
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: -20, x: "-50%" }}
             className={`fixed top-1/2 left-1/2 z-100 px-6 py-3 rounded-xl shadow-lg border flex items-center gap-3 min-w-[320px] max-w-[90vw] ${notification.type === "success"
-                ? "bg-emerald-50/90 border-emerald-200 text-emerald-800"
-                : notification.type === "error"
-                  ? "bg-red-50/90 border-red-200 text-red-800"
-                  : "bg-amber-50/90 border-amber-200 text-amber-800"
+              ? "bg-emerald-50/90 border-emerald-200 text-emerald-800"
+              : notification.type === "error"
+                ? "bg-red-50/90 border-red-200 text-red-800"
+                : "bg-amber-50/90 border-amber-200 text-amber-800"
               }`}
           >
             {notification.type === "success" && (
@@ -282,7 +282,7 @@ export default function AdminUserList({
             <thead className="uppercase tracking-wider border-b border-stone-200/60 bg-stone-50/50">
               <tr>
                 <th className="px-6 py-4 text-stone-500 font-semibold text-xs">
-                  Email
+                  Tên Đăng Nhập / Email
                 </th>
                 <th className="px-6 py-4 text-stone-500 font-semibold text-xs">
                   Vai trò
@@ -314,16 +314,16 @@ export default function AdminUserList({
                     className={`hover:bg-stone-50/80 transition-colors ${isHierarchicallyProtected && !isSelf ? "bg-stone-50/30" : ""}`}
                   >
                     <td className="px-6 py-4 font-medium text-stone-900">
-                      {user.email}
+                      {user.email.replace('@giapha.local', '')}
                     </td>
                     <td className="px-6 py-4">
                       {isSelf || isHierarchicallyProtected ? (
                         <span
                           className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${user.role === "admin"
-                              ? "bg-amber-100 text-amber-800 border border-amber-200"
-                              : user.role === "editor"
-                                ? "bg-sky-100 text-sky-800 border border-sky-200"
-                                : "bg-stone-100 text-stone-600 border border-stone-200"
+                            ? "bg-amber-100 text-amber-800 border border-amber-200"
+                            : user.role === "editor"
+                              ? "bg-sky-100 text-sky-800 border border-sky-200"
+                              : "bg-stone-100 text-stone-600 border border-stone-200"
                             }`}
                           title={isHierarchicallyProtected && !isSelf ? "Không thể thay đổi quyền của Quản trị viên cấp cao hơn" : ""}
                         >
@@ -351,8 +351,8 @@ export default function AdminUserList({
                           handleStatusChange(user.id, !user.is_active)
                         }
                         className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium transition-colors ${user.is_active
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                            : "bg-stone-100 text-stone-800 border border-stone-200"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                          : "bg-stone-100 text-stone-800 border border-stone-200"
                           } ${!disableActions
                             ? "hover:opacity-80 cursor-pointer"
                             : "opacity-50 cursor-not-allowed"
@@ -440,14 +440,14 @@ export default function AdminUserList({
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-1">
-                    Email <span className="text-red-500">*</span>
+                    Tên đăng nhập / Email <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     name="email"
                     required
                     className="w-full px-3 py-2 sm:py-2.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-                    placeholder="email@example.com"
+                    placeholder="Tên viết liền không dấu hoặc Email"
                   />
                 </div>
 

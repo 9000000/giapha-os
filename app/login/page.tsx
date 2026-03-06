@@ -48,9 +48,11 @@ export default function LoginPage() {
     setSuccessMessage(null);
 
     try {
+      const authEmail = email.includes('@') ? email.trim() : `${email.trim()}@giapha.local`;
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: authEmail,
           password,
         });
 
@@ -69,7 +71,7 @@ export default function LoginPage() {
 
         // 1. Try to sign up
         const { data, error } = await supabase.auth.signUp({
-          email,
+          email: authEmail,
           password,
         });
 
@@ -96,7 +98,7 @@ export default function LoginPage() {
             // Attempt to sign in immediately (catches auto-confirmed first admin)
             const { data: signInData, error: signInError } =
               await supabase.auth.signInWithPassword({
-                email,
+                email: authEmail,
                 password,
               });
 
@@ -177,18 +179,18 @@ export default function LoginPage() {
                   htmlFor="email-address"
                   className="block text-[13px] font-semibold text-stone-600 mb-1.5 ml-1"
                 >
-                  Email
+                  Tên đăng nhập / Email
                 </label>
                 <div className="relative flex items-center group">
                   <Mail className="absolute left-3.5 size-5 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
                   <input
                     id="email-address"
                     name="email"
-                    type="email"
-                    autoComplete="email"
+                    type="text"
+                    autoComplete="username email"
                     required
                     className="bg-white/50 text-stone-900 placeholder-stone-400 block w-full rounded-xl border border-stone-200/80 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] focus:border-amber-400 focus:ring-amber-400 focus:bg-white pl-11 pr-4 py-3.5 transition-all duration-200 outline-none"
-                    placeholder="name@example.com"
+                    placeholder="Tên đăng nhập (viết liền không dấu) hoặc Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />

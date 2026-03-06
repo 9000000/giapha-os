@@ -36,7 +36,8 @@ export async function deleteUser(userId: string) {
 }
 
 export async function adminCreateUser(formData: FormData) {
-  const email = formData.get("email")?.toString();
+  const rawEmail = formData.get("email")?.toString();
+  const email = rawEmail ? (rawEmail.includes('@') ? rawEmail.trim() : `${rawEmail.trim()}@giapha.local`) : undefined;
   const password = formData.get("password")?.toString();
   const role = formData.get("role")?.toString() || "member";
 

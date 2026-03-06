@@ -6,7 +6,8 @@ import RootSelector from "@/components/RootSelector";
 import { Person, Relationship } from "@/types";
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import Link from "next/link";
 
 const TreeLoadingFallback = () => (
   <div className="w-full h-full flex items-center justify-center min-h-[300px]">
@@ -78,7 +79,17 @@ export default function DashboardViews({
       <main className="flex-1 overflow-auto bg-stone-50/50 flex flex-col">
         {currentView !== "list" && persons.length > 0 && activeRootId && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
-            <RootSelector persons={persons} currentRootId={activeRootId} />
+            <div className="flex flex-row items-center gap-3">
+              <RootSelector persons={persons} currentRootId={activeRootId} />
+              <Link
+                href="/dashboard/members/new"
+                className="flex items-center gap-2 px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-xl shadow-sm transition-colors border border-amber-500/50"
+              >
+                <Plus className="size-4" />
+                <span className="hidden sm:inline">Thêm vào Cây</span>
+                <span className="sm:hidden">Thêm</span>
+              </Link>
+            </div>
             <div
               id="tree-toolbar-portal"
               className="flex items-center gap-2 flex-wrap justify-center"

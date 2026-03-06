@@ -9,8 +9,6 @@ import FamilyNodeCard from "./FamilyNodeCard";
 import TreeToolbar from "./TreeToolbar";
 
 import { buildAdjacencyLists, getFilteredTreeData } from "@/utils/treeHelpers";
-import { Plus } from "lucide-react";
-import Link from "next/link";
 
 export default function FamilyTree({
   personsMap,
@@ -310,16 +308,6 @@ export default function FamilyTree({
         mx-auto centers it if smaller than screen. 
         p-8 adds padding inside scroll area.
       */}
-        <div className="absolute top-4 left-4 z-20">
-          <Link
-            href="/dashboard/members/new"
-            className="flex items-center gap-2 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors border border-amber-500/50"
-          >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Thêm vào Cây</span>
-            <span className="sm:hidden">Thêm</span>
-          </Link>
-        </div>
         <div
           id="export-container"
           className={`w-max min-w-full mx-auto p-4 pt-16 css-tree transition-all duration-200 ${isDragging ? "opacity-90" : ""}`}

@@ -111,9 +111,9 @@ function EventCard({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
           <p
-            className={`font-semibold text-stone-800 truncate transition-colors group-hover:text-amber-700`}
+            className={`font-semibold text-stone-800 break-words transition-colors group-hover:text-amber-700`}
           >
             {event.personName}
           </p>

@@ -89,12 +89,12 @@ export default function FamilyNodeCard({
           >
             {person.avatar_url ? (
               <Image
-                unoptimized
                 src={person.avatar_url}
                 alt={person.full_name}
                 className="w-full h-full object-cover"
                 width={64}
                 height={64}
+                sizes="(max-width: 640px) 40px, (max-width: 768px) 48px, 56px"
               />
             ) : (
               <DefaultAvatar gender={person.gender} />

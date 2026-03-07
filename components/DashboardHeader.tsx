@@ -17,6 +17,7 @@ export default function DashboardHeader() {
                 src="/icon.png"
                 alt="Logo"
                 fill
+                priority
                 className="object-contain"
                 sizes="32px"
               />

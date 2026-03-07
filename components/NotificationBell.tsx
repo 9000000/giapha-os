@@ -1,12 +1,11 @@
 "use client";
 
 import { useUser } from "@/components/UserProvider";
-import { createClient } from "@/utils/supabase/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, UserPlus, FileEdit, Clock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface NotificationItem {
     id: string; // id của person hoặc change_request
@@ -26,7 +25,7 @@ export default function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState(0);
 
     const menuRef = useRef<HTMLDivElement>(null);
-    const supabase = useMemo(() => createClient(), []);
+    const { supabase } = useUser();
     const router = useRouter();
 
     // 1. Load Last Read Timestamp from User Metadata or LocalStorage
@@ -51,19 +50,42 @@ export default function NotificationBell() {
         }
     }, [user?.id, user?.user_metadata]);
 
-    // 2. Fetch Notifications (Merge 2 sources)
+    // 2. Fetch Notifications (Merge 2 sources) — all queries run in parallel
     const fetchNotifications = async () => {
         if (!user) return;
 
         let items: NotificationItem[] = [];
 
-        // Lấy 10 thành viên mới được thêm vào (Ai cũng xem được)
-        const { data: recentPersons } = await supabase
+        // Build queries array for parallel execution
+        const personsQuery = supabase
             .from("persons")
             .select("id, full_name, created_at")
             .order("created_at", { ascending: false })
             .limit(10);
 
+        // Admin-only queries
+        const requestsQuery = isAdmin
+            ? supabase
+                .from("change_requests")
+                .select("id, target_table, created_at")
+                .eq("status", "pending")
+                .order("created_at", { ascending: false })
+                .limit(10)
+            : null;
+
+        const usersQuery = isAdmin
+            ? supabase.rpc("get_admin_users")
+            : null;
+
+        // Execute ALL queries in parallel
+        const [personsResult, requestsResult, usersResult] = await Promise.all([
+            personsQuery,
+            requestsQuery,
+            usersQuery,
+        ]);
+
+        // Process persons results
+        const recentPersons = personsResult.data;
         if (recentPersons) {
             const personItems = recentPersons.map((p) => ({
                 id: p.id,
@@ -77,17 +99,11 @@ export default function NotificationBell() {
             items = [...items, ...personItems];
         }
 
-        // Nếu là Admin, lấy thêm yêu cầu cần duyệt (Pending)
+        // Process admin results
         if (isAdmin) {
-            const { data: pendingRequests } = await supabase
-                .from("change_requests")
-                .select("id, target_table, created_at")
-                .eq("status", "pending")
-                .order("created_at", { ascending: false })
-                .limit(10);
-
+            const pendingRequests = requestsResult?.data;
             if (pendingRequests) {
-                const reqItems = pendingRequests.map((r) => ({
+                const reqItems = pendingRequests.map((r: any) => ({
                     id: r.id,
                     type: "change_request" as const,
                     title: "Yêu cầu cần duyệt",
@@ -99,8 +115,7 @@ export default function NotificationBell() {
                 items = [...items, ...reqItems];
             }
 
-            // Lấy thêm 10 tài khoản mới đăng ký
-            const { data: allUsers } = await supabase.rpc("get_admin_users");
+            const allUsers = usersResult?.data;
             if (allUsers) {
                 const sortedUsers = [...allUsers]
                     .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

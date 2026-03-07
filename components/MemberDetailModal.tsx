@@ -43,29 +43,31 @@ export default function MemberDetailModal() {
       setLoading(true);
       setError(null);
       try {
-        // 1. Fetch Person Public Data
-        const { data: personData, error: personError } = await supabase
+        // Fetch person public data + private data in parallel
+        const personQuery = supabase
           .from("persons")
           .select("*")
           .eq("id", id)
           .single();
 
-        if (personError || !personData) {
-          throw new Error("Không thể tải thông tin thành viên.");
-        }
-        setPerson(personData);
-
-        // 2. Fetch Private Data if Admin
-        if (isAdmin) {
-          const { data: privData } = await supabase
+        const privateQuery = isAdmin
+          ? supabase
             .from("person_details_private")
             .select("*")
             .eq("person_id", id)
-            .single();
-          setPrivateData(privData || {});
-        } else {
-          setPrivateData(null);
+            .single()
+          : null;
+
+        const [personResult, privateResult] = await Promise.all([
+          personQuery,
+          privateQuery,
+        ]);
+
+        if (personResult.error || !personResult.data) {
+          throw new Error("Không thể tải thông tin thành viên.");
         }
+        setPerson(personResult.data);
+        setPrivateData(isAdmin ? (privateResult?.data || {}) : null);
       } catch (err) {
         console.error("Error fetching member details:", err);
         // @ts-expect-error - err is caught as unknown, but we check for message

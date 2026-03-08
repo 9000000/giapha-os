@@ -58,8 +58,8 @@ export default function DashboardMemberList({
           break;
         case "all":
         default:
-          // Ẩn con rể và hậu duệ của họ theo mặc định trong chế độ "Tất cả"
-          matchesFilter = !person.is_in_law && !isExcludedInLawLine;
+          // Ẩn con rể và hậu duệ của họ theo mặc định trong chế độ "Tất cả", nhưng vẫn hiển thị con dâu
+          matchesFilter = (!person.is_in_law || person.gender === "female") && !isExcludedInLawLine;
           break;
       }
 

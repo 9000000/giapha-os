@@ -249,8 +249,8 @@ export default function NotificationBell() {
             persistReadIds();
 
             // Update UI: mark this one as read
-            setNotifications(prev =>
-                prev.map(n =>
+            setNotifications((prev: NotificationItem[]) =>
+                prev.map((n: NotificationItem) =>
                     notifKey(n) === key ? { ...n, isRead: true } : n
                 )
             );
@@ -261,12 +261,12 @@ export default function NotificationBell() {
 
     // 7. Mark ALL as read (optional button)
     const handleMarkAllRead = () => {
-        notifications.forEach(n => {
+        notifications.forEach((n: NotificationItem) => {
             readIdsRef.current.add(notifKey(n));
         });
         persistReadIds();
 
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        setNotifications((prev: NotificationItem[]) => prev.map((n: NotificationItem) => ({ ...n, isRead: true })));
         setUnreadCount(0);
     };
 

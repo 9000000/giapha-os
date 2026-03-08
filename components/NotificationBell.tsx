@@ -2,13 +2,13 @@
 
 import { useUser } from "@/components/UserProvider";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, UserPlus, FileEdit, Clock } from "lucide-react";
+import { Bell, UserPlus, FileEdit, Clock, CheckCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface NotificationItem {
-    id: string; // id của person hoặc change_request
+    id: string; // id of person or change_request
     type: "new_member" | "change_request" | "new_user";
     title: string;
     message: string;
@@ -17,42 +17,58 @@ interface NotificationItem {
     isRead: boolean;
 }
 
+// Helper to build a unique key for each notification
+function notifKey(item: { type: string; id: string }) {
+    return `${item.type}::${item.id}`;
+}
+
 export default function NotificationBell() {
     const { user, isAdmin } = useUser();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
-    const lastReadRef = useRef<number>(0);
+
+    // Store read notification IDs in a ref + state for persistence
+    const readIdsRef = useRef<Set<string>>(new Set());
 
     const menuRef = useRef<HTMLDivElement>(null);
     const { supabase } = useUser();
     const router = useRouter();
 
-    // 1. Load Last Read Timestamp from User Metadata or LocalStorage
-    // Load lastRead from localStorage on mount (one-time)
+    // Helper: localStorage key for read IDs
+    const getStorageKey = useCallback(() => {
+        return user?.id ? `giapha_read_notification_ids_${user.id}` : null;
+    }, [user?.id]);
+
+    // 1. Load read IDs from localStorage on mount
     useEffect(() => {
         if (typeof window !== "undefined" && user?.id) {
-            const metadataLastRead = user.user_metadata?.last_read_notifications;
-            const metaVal = Number(metadataLastRead);
-
-            if (metadataLastRead && !isNaN(metaVal) && metaVal > 0) {
-                lastReadRef.current = metaVal;
-                localStorage.setItem(`giapha_last_read_notifications_${user.id}`, String(metaVal));
-            } else {
-                const stored = localStorage.getItem(`giapha_last_read_notifications_${user.id}`);
-                if (stored && !isNaN(Number(stored))) {
-                    lastReadRef.current = Number(stored);
-                } else {
-                    // First time: default to now so no old items show as unread
-                    const now = Date.now();
-                    lastReadRef.current = now;
-                    localStorage.setItem(`giapha_last_read_notifications_${user.id}`, String(now));
+            const key = getStorageKey();
+            if (key) {
+                try {
+                    const stored = localStorage.getItem(key);
+                    if (stored) {
+                        const parsed: string[] = JSON.parse(stored);
+                        readIdsRef.current = new Set(parsed);
+                    }
+                } catch {
+                    readIdsRef.current = new Set();
                 }
             }
         }
-    }, [user?.id]); // Only run when user changes, not on every metadata update
+    }, [user?.id, getStorageKey]);
 
-    // 2. Fetch Notifications (Merge 2 sources) — all queries run in parallel
+    // Helper: save read IDs to localStorage
+    const persistReadIds = useCallback(() => {
+        const key = getStorageKey();
+        if (key && typeof window !== "undefined") {
+            // Keep max 100 entries to prevent localStorage bloat
+            const arr = Array.from(readIdsRef.current).slice(-100);
+            localStorage.setItem(key, JSON.stringify(arr));
+        }
+    }, [getStorageKey]);
+
+    // 2. Fetch Notifications (Merge sources) — all queries run in parallel
     const fetchNotifications = async () => {
         if (!user) return;
 
@@ -136,24 +152,19 @@ export default function NotificationBell() {
             }
         }
 
-        // Sắp xếp giảm dần theo thời gian tạo
+        // Sort by created_at descending
         items.sort(
             (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
 
-        // Rút gọn chỉ lấy 10 thông báo mới nhất tổng hợp để giao diện gọn gàng
+        // Keep only top 10 newest
         items = items.slice(0, 10);
 
-        // Tính isRead
-        // Use ref value directly — always up-to-date, no stale closure
-        const currentLastRead = lastReadRef.current;
-        items = items.map(item => {
-            const itemTime = new Date(item.created_at).getTime();
-            return {
-                ...item,
-                isRead: itemTime <= currentLastRead
-            };
-        });
+        // Determine isRead by checking if this notification's key is in our read set
+        items = items.map(item => ({
+            ...item,
+            isRead: readIdsRef.current.has(notifKey(item)),
+        }));
 
         setNotifications(items);
         setUnreadCount(items.filter((i) => !i.isRead).length);
@@ -170,7 +181,7 @@ export default function NotificationBell() {
                 { event: "INSERT", schema: "public", table: "persons" },
                 (_payload) => {
                     fetchNotifications();
-                    router.refresh(); // Tự động làm mới UI trang 
+                    router.refresh();
                 }
             )
             .subscribe();
@@ -212,7 +223,7 @@ export default function NotificationBell() {
                 supabase.removeChannel(profilesChannel);
             }
         };
-    }, [user?.id, isAdmin]); // Removed lastReadTimestamp — ref does not need to be a dep
+    }, [user?.id, isAdmin]);
 
     // 4. Handle Outside Click
     useEffect(() => {
@@ -225,27 +236,38 @@ export default function NotificationBell() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // 5. Mở danh sách và đánh dấu đã đọc
-    const handleToggleMenu = async () => {
-        const opening = !isOpen;
-        setIsOpen(opening);
-        if (opening && user?.id) {
-            const now = Date.now();
-            // Update ref immediately — subsequent fetches will use this value
-            lastReadRef.current = now;
-            localStorage.setItem(`giapha_last_read_notifications_${user.id}`, String(now));
-            setUnreadCount(0); // Clear badge instantly
+    // 5. Toggle menu — just open/close, do NOT mark all as read
+    const handleToggleMenu = () => {
+        setIsOpen(prev => !prev);
+    };
 
-            // Mark all current notifications as read in UI
-            setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    // 6. Mark a single notification as read when clicked
+    const handleNotificationClick = (notif: NotificationItem) => {
+        const key = notifKey(notif);
+        if (!readIdsRef.current.has(key)) {
+            readIdsRef.current.add(key);
+            persistReadIds();
 
-            // Persist to Supabase user_metadata (non-blocking)
-            supabase.auth.updateUser({
-                data: {
-                    last_read_notifications: now,
-                }
-            }).catch(console.error);
+            // Update UI: mark this one as read
+            setNotifications(prev =>
+                prev.map(n =>
+                    notifKey(n) === key ? { ...n, isRead: true } : n
+                )
+            );
+            setUnreadCount(prev => Math.max(0, prev - 1));
         }
+        setIsOpen(false);
+    };
+
+    // 7. Mark ALL as read (optional button)
+    const handleMarkAllRead = () => {
+        notifications.forEach(n => {
+            readIdsRef.current.add(notifKey(n));
+        });
+        persistReadIds();
+
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        setUnreadCount(0);
     };
 
     if (!user) return null;
@@ -277,9 +299,19 @@ export default function NotificationBell() {
                     >
                         <div className="px-4 py-3 border-b border-stone-100 bg-stone-50/50 flex justify-between items-center">
                             <h3 className="text-sm font-semibold text-stone-800">Thông báo</h3>
-                            <span className="text-xs text-stone-400 font-medium bg-white px-2 py-0.5 rounded-full border border-stone-200">
-                                10 Mới nhất
-                            </span>
+                            {unreadCount > 0 ? (
+                                <button
+                                    onClick={handleMarkAllRead}
+                                    className="text-xs text-amber-600 hover:text-amber-800 font-medium flex items-center gap-1 px-2 py-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                                >
+                                    <CheckCheck className="size-3" />
+                                    Đọc tất cả
+                                </button>
+                            ) : (
+                                <span className="text-xs text-stone-400 font-medium bg-white px-2 py-0.5 rounded-full border border-stone-200">
+                                    Đã đọc hết
+                                </span>
+                            )}
                         </div>
 
                         <div className="max-h-96 overflow-y-auto custom-scrollbar">
@@ -292,12 +324,20 @@ export default function NotificationBell() {
                                 <div className="flex flex-col">
                                     {notifications.map((notif) => (
                                         <Link
-                                            key={notif.id}
+                                            key={notifKey(notif)}
                                             href={notif.link}
-                                            onClick={() => setIsOpen(false)}
-                                            className={`flex gap-3 px-4 py-3 hover:bg-stone-50 border-b border-stone-100/50 transition-colors last:border-0 ${!notif.isRead ? "bg-amber-50/40" : ""
+                                            onClick={() => handleNotificationClick(notif)}
+                                            className={`flex gap-3 px-4 py-3 border-b border-stone-100/50 transition-colors last:border-0 ${!notif.isRead
+                                                ? "bg-amber-50/60 hover:bg-amber-100/50"
+                                                : "hover:bg-stone-50"
                                                 }`}
                                         >
+                                            {/* Unread dot indicator */}
+                                            {!notif.isRead && (
+                                                <div className="absolute left-1.5 mt-3">
+                                                    <span className="block size-2 rounded-full bg-amber-500 shadow-sm" />
+                                                </div>
+                                            )}
                                             <div className={`mt-0.5 shrink-0 flex items-center justify-center size-8 rounded-full ${notif.type === 'new_member' ? 'bg-sky-100 text-sky-600' :
                                                 notif.type === 'new_user' ? 'bg-indigo-100 text-indigo-600' : 'bg-rose-100 text-rose-600'
                                                 }`}>
@@ -307,14 +347,14 @@ export default function NotificationBell() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-baseline gap-2 mb-0.5">
-                                                    <p className={`text-sm truncate ${!notif.isRead ? 'font-bold text-stone-900' : 'font-semibold text-stone-700'}`}>
+                                                    <p className={`text-sm truncate ${!notif.isRead ? 'font-bold text-stone-900' : 'font-medium text-stone-600'}`}>
                                                         {notif.title}
                                                     </p>
                                                     <span className="text-[10px] text-stone-400 flex items-center gap-1 shrink-0">
                                                         {new Date(notif.created_at).toLocaleDateString("vi-VN")}
                                                     </span>
                                                 </div>
-                                                <p className={`text-xs ${!notif.isRead ? 'text-stone-700 font-medium' : 'text-stone-500'} line-clamp-2`}>
+                                                <p className={`text-xs line-clamp-2 ${!notif.isRead ? 'text-stone-700 font-medium' : 'text-stone-400'}`}>
                                                     {notif.message}
                                                 </p>
                                             </div>

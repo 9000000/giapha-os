@@ -21,34 +21,36 @@ export default function NotificationBell() {
     const { user, isAdmin } = useUser();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-    const [lastReadTimestamp, setLastReadTimestamp] = useState<number>(0);
     const [unreadCount, setUnreadCount] = useState(0);
+    const lastReadRef = useRef<number>(0);
 
     const menuRef = useRef<HTMLDivElement>(null);
     const { supabase } = useUser();
     const router = useRouter();
 
     // 1. Load Last Read Timestamp from User Metadata or LocalStorage
+    // Load lastRead from localStorage on mount (one-time)
     useEffect(() => {
         if (typeof window !== "undefined" && user?.id) {
-            // Ưu tiên lấy từ metadata (đã đồng bộ trên DB)
             const metadataLastRead = user.user_metadata?.last_read_notifications;
+            const metaVal = Number(metadataLastRead);
 
-            if (metadataLastRead && !isNaN(parseInt(metadataLastRead, 10))) {
-                setLastReadTimestamp(parseInt(metadataLastRead, 10));
-                localStorage.setItem(`giapha_last_read_notifications_${user.id}`, metadataLastRead.toString());
+            if (metadataLastRead && !isNaN(metaVal) && metaVal > 0) {
+                lastReadRef.current = metaVal;
+                localStorage.setItem(`giapha_last_read_notifications_${user.id}`, String(metaVal));
             } else {
-                // Fallback về localStorage nếu metadata chưa có
                 const stored = localStorage.getItem(`giapha_last_read_notifications_${user.id}`);
-                if (stored) {
-                    setLastReadTimestamp(parseInt(stored, 10));
+                if (stored && !isNaN(Number(stored))) {
+                    lastReadRef.current = Number(stored);
                 } else {
-                    // Nếu lần đầu tiên, set về 7 ngày trước để không bị quá tải
-                    setLastReadTimestamp(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                    // First time: default to now so no old items show as unread
+                    const now = Date.now();
+                    lastReadRef.current = now;
+                    localStorage.setItem(`giapha_last_read_notifications_${user.id}`, String(now));
                 }
             }
         }
-    }, [user?.id, user?.user_metadata]);
+    }, [user?.id]); // Only run when user changes, not on every metadata update
 
     // 2. Fetch Notifications (Merge 2 sources) — all queries run in parallel
     const fetchNotifications = async () => {
@@ -143,11 +145,13 @@ export default function NotificationBell() {
         items = items.slice(0, 10);
 
         // Tính isRead
+        // Use ref value directly — always up-to-date, no stale closure
+        const currentLastRead = lastReadRef.current;
         items = items.map(item => {
             const itemTime = new Date(item.created_at).getTime();
             return {
                 ...item,
-                isRead: itemTime <= lastReadTimestamp
+                isRead: itemTime <= currentLastRead
             };
         });
 
@@ -208,7 +212,7 @@ export default function NotificationBell() {
                 supabase.removeChannel(profilesChannel);
             }
         };
-    }, [user?.id, isAdmin, lastReadTimestamp]); // Re-fetch when lastRead changes to update styles
+    }, [user?.id, isAdmin]); // Removed lastReadTimestamp — ref does not need to be a dep
 
     // 4. Handle Outside Click
     useEffect(() => {
@@ -227,14 +231,15 @@ export default function NotificationBell() {
         setIsOpen(opening);
         if (opening && user?.id) {
             const now = Date.now();
-            setLastReadTimestamp(now);
-            localStorage.setItem(`giapha_last_read_notifications_${user.id}`, now.toString());
-            setUnreadCount(0); // Clear chấm đỏ ngay lập tức
+            // Update ref immediately — subsequent fetches will use this value
+            lastReadRef.current = now;
+            localStorage.setItem(`giapha_last_read_notifications_${user.id}`, String(now));
+            setUnreadCount(0); // Clear badge instantly
 
-            // Đánh dấu tất cả là đã đọc
+            // Mark all current notifications as read in UI
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
 
-            // Xử lý lưu đồng bộ lên user_metadata của Supabase Auth KHÔNG chặn UI
+            // Persist to Supabase user_metadata (non-blocking)
             supabase.auth.updateUser({
                 data: {
                     last_read_notifications: now,

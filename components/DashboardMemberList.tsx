@@ -28,10 +28,10 @@ export default function DashboardMemberList({
       let matchesFilter = true;
       switch (filterOption) {
         case "male":
-          matchesFilter = person.gender === "male";
+          matchesFilter = person.gender === "male" && !person.is_in_law;
           break;
         case "female":
-          matchesFilter = person.gender === "female";
+          matchesFilter = person.gender === "female" && !person.is_in_law;
           break;
         case "in_law_female":
           matchesFilter = person.gender === "female" && person.is_in_law;
@@ -40,14 +40,15 @@ export default function DashboardMemberList({
           matchesFilter = person.gender === "male" && person.is_in_law;
           break;
         case "deceased":
-          matchesFilter = person.is_deceased;
+          matchesFilter = person.is_deceased && !person.is_in_law;
           break;
         case "first_child":
-          matchesFilter = person.birth_order === 1;
+          matchesFilter = person.birth_order === 1 && !person.is_in_law;
           break;
         case "all":
         default:
-          matchesFilter = true;
+          // Hide in-law members by default in "All" view
+          matchesFilter = !person.is_in_law;
           break;
       }
 

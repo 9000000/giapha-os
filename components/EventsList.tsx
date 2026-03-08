@@ -244,7 +244,7 @@ export default function EventsList({
     return { solar: solarStr, lunar: lunarStr };
   });
 
-  // Build excluded person IDs: sons-in-law + their descendants
+  // Build excluded person IDs: sons-in-law + children under their family unit
   const excludedIds = useMemo(() => {
     const excluded = new Set<string>();
 
@@ -254,7 +254,18 @@ export default function EventsList({
     );
     sonsInLaw.forEach((p) => excluded.add(p.id));
 
-    // 2. Build parent→children map from relationships
+    // 2. Build marriage map: person → list of spouse IDs
+    const spouseMap = new Map<string, string[]>();
+    relationships.forEach((r) => {
+      if (r.type === "marriage") {
+        if (!spouseMap.has(r.person_a)) spouseMap.set(r.person_a, []);
+        if (!spouseMap.has(r.person_b)) spouseMap.set(r.person_b, []);
+        spouseMap.get(r.person_a)!.push(r.person_b);
+        spouseMap.get(r.person_b)!.push(r.person_a);
+      }
+    });
+
+    // 3. Build parent→children map from relationships
     const childrenByParent = new Map<string, string[]>();
     relationships.forEach((r) => {
       if (r.type === "biological_child" || r.type === "adopted_child") {
@@ -263,17 +274,31 @@ export default function EventsList({
       }
     });
 
-    // 3. Recursively find all descendants of sons-in-law
+    // 4. For each son-in-law, find their spouses and collect children
+    //    under BOTH the son-in-law AND the spouse (because children may
+    //    be entered under either parent)
     const addDescendants = (parentId: string) => {
       const children = childrenByParent.get(parentId) || [];
       children.forEach((childId) => {
         if (!excluded.has(childId)) {
           excluded.add(childId);
-          addDescendants(childId);
+          addDescendants(childId); // recursively find grandchildren etc.
         }
       });
     };
-    sonsInLaw.forEach((p) => addDescendants(p.id));
+
+    sonsInLaw.forEach((sonInLaw) => {
+      // Descendants directly under the son-in-law
+      addDescendants(sonInLaw.id);
+
+      // Find spouses of this son-in-law
+      const spouses = spouseMap.get(sonInLaw.id) || [];
+      spouses.forEach((spouseId) => {
+        // Get children listed under the spouse (the family member)
+        // but do NOT exclude the spouse herself
+        addDescendants(spouseId);
+      });
+    });
 
     return excluded;
   }, [persons, relationships]);

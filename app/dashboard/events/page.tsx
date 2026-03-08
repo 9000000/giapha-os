@@ -21,8 +21,7 @@ export default async function EventsPage() {
       .select("id, name, content, event_date, location, created_by"),
     supabase
       .from("relationships")
-      .select("person_a, person_b, type")
-      .in("type", ["biological_child", "adopted_child"]),
+      .select("person_a, person_b, type"),
   ]);
 
   const persons = personsRes.data || [];

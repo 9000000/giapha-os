@@ -1,16 +1,19 @@
 "use client";
 
 import PersonCard from "@/components/PersonCard";
-import { Person } from "@/types";
+import { Person, Relationship } from "@/types";
+import { getExcludedInLawIds } from "@/utils/treeHelpers";
 import { ArrowUpDown, Filter, Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useDashboard } from "./DashboardContext";
 
 export default function DashboardMemberList({
   initialPersons,
+  relationships,
   canEdit = false,
 }: {
   initialPersons: Person[];
+  relationships: Relationship[];
   canEdit?: boolean;
 }) {
   const { setShowCreateMember } = useDashboard();
@@ -19,6 +22,11 @@ export default function DashboardMemberList({
 
   const [filterOption, setFilterOption] = useState("all");
 
+  // Tính các ID cần loại trừ (con rể + hậu duệ của họ)
+  const excludedIds = useMemo(() => {
+    return getExcludedInLawIds(initialPersons, relationships);
+  }, [initialPersons, relationships]);
+
   const filteredPersons = useMemo(() => {
     return initialPersons.filter((person) => {
       const matchesSearch = person.full_name
@@ -26,35 +34,38 @@ export default function DashboardMemberList({
         .includes(searchTerm.toLowerCase());
 
       let matchesFilter = true;
+      const isExcludedInLawLine = excludedIds.has(person.id);
+
       switch (filterOption) {
         case "male":
-          matchesFilter = person.gender === "male" && !person.is_in_law;
+          matchesFilter = person.gender === "male" && !person.is_in_law && !isExcludedInLawLine;
           break;
         case "female":
-          matchesFilter = person.gender === "female" && !person.is_in_law;
+          matchesFilter = person.gender === "female" && !person.is_in_law && !isExcludedInLawLine;
           break;
         case "in_law_female":
-          matchesFilter = person.gender === "female" && person.is_in_law;
+          matchesFilter = person.gender === "female" && person.is_in_law === true;
           break;
         case "in_law_male":
-          matchesFilter = person.gender === "male" && person.is_in_law;
+          // Hiển thị con rể nếu người dùng chọn đúng bộ lọc "Rể"
+          matchesFilter = person.gender === "male" && person.is_in_law === true;
           break;
         case "deceased":
-          matchesFilter = person.is_deceased && !person.is_in_law;
+          matchesFilter = !!person.is_deceased && !person.is_in_law && !isExcludedInLawLine;
           break;
         case "first_child":
-          matchesFilter = person.birth_order === 1 && !person.is_in_law;
+          matchesFilter = person.birth_order === 1 && !person.is_in_law && !isExcludedInLawLine;
           break;
         case "all":
         default:
-          // Hide in-law members by default in "All" view
-          matchesFilter = !person.is_in_law;
+          // Ẩn con rể và hậu duệ của họ theo mặc định trong chế độ "Tất cả"
+          matchesFilter = !person.is_in_law && !isExcludedInLawLine;
           break;
       }
 
       return matchesSearch && matchesFilter;
     });
-  }, [initialPersons, searchTerm, filterOption]);
+  }, [initialPersons, searchTerm, filterOption, excludedIds]);
 
   const sortedPersons = useMemo(() => {
     return [...filteredPersons].sort((a, b) => {

@@ -91,3 +91,71 @@ export function getFilteredTreeData(
     children: childrenList,
   };
 }
+
+/**
+ * Tìm tất cả các thành viên cần loại trừ khỏi sự kiện/danh sách:
+ * 1. Con rể (nam, is_in_law = true)
+ * 2. Con của con rể (kể cả con được nhập dưới vợ rể)
+ * 3. Hậu duệ đệ quy của họ
+ *
+ * Lưu ý: Vợ của con rể (người mang họ gia tộc) KHÔNG bị loại trừ.
+ */
+export function getExcludedInLawIds(
+  persons: { id: string; gender?: string | null; is_in_law?: boolean | null }[],
+  relationships: { person_a: string; person_b: string; type: string }[]
+): Set<string> {
+  const excluded = new Set<string>();
+
+  // 1. Find all sons-in-law (male + is_in_law)
+  const sonsInLaw = persons.filter(
+    (p) => p.gender === "male" && p.is_in_law === true
+  );
+  sonsInLaw.forEach((p) => excluded.add(p.id));
+
+  if (sonsInLaw.length === 0) return excluded;
+
+  // 2. Build marriage map: person → list of spouse IDs
+  const spouseMap = new Map<string, string[]>();
+  relationships.forEach((r) => {
+    if (r.type === "marriage") {
+      if (!spouseMap.has(r.person_a)) spouseMap.set(r.person_a, []);
+      if (!spouseMap.has(r.person_b)) spouseMap.set(r.person_b, []);
+      spouseMap.get(r.person_a)!.push(r.person_b);
+      spouseMap.get(r.person_b)!.push(r.person_a);
+    }
+  });
+
+  // 3. Build parent→children map from relationships
+  const childrenByParent = new Map<string, string[]>();
+  relationships.forEach((r) => {
+    if (r.type === "biological_child" || r.type === "adopted_child") {
+      if (!childrenByParent.has(r.person_a)) childrenByParent.set(r.person_a, []);
+      childrenByParent.get(r.person_a)!.push(r.person_b);
+    }
+  });
+
+  // 4. Recursively add descendants of a parent
+  const addDescendants = (parentId: string) => {
+    const children = childrenByParent.get(parentId) || [];
+    children.forEach((childId) => {
+      if (!excluded.has(childId)) {
+        excluded.add(childId);
+        addDescendants(childId);
+      }
+    });
+  };
+
+  sonsInLaw.forEach((sonInLaw) => {
+    // Descendants directly under the son-in-law
+    addDescendants(sonInLaw.id);
+
+    // Also add descendants listed under the spouse (wife from the family)
+    // but do NOT exclude the spouse herself
+    const spouses = spouseMap.get(sonInLaw.id) || [];
+    spouses.forEach((spouseId) => {
+      addDescendants(spouseId);
+    });
+  });
+
+  return excluded;
+}

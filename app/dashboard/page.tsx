@@ -1,6 +1,7 @@
 import { getTodayLunar } from "@/utils/dateHelpers";
 import { computeEvents } from "@/utils/eventHelpers";
 import { getIsAdmin, getSupabase } from "@/utils/supabase/queries";
+import { getExcludedInLawIds } from "@/utils/treeHelpers";
 import {
   ArrowRight,
   BarChart2,
@@ -40,22 +41,30 @@ const eventTypeConfig = {
 export default async function DashboardLaunchpad() {
   const supabase = await getSupabase();
 
-  const [isAdmin, personsRes, customEventsRes] = await Promise.all([
+  const [isAdmin, personsRes, relationshipsRes, customEventsRes] = await Promise.all([
     getIsAdmin(),
     supabase
       .from("persons")
       .select(
-        "id, full_name, birth_year, birth_month, birth_day, death_year, death_month, death_day, is_deceased",
+        "id, full_name, gender, is_in_law, birth_year, birth_month, birth_day, death_year, death_month, death_day, is_deceased",
       ),
+    supabase
+      .from("relationships")
+      .select("person_a, person_b, type"),
     supabase
       .from("custom_events")
       .select("id, name, content, event_date, location, created_by"),
   ]);
 
-  const persons = personsRes.data;
-  const customEvents = customEventsRes.data;
+  const persons = personsRes.data ?? [];
+  const relationships = relationshipsRes.data ?? [];
+  const customEvents = customEventsRes.data ?? [];
 
-  const allEvents = computeEvents(persons ?? [], customEvents ?? []);
+  // Loại bỏ con rể và hậu duệ của họ trước khi tính sự kiện
+  const excludedIds = getExcludedInLawIds(persons, relationships);
+  const filteredPersons = persons.filter((p) => !excludedIds.has(p.id));
+
+  const allEvents = computeEvents(filteredPersons as any, customEvents);
   const upcomingEvents = allEvents.filter(
     (e) => e.daysUntil >= 0 && e.daysUntil <= 30 && !(e.type === "birthday" && e.isDeceased),
   );

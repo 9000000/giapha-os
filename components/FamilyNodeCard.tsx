@@ -130,11 +130,17 @@ export default function FamilyNodeCard({
             }
           }}
         >
-          {nameRows.map((row, i) => (
-            <span key={i} className="block">
-              {row}
-            </span>
-          ))}
+          {showAvatar
+            ? nameRows.map((row, i) => (
+              <span key={i} className="block">
+                {row}
+              </span>
+            ))
+            : words.map((word, i) => (
+              <span key={i} className="block">
+                {word}
+              </span>
+            ))}
         </div>
       </div>
     </div>

@@ -119,6 +119,15 @@ CREATE TABLE IF NOT EXISTS public.custom_events (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- NOTIFICATION_READS (Persists read state per user, survives cache clears)
+CREATE TABLE IF NOT EXISTS public.notification_reads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  notification_key TEXT NOT NULL, -- format: "type::id" (e.g. "new_member::abc-123")
+  read_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, notification_key)
+);
+
 -- ==========================================
 -- INDEXES
 -- ==========================================

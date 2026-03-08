@@ -28,49 +28,41 @@ export default function NotificationBell() {
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    // Store read notification IDs in a ref + state for persistence
-    const readIdsRef = useRef<Set<string>>(new Set());
+    // Store read notification keys loaded from the database
+    const readKeysRef = useRef<Set<string>>(new Set());
+    const readKeysLoadedRef = useRef(false);
 
     const menuRef = useRef<HTMLDivElement>(null);
     const { supabase } = useUser();
     const router = useRouter();
 
-    // Helper: localStorage key for read IDs
-    const getStorageKey = useCallback(() => {
-        return user?.id ? `giapha_read_notification_ids_${user.id}` : null;
-    }, [user?.id]);
+    // 1. Load read keys from Supabase on mount
+    const loadReadKeys = useCallback(async () => {
+        if (!user?.id) return;
+        try {
+            const { data } = await supabase
+                .from("notification_reads")
+                .select("notification_key")
+                .eq("user_id", user.id);
 
-    // 1. Load read IDs from localStorage on mount
-    useEffect(() => {
-        if (typeof window !== "undefined" && user?.id) {
-            const key = getStorageKey();
-            if (key) {
-                try {
-                    const stored = localStorage.getItem(key);
-                    if (stored) {
-                        const parsed: string[] = JSON.parse(stored);
-                        readIdsRef.current = new Set(parsed);
-                    }
-                } catch {
-                    readIdsRef.current = new Set();
-                }
+            if (data) {
+                readKeysRef.current = new Set(data.map((r: any) => r.notification_key));
             }
+        } catch {
+            // Fallback: empty set if table doesn't exist yet
+            readKeysRef.current = new Set();
         }
-    }, [user?.id, getStorageKey]);
-
-    // Helper: save read IDs to localStorage
-    const persistReadIds = useCallback(() => {
-        const key = getStorageKey();
-        if (key && typeof window !== "undefined") {
-            // Keep max 100 entries to prevent localStorage bloat
-            const arr = Array.from(readIdsRef.current).slice(-100);
-            localStorage.setItem(key, JSON.stringify(arr));
-        }
-    }, [getStorageKey]);
+        readKeysLoadedRef.current = true;
+    }, [user?.id, supabase]);
 
     // 2. Fetch Notifications (Merge sources) — all queries run in parallel
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         if (!user) return;
+
+        // Ensure read keys are loaded first
+        if (!readKeysLoadedRef.current) {
+            await loadReadKeys();
+        }
 
         let items: NotificationItem[] = [];
 
@@ -163,12 +155,12 @@ export default function NotificationBell() {
         // Determine isRead by checking if this notification's key is in our read set
         items = items.map(item => ({
             ...item,
-            isRead: readIdsRef.current.has(notifKey(item)),
+            isRead: readKeysRef.current.has(notifKey(item)),
         }));
 
         setNotifications(items);
         setUnreadCount(items.filter((i) => !i.isRead).length);
-    };
+    }, [user, isAdmin, supabase, loadReadKeys]);
 
     // 3. Realtime Subscription (Watch for new persons and change_requests)
     useEffect(() => {
@@ -241,12 +233,20 @@ export default function NotificationBell() {
         setIsOpen(prev => !prev);
     };
 
-    // 6. Mark a single notification as read when clicked
-    const handleNotificationClick = (notif: NotificationItem) => {
+    // 6. Mark a single notification as read when clicked (persist to Supabase)
+    const handleNotificationClick = async (notif: NotificationItem) => {
         const key = notifKey(notif);
-        if (!readIdsRef.current.has(key)) {
-            readIdsRef.current.add(key);
-            persistReadIds();
+        if (!readKeysRef.current.has(key) && user?.id) {
+            readKeysRef.current.add(key);
+
+            // Persist to database (upsert to avoid duplicates)
+            supabase
+                .from("notification_reads")
+                .upsert(
+                    { user_id: user.id, notification_key: key },
+                    { onConflict: "user_id,notification_key" }
+                )
+                .then(); // fire-and-forget, no need to await
 
             // Update UI: mark this one as read
             setNotifications((prev: NotificationItem[]) =>
@@ -259,12 +259,28 @@ export default function NotificationBell() {
         setIsOpen(false);
     };
 
-    // 7. Mark ALL as read (optional button)
-    const handleMarkAllRead = () => {
-        notifications.forEach((n: NotificationItem) => {
-            readIdsRef.current.add(notifKey(n));
-        });
-        persistReadIds();
+    // 7. Mark ALL as read (persist to Supabase)
+    const handleMarkAllRead = async () => {
+        if (!user?.id) return;
+
+        const unreadNotifs = notifications.filter(n => !n.isRead);
+        const newKeys = unreadNotifs.map(n => notifKey(n));
+
+        // Add to local set
+        newKeys.forEach(key => readKeysRef.current.add(key));
+
+        // Batch insert to database
+        if (newKeys.length > 0) {
+            const rows = newKeys.map(key => ({
+                user_id: user.id,
+                notification_key: key,
+            }));
+
+            supabase
+                .from("notification_reads")
+                .upsert(rows, { onConflict: "user_id,notification_key" })
+                .then(); // fire-and-forget
+        }
 
         setNotifications((prev: NotificationItem[]) => prev.map((n: NotificationItem) => ({ ...n, isRead: true })));
         setUnreadCount(0);

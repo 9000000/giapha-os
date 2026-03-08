@@ -27,6 +27,7 @@ interface EventsListProps {
   persons: {
     id: string;
     full_name: string;
+    gender?: string;
     birth_year: number | null;
     birth_month: number | null;
     birth_day: number | null;
@@ -34,8 +35,10 @@ interface EventsListProps {
     death_month: number | null;
     death_day: number | null;
     is_deceased: boolean;
+    is_in_law?: boolean;
   }[];
   customEvents?: CustomEventRecord[];
+  relationships?: { person_a: string; person_b: string; type: string }[];
 }
 
 const DAY_LABELS: Record<number, string> = {
@@ -188,6 +191,7 @@ function EventCard({
 export default function EventsList({
   persons,
   customEvents = [],
+  relationships = [],
 }: EventsListProps) {
   const router = useRouter();
   const [filter, setFilter] = useState<
@@ -240,9 +244,49 @@ export default function EventsList({
     return { solar: solarStr, lunar: lunarStr };
   });
 
+  // Build excluded person IDs: sons-in-law + their descendants
+  const excludedIds = useMemo(() => {
+    const excluded = new Set<string>();
+
+    // 1. Find all sons-in-law (male + is_in_law)
+    const sonsInLaw = persons.filter(
+      (p) => p.gender === "male" && p.is_in_law === true
+    );
+    sonsInLaw.forEach((p) => excluded.add(p.id));
+
+    // 2. Build parent→children map from relationships
+    const childrenByParent = new Map<string, string[]>();
+    relationships.forEach((r) => {
+      if (r.type === "biological_child" || r.type === "adopted_child") {
+        if (!childrenByParent.has(r.person_a)) childrenByParent.set(r.person_a, []);
+        childrenByParent.get(r.person_a)!.push(r.person_b);
+      }
+    });
+
+    // 3. Recursively find all descendants of sons-in-law
+    const addDescendants = (parentId: string) => {
+      const children = childrenByParent.get(parentId) || [];
+      children.forEach((childId) => {
+        if (!excluded.has(childId)) {
+          excluded.add(childId);
+          addDescendants(childId);
+        }
+      });
+    };
+    sonsInLaw.forEach((p) => addDescendants(p.id));
+
+    return excluded;
+  }, [persons, relationships]);
+
+  // Filter out excluded persons before computing events
+  const filteredPersons = useMemo(
+    () => persons.filter((p) => !excludedIds.has(p.id)),
+    [persons, excludedIds]
+  );
+
   const allEvents = useMemo(
-    () => computeEvents(persons, customEvents),
-    [persons, customEvents],
+    () => computeEvents(filteredPersons, customEvents),
+    [filteredPersons, customEvents],
   );
 
   const filtered = useMemo(() => {

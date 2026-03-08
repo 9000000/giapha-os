@@ -10,19 +10,24 @@ export const metadata = {
 export default async function EventsPage() {
   const supabase = await getSupabase();
 
-  const [personsRes, customEventsRes] = await Promise.all([
+  const [personsRes, customEventsRes, relationshipsRes] = await Promise.all([
     supabase
       .from("persons")
       .select(
-        "id, full_name, birth_year, birth_month, birth_day, death_year, death_month, death_day, is_deceased, avatar_url",
+        "id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, is_deceased, is_in_law, avatar_url",
       ),
     supabase
       .from("custom_events")
       .select("id, name, content, event_date, location, created_by"),
+    supabase
+      .from("relationships")
+      .select("person_a, person_b, type")
+      .in("type", ["biological_child", "adopted_child"]),
   ]);
 
   const persons = personsRes.data || [];
   const customEvents = customEventsRes.data || [];
+  const relationships = relationshipsRes.data || [];
 
   return (
     <DashboardProvider>
@@ -38,6 +43,7 @@ export default async function EventsPage() {
           <EventsList
             persons={persons ?? []}
             customEvents={customEvents ?? []}
+            relationships={relationships ?? []}
           />
         </main>
       </div>

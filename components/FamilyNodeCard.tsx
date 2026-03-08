@@ -32,6 +32,13 @@ export default function FamilyNodeCard({
 
   const isDeceased = person.is_deceased;
 
+  // Chẻ tên thành các dòng dài tối đa 2 từ để tên xếp dọc vừa vặn
+  const nameRows: string[] = [];
+  const words = person.full_name.split(" ");
+  for (let i = 0; i < words.length; i += 2) {
+    nameRows.push(words.slice(i, i + 2).join(" "));
+  }
+
   const content = (
     <div
       onClick={onClickCard}
@@ -39,8 +46,8 @@ export default function FamilyNodeCard({
         group py-2 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 rounded-2xl relative h-full
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
         ${showAvatar
-          ? "px-1 w-20 sm:w-24 md:w-28 bg-white/70 hover:shadow-lg hover:ring-2 hover:ring-amber-400/30 hover:border hover:border-amber-400 hover:bg-white"
-          : "px-3 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30 min-w-16 md:min-w-20 max-w-[120px]"
+          ? "px-0.5 sm:px-1 w-16 sm:w-20 md:w-24 bg-white/70 hover:shadow-lg hover:ring-2 hover:ring-amber-400/30 hover:border hover:border-amber-400 hover:bg-white"
+          : "px-2 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30 min-w-[64px] max-w-[100px]"
         }
       `}
     >
@@ -78,7 +85,7 @@ export default function FamilyNodeCard({
 
       {/* 1. Avatar */}
       {showAvatar && (
-        <div className="relative z-10 mb-1.5 sm:mb-2">
+        <div className="relative z-10 mb-1 sm:mb-1.5">
           <div
             className={`
               h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
@@ -107,11 +114,11 @@ export default function FamilyNodeCard({
       )}
 
       {/* 2. Gender Icon + Name */}
-      <div className={`flex flex-col items-center justify-center gap-1 w-full relative z-10 ${showAvatar ? "px-0.5 sm:px-1" : ""}`}>
+      <div className={`flex flex-col items-center justify-center gap-1 w-full relative z-10 ${showAvatar ? "px-0" : ""}`}>
         <div
           className={`
-            font-bold text-center leading-tight transition-colors cursor-pointer
-            ${showAvatar ? "text-[10px] sm:text-[11px] md:text-xs" : "text-xs sm:text-sm tracking-tight"}
+            font-bold text-center leading-[1.2] transition-colors cursor-pointer break-words w-full px-0.5
+            ${showAvatar ? "text-[10px] sm:text-[11px] md:text-[11px]" : "text-xs sm:text-[13px] tracking-tight"}
             ${onClickName ? "text-stone-800 group-hover:text-amber-700 hover:underline" : "text-stone-800 group-hover:text-amber-800"}
           `}
           title={person.full_name}
@@ -123,13 +130,11 @@ export default function FamilyNodeCard({
             }
           }}
         >
-          {showAvatar ? (
-            person.full_name
-          ) : (
-            <span className="line-clamp-2 sm:line-clamp-3 w-[70px] sm:w-[90px] whitespace-normal break-words">
-              {person.full_name}
+          {nameRows.map((row, i) => (
+            <span key={i} className="block">
+              {row}
             </span>
-          )}
+          ))}
         </div>
       </div>
     </div>

@@ -250,7 +250,7 @@ export default function FamilyTree({
 
       <div
         ref={containerRef}
-        className={`w-full h-full overflow-auto bg-stone-50 ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`w-full h-full overflow-auto bg-parchment ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUpOrLeave}

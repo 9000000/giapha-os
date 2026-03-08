@@ -76,7 +76,10 @@ export default function DashboardViews({
 
   return (
     <>
-      <main className="flex-1 overflow-auto bg-stone-50/50 flex flex-col">
+      <main
+        className={`flex-1 overflow-auto flex flex-col ${currentView === "list" ? "bg-stone-50/50" : "bg-parchment"
+          }`}
+      >
         {currentView !== "list" && persons.length > 0 && activeRootId && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
             <div className="flex flex-row items-center gap-3 w-full sm:w-auto">

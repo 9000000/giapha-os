@@ -72,11 +72,10 @@ export default function BaseToolbar({
       <div className="relative">
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`flex items-center gap-2 px-4 h-10 rounded-full font-semibold text-sm shadow-sm border transition-all duration-300 ${
-            showFilters
+          className={`flex items-center gap-2 px-4 h-10 rounded-full font-semibold text-sm shadow-sm border transition-all duration-300 ${showFilters
               ? "bg-amber-100/90 text-amber-800 border-amber-200"
               : "bg-white/80 text-stone-600 border-stone-200/60 hover:bg-white hover:text-stone-900 hover:shadow-md backdrop-blur-md"
-          }`}
+            }`}
         >
           <Filter className="size-4" />
           <span className="hidden sm:inline">Hiển thị</span>
@@ -94,7 +93,7 @@ export default function BaseToolbar({
               <div className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">
                 HIỂN THỊ
               </div>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none mb-3">
                 <input
                   type="checkbox"
                   checked={!showAvatar}
@@ -104,7 +103,43 @@ export default function BaseToolbar({
                 Tối giản
               </label>
 
-              <div className="h-px w-full bg-stone-100 my-1 font-bold text-stone-400 uppercase tracking-wider flex items-center gap-2"></div>
+              <div className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">
+                NỀN SƠ ĐỒ
+              </div>
+              <div className="flex flex-col gap-1.5 mb-2">
+                <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                  <input
+                    type="radio"
+                    name="tree_bg"
+                    checked={treeBackground === "parchment"}
+                    onChange={() => setTreeBackground("parchment")}
+                    className="text-amber-600 focus:ring-amber-500 cursor-pointer"
+                  />
+                  Giấy vân cổ
+                </label>
+                <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                  <input
+                    type="radio"
+                    name="tree_bg"
+                    checked={treeBackground === "white"}
+                    onChange={() => setTreeBackground("white")}
+                    className="text-amber-600 focus:ring-amber-500 cursor-pointer"
+                  />
+                  Trắng trơn
+                </label>
+                <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                  <input
+                    type="radio"
+                    name="tree_bg"
+                    checked={treeBackground === "slate"}
+                    onChange={() => setTreeBackground("slate")}
+                    className="text-amber-600 focus:ring-amber-500 cursor-pointer"
+                  />
+                  Xám nhạt (Stone)
+                </label>
+              </div>
+
+              <div className="h-px w-full bg-stone-100 my-1 flex items-center gap-2"></div>
               <div className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">
                 LỌC DỮ LIỆU
               </div>

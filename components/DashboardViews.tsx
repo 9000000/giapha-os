@@ -33,7 +33,7 @@ export default function DashboardViews({
   relationships,
   canEdit = false,
 }: DashboardViewsProps) {
-  const { view: currentView, rootId } = useDashboard();
+  const { view: currentView, rootId, treeBackground } = useDashboard();
 
   // Prepare map and roots for tree views
   const { personsMap, roots, defaultRootId } = useMemo(() => {
@@ -74,11 +74,23 @@ export default function DashboardViews({
 
   const activeRootId = rootId || defaultRootId;
 
+  // Xử lý background động
+  const getBackgroundClass = () => {
+    if (currentView === "list") return "bg-stone-50/50";
+    // Màn hình tree và mindmap
+    switch (treeBackground) {
+      case "white": return "bg-white";
+      case "slate": return "bg-stone-50";
+      case "parchment":
+      default:
+        return "bg-parchment";
+    }
+  };
+
   return (
     <>
       <main
-        className={`flex-1 overflow-auto flex flex-col ${currentView === "list" ? "bg-stone-50/50" : "bg-parchment"
-          }`}
+        className={`flex-1 overflow-auto flex flex-col ${getBackgroundClass()}`}
       >
         {currentView !== "list" && persons.length > 0 && activeRootId && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">

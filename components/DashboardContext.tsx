@@ -4,6 +4,8 @@ import { useSearchParams } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ViewMode } from "./ViewToggle";
 
+export type BackgroundMode = "parchment" | "white" | "slate";
+
 interface DashboardState {
   memberModalId: string | null;
   setMemberModalId: (id: string | null) => void;
@@ -15,6 +17,8 @@ interface DashboardState {
   setView: (view: ViewMode) => void;
   rootId: string | null;
   setRootId: (id: string | null) => void;
+  treeBackground: BackgroundMode;
+  setTreeBackground: (bg: BackgroundMode) => void;
 }
 
 export const DashboardContext = createContext<DashboardState | undefined>(
@@ -28,6 +32,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [showAvatar, setShowAvatar] = useState<boolean>(true);
   const [view, setViewState] = useState<ViewMode>("tree");
   const [rootId, setRootIdState] = useState<string | null>(null);
+  const [treeBackground, setTreeBackgroundState] = useState<BackgroundMode>("parchment");
 
   // Initialize from URL once on mount (or when searchParams actually change from server init)
   // We use a ref or just simple effect
@@ -40,6 +45,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
     const rootIdParam = searchParams.get("rootId");
     if (rootIdParam) setRootIdState(rootIdParam);
+
+    const bgParam = searchParams.get("bg") as BackgroundMode;
+    if (bgParam && ["parchment", "white", "slate"].includes(bgParam)) {
+      setTreeBackgroundState(bgParam);
+    }
 
     // We intentionally ignore memberModalId in the Next.js router loop
     // to avoid Next.js triggering re-renders on push.
@@ -103,6 +113,19 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setTreeBackground = (bg: BackgroundMode) => {
+    setTreeBackgroundState(bg);
+    if (typeof window !== "undefined") {
+      const newUrl = new URL(window.location.href);
+      if (bg !== "parchment") {
+        newUrl.searchParams.set("bg", bg);
+      } else {
+        newUrl.searchParams.delete("bg");
+      }
+      window.history.replaceState(null, "", newUrl.toString());
+    }
+  };
+
   return (
     <DashboardContext.Provider
       value={{
@@ -116,6 +139,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setView,
         rootId,
         setRootId,
+        treeBackground,
+        setTreeBackground,
       }}
     >
       {children}
@@ -139,6 +164,8 @@ export function useDashboard(): DashboardState {
       setView: () => { },
       rootId: null,
       setRootId: () => { },
+      treeBackground: "parchment",
+      setTreeBackground: () => { },
     };
   }
   return context;

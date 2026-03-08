@@ -46,7 +46,7 @@ export default function FamilyNodeCard({
         group py-2 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 rounded-2xl relative h-full
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
         ${showAvatar
-          ? "px-0.5 sm:px-1 w-16 sm:w-20 md:w-24 bg-white/70 hover:shadow-lg hover:ring-2 hover:ring-amber-400/30 hover:border hover:border-amber-400 hover:bg-white"
+          ? "px-0.5 sm:px-1 w-[72px] sm:w-[88px] md:w-[96px] bg-white/70 hover:shadow-lg hover:ring-2 hover:ring-amber-400/30 hover:border hover:border-amber-400 hover:bg-white flex-none"
           : "px-2 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30 min-w-[64px] max-w-[100px]"
         }
       `}

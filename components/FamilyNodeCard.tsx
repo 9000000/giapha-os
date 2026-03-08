@@ -36,9 +36,12 @@ export default function FamilyNodeCard({
     <div
       onClick={onClickCard}
       className={`
-        group py-2 px-1 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 rounded-2xl relative h-full
+        group py-2 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 rounded-2xl relative h-full
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
-        ${showAvatar ? "w-20 sm:w-24 md:w-28 bg-white/70 hover:shadow-lg hover:ring-2 hover:ring-amber-400/30 hover:border hover:border-amber-400 hover:bg-white" : "px-3"}
+        ${showAvatar
+          ? "px-1 w-20 sm:w-24 md:w-28 bg-white/70 hover:shadow-lg hover:ring-2 hover:ring-amber-400/30 hover:border hover:border-amber-400 hover:bg-white"
+          : "px-3 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30 min-w-16 md:min-w-20 max-w-[120px]"
+        }
       `}
     >
       {isRingVisible && (
@@ -104,10 +107,11 @@ export default function FamilyNodeCard({
       )}
 
       {/* 2. Gender Icon + Name */}
-      <div className="flex flex-col items-center justify-center gap-1 w-full px-0.5 sm:px-1 relative z-10">
+      <div className={`flex flex-col items-center justify-center gap-1 w-full relative z-10 ${showAvatar ? "px-0.5 sm:px-1" : ""}`}>
         <div
           className={`
-            text-[10px] sm:text-[11px] md:text-xs font-bold text-center leading-tight transition-colors cursor-pointer
+            font-bold text-center leading-tight transition-colors cursor-pointer
+            ${showAvatar ? "text-[10px] sm:text-[11px] md:text-xs" : "text-xs sm:text-sm tracking-tight"}
             ${onClickName ? "text-stone-800 group-hover:text-amber-700 hover:underline" : "text-stone-800 group-hover:text-amber-800"}
           `}
           title={person.full_name}
@@ -119,13 +123,13 @@ export default function FamilyNodeCard({
             }
           }}
         >
-          {showAvatar
-            ? person.full_name
-            : person.full_name.split(" ").map((word, i) => (
-              <span key={i} className="block">
-                {word}
-              </span>
-            ))}
+          {showAvatar ? (
+            person.full_name
+          ) : (
+            <span className="line-clamp-2 sm:line-clamp-3 w-[70px] sm:w-[90px] whitespace-normal break-words">
+              {person.full_name}
+            </span>
+          )}
         </div>
       </div>
     </div>

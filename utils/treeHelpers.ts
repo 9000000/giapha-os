@@ -70,6 +70,8 @@ export function getFilteredTreeData(
 ) {
   const { hideSpouses, hideMales, hideFemales } = filters;
 
+  const person = personsMap.get(personId)!;
+
   let spousesList = adj.spousesByPersonId.get(personId) || [];
   spousesList = spousesList.filter((s) => {
     if (hideSpouses) return false;
@@ -79,6 +81,18 @@ export function getFilteredTreeData(
   });
 
   let childrenList = adj.childrenByPersonId.get(personId) || [];
+
+  // Nếu yêu cầu "ẩn dâu rể" thì đồng thời ẩn luôn hậu duệ của rể.
+  // Điều này tương đương với việc ngăn không cho những người nữ "gốc" (con gái trong họ)
+  // hoặc những con rể sinh ra con cái hiển thị trong sơ đồ.
+  if (hideSpouses) {
+    const isBiologicalFemale = person.gender === "female" && !person.is_in_law;
+    const isSonInLaw = person.gender === "male" && person.is_in_law;
+    if (isBiologicalFemale || isSonInLaw) {
+      childrenList = [];
+    }
+  }
+
   childrenList = childrenList.filter((c) => {
     if (hideMales && c.gender === "male") return false;
     if (hideFemales && c.gender === "female") return false;
@@ -86,7 +100,7 @@ export function getFilteredTreeData(
   });
 
   return {
-    person: personsMap.get(personId)!,
+    person,
     spouses: spousesList,
     children: childrenList,
   };

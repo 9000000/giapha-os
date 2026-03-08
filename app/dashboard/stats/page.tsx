@@ -17,8 +17,18 @@ export default async function StatsPage() {
   const allPersons = persons ?? [];
   const allRelationships = relationships ?? [];
 
-  // Loại bỏ con rể và hậu duệ của họ trước khi thống kê (giống danh sách)
+  // 1. Lấy danh sách ID cần loại trừ (Rể + Hậu duệ)
   const excludedIds = getExcludedInLawIds(allPersons as any, allRelationships);
+
+  // 2. Vì khách hàng muốn "Các thẻ khác vẫn thêm con rể chỉ bỏ hậu duệ của họ"
+  // nên ta sẽ gỡ lại các ID của Rể khỏi danh sách loại trừ.
+  const sonsInLawIds = allPersons
+    .filter((p) => p.gender === "male" && p.is_in_law)
+    .map((p) => p.id);
+
+  sonsInLawIds.forEach((id) => excludedIds.delete(id));
+
+  // 3. Tiến hành lọc (lúc này filteredPersons chứa tất cả trừ hậu duệ của rể)
   const filteredPersons = allPersons.filter((p) => !excludedIds.has(p.id));
 
   return (

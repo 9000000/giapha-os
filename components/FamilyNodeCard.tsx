@@ -47,7 +47,7 @@ export default function FamilyNodeCard({
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
         ${showAvatar
           ? "px-0 sm:px-0 w-[56px] sm:w-[68px] md:w-[76px] bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md"
-          : "px-2 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30 min-w-[64px] max-w-[100px]"
+          : "px-2 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30 w-[72px]"
         }
       `}
     >

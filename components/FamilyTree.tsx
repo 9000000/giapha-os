@@ -117,6 +117,7 @@ export default function FamilyTree({
     hideSpouses,
     hideMales,
     hideFemales,
+    expandedInLawNodes,
   ]);
 
   const adj = useMemo(

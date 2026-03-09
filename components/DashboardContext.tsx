@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ViewMode } from "./ViewToggle";
 
-export type BackgroundMode = "parchment" | "white" | "slate" | "lotus" | "tree";
+export type BackgroundMode = "parchment" | "white" | "slate" | "lotus" | "tree" | "red";
 
 interface DashboardState {
   memberModalId: string | null;
@@ -47,7 +47,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     if (rootIdParam) setRootIdState(rootIdParam);
 
     const bgParam = searchParams.get("bg") as BackgroundMode;
-    if (bgParam && ["parchment", "white", "slate", "lotus", "tree"].includes(bgParam)) {
+    if (bgParam && ["parchment", "white", "slate", "lotus", "tree", "red"].includes(bgParam)) {
       setTreeBackgroundState(bgParam);
     }
 

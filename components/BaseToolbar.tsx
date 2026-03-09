@@ -157,6 +157,16 @@ export default function BaseToolbar({
                   />
                   🌳 Cây đa
                 </label>
+                <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                  <input
+                    type="radio"
+                    name="tree_bg"
+                    checked={treeBackground === "red"}
+                    onChange={() => setTreeBackground("red")}
+                    className="text-amber-600 focus:ring-amber-500 cursor-pointer"
+                  />
+                  🔴 Đỏ vàng
+                </label>
               </div>
 
               <div className="h-px w-full bg-stone-100 my-1 flex items-center gap-2"></div>

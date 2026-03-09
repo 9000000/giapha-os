@@ -83,6 +83,7 @@ export default function DashboardViews({
       case "slate": return "bg-stone-50";
       case "lotus": return "bg-lotus";
       case "tree": return "bg-tree";
+      case "red": return "bg-red";
       case "parchment":
       default:
         return "bg-parchment";

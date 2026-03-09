@@ -96,7 +96,7 @@ export default function DashboardViews({
         className={`flex-1 overflow-auto flex flex-col ${getBackgroundClass()}`}
       >
         {currentView !== "list" && persons.length > 0 && activeRootId && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 relative z-20">
             <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
               <div className="flex-1 min-w-0">
                 <RootSelector persons={persons} currentRootId={activeRootId} />

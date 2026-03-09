@@ -28,18 +28,17 @@ export default function ViewToggle() {
   ] as const;
 
   return (
-    <div className="flex bg-stone-200/50 p-1.5 rounded-full shadow-inner w-fit mx-auto mt-4 mb-2 relative border border-stone-200/60 backdrop-blur-sm z-10">
+    <div className="flex bg-stone-200/50 p-1 rounded-full shadow-inner w-fit mx-auto mt-2 mb-1 relative border border-stone-200/60 backdrop-blur-sm z-10">
       {tabs.map((tab) => {
         const isActive = currentView === tab.id;
         return (
           <button
             key={tab.id}
             onClick={() => setView(tab.id as ViewMode)}
-            className={`relative px-4 sm:px-6 py-1.5 sm:py-2.5 text-sm font-semibold rounded-full transition-colors duration-300 ease-in-out z-10 flex items-center gap-2 ${
-              isActive
-                ? "text-stone-900"
-                : "text-stone-500 hover:text-stone-800"
-            }`}
+            className={`relative px-3 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold rounded-full transition-colors duration-300 ease-in-out z-10 flex items-center gap-1.5 ${isActive
+              ? "text-stone-900"
+              : "text-stone-500 hover:text-stone-800"
+              }`}
           >
             {isActive && (
               <motion.div

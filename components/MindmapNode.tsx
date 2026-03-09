@@ -107,7 +107,7 @@ export const MindmapNode = memo(
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`group/card relative flex flex-wrap items-center gap-2 bg-white/60 rounded-2xl border border-stone-200/60 p-2 sm:p-2.5 shadow-sm hover:border-amber-300 hover:shadow-md hover:bg-white/90 transition-all duration-300 overflow-hidden cursor-pointer
+                className={`mindmap-card group/card relative flex items-center gap-2 bg-white/60 rounded-2xl border border-stone-200/60 p-2 sm:p-2.5 shadow-sm hover:border-amber-300 hover:shadow-md hover:bg-white/90 transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px]
                 ${data.person.is_deceased ? "opacity-80 grayscale-[0.3]" : ""}`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}
               >
@@ -117,13 +117,12 @@ export const MindmapNode = memo(
                       <div className="relative shrink-0">
                         <div
                           className={`size-10 rounded-full overflow-hidden flex items-center justify-center text-white text-xs font-bold shadow-md ring-2 ring-white transition-transform duration-300 group-hover/card:scale-105
-                    ${
-                      data.person.gender === "male"
-                        ? "bg-linear-to-br from-sky-400 to-sky-700"
-                        : data.person.gender === "female"
-                          ? "bg-linear-to-br from-rose-400 to-rose-700"
-                          : "bg-linear-to-br from-stone-400 to-stone-600"
-                    }`}
+                    ${data.person.gender === "male"
+                              ? "bg-linear-to-br from-sky-400 to-sky-700"
+                              : data.person.gender === "female"
+                                ? "bg-linear-to-br from-rose-400 to-rose-700"
+                                : "bg-linear-to-br from-stone-400 to-stone-600"
+                            }`}
                         >
                           {data.person.avatar_url ? (
                             <Image
@@ -172,13 +171,12 @@ export const MindmapNode = memo(
                         <div className="flex flex-wrap items-center gap-1 mt-1.5 shrink-0">
                           {data.person.is_in_law && (
                             <span
-                              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest shadow-xs border ${
-                                data.person.gender === "male"
+                              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest shadow-xs border ${data.person.gender === "male"
                                   ? "bg-sky-50 text-sky-700 border-sky-200/60"
                                   : data.person.gender === "female"
                                     ? "bg-rose-50 text-rose-700 border-rose-200/60"
                                     : "bg-stone-50 text-stone-700 border-stone-200/60"
-                              }`}
+                                }`}
                             >
                               {data.person.gender === "male"
                                 ? "Rể"
@@ -215,13 +213,12 @@ export const MindmapNode = memo(
                             {ctx.showAvatar && (
                               <div
                                 className={`size-8 rounded-full overflow-hidden flex items-center justify-center text-white text-[10px] font-bold shadow-sm ring-2 ring-white transition-transform duration-300 group-hover/spouse:scale-105
-                        ${
-                          spouseData.person.gender === "male"
-                            ? "bg-linear-to-br from-sky-400 to-sky-700"
-                            : spouseData.person.gender === "female"
-                              ? "bg-linear-to-br from-rose-400 to-rose-700"
-                              : "bg-linear-to-br from-stone-400 to-stone-600"
-                        }`}
+                        ${spouseData.person.gender === "male"
+                                    ? "bg-linear-to-br from-sky-400 to-sky-700"
+                                    : spouseData.person.gender === "female"
+                                      ? "bg-linear-to-br from-rose-400 to-rose-700"
+                                      : "bg-linear-to-br from-stone-400 to-stone-600"
+                                  }`}
                               >
                                 {spouseData.person.avatar_url ? (
                                   <Image

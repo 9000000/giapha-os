@@ -54,51 +54,42 @@ export default function FamilyTree({
   }, [roots]);
 
   useEffect(() => {
-    const equalizeHeights = () => {
+    const equalizeSizes = () => {
       if (!containerRef.current) return;
-      const nodes = containerRef.current.querySelectorAll(".node-container");
-      const levelMap: Record<string, HTMLElement[]> = {};
 
-      nodes.forEach((node) => {
-        const level = node.getAttribute("data-level");
-        if (level != null) {
-          if (!levelMap[level]) levelMap[level] = [];
-          levelMap[level].push(node as HTMLElement);
-        }
+      // Select all individual card elements (not the couple container)
+      const cards = containerRef.current.querySelectorAll<HTMLElement>(".family-card");
+      if (cards.length === 0) return;
+
+      // Reset all sizes first to get natural dimensions
+      cards.forEach((card) => {
+        card.style.minWidth = "";
+        card.style.minHeight = "";
       });
 
-      Object.values(levelMap).forEach((levelNodes) => {
-        // Reset min-height first to get natural height
-        levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement;
-          if (innerFlex) innerFlex.style.minHeight = "0px";
-        });
-
-        let maxHeight = 0;
-        // Find the maximum height in this level
-        levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement;
-          if (innerFlex) {
-            maxHeight = Math.max(maxHeight, innerFlex.offsetHeight);
-          }
-        });
-
-        // Apply max height to all nodes in this level
-        levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement;
-          if (innerFlex && maxHeight > 0) {
-            innerFlex.style.minHeight = `${maxHeight}px`;
-          }
-        });
+      // Find the global max width and height across ALL cards
+      let globalMaxW = 0;
+      let globalMaxH = 0;
+      cards.forEach((card) => {
+        globalMaxW = Math.max(globalMaxW, card.offsetWidth);
+        globalMaxH = Math.max(globalMaxH, card.offsetHeight);
       });
+
+      // Apply global max to ALL cards
+      if (globalMaxW > 0 && globalMaxH > 0) {
+        cards.forEach((card) => {
+          card.style.minWidth = `${globalMaxW}px`;
+          card.style.minHeight = `${globalMaxH}px`;
+        });
+      }
     };
 
-    const timeoutId = setTimeout(equalizeHeights, 50);
-    window.addEventListener("resize", equalizeHeights);
+    const timeoutId = setTimeout(equalizeSizes, 50);
+    window.addEventListener("resize", equalizeSizes);
 
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener("resize", equalizeHeights);
+      window.removeEventListener("resize", equalizeSizes);
     };
   }, [
     roots,

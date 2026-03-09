@@ -162,10 +162,10 @@ export default function FamilyTree({
             {/* Main Person & Spouses Row */}
             <div
               className={`flex relative z-10 items-stretch h-full transition-opacity ${data.spouses.length > 0
-                  ? "rounded-[9px] border-2 border-yellow-400 bg-yellow-50/40 shadow-sm"
-                  : showAvatar
-                    ? "bg-amber-50 rounded-[7px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-amber-300/80"
-                    : ""
+                ? "rounded-[9px] border-2 border-yellow-400 bg-yellow-50/40 shadow-sm"
+                : showAvatar
+                  ? "bg-yellow-100 rounded-[7px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-amber-300/80"
+                  : ""
                 }`}
             >
               <FamilyNodeCard person={data.person} level={level} isRoot={level === 0} />

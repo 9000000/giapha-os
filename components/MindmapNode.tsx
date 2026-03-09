@@ -107,8 +107,10 @@ export const MindmapNode = memo(
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`mindmap-card group/card relative flex items-center gap-2 bg-white/60 rounded-2xl border border-stone-200/60 p-2 sm:p-2.5 shadow-sm hover:border-amber-300 hover:shadow-md hover:bg-white/90 transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px]
-                ${data.person.is_deceased ? "opacity-80 grayscale-[0.3]" : ""}`}
+                className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl border p-2 sm:p-2.5 shadow-sm hover:shadow-md hover:bg-white/90 transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px] ${data.spouses.length > 0
+                    ? "border-yellow-400 border-[2px] bg-yellow-50/50 hover:border-yellow-500"
+                    : "border-stone-200/60 bg-white/60 hover:border-amber-300"
+                  } ${data.person.is_deceased ? "opacity-80 grayscale-[0.3]" : ""}`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}
               >
                 <div className="flex items-center gap-2.5 relative z-10 w-full">
@@ -172,10 +174,10 @@ export const MindmapNode = memo(
                           {data.person.is_in_law && (
                             <span
                               className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest shadow-xs border ${data.person.gender === "male"
-                                  ? "bg-sky-50 text-sky-700 border-sky-200/60"
-                                  : data.person.gender === "female"
-                                    ? "bg-rose-50 text-rose-700 border-rose-200/60"
-                                    : "bg-stone-50 text-stone-700 border-stone-200/60"
+                                ? "bg-sky-50 text-sky-700 border-sky-200/60"
+                                : data.person.gender === "female"
+                                  ? "bg-rose-50 text-rose-700 border-rose-200/60"
+                                  : "bg-stone-50 text-stone-700 border-stone-200/60"
                                 }`}
                             >
                               {data.person.gender === "male"

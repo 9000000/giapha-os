@@ -17,6 +17,7 @@ interface FamilyNodeCardProps {
   isRingVisible?: boolean;
   isPlusVisible?: boolean;
   level: number;
+  isRoot?: boolean;
 }
 
 export default function FamilyNodeCard({
@@ -27,6 +28,7 @@ export default function FamilyNodeCard({
   isExpanded = false,
   isRingVisible = false,
   isPlusVisible = false,
+  isRoot = false,
 }: FamilyNodeCardProps) {
   const { showAvatar, setMemberModalId } = useDashboard();
 
@@ -46,8 +48,8 @@ export default function FamilyNodeCard({
         group py-2 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 relative h-full rounded-[7px]
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
         ${showAvatar
-          ? "family-card px-0 sm:px-0 w-[56px] sm:w-[68px] md:w-[76px] bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md"
-          : "family-card px-2 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30"
+          ? `family-card ${isRoot ? "root-card" : ""} px-0 sm:px-0 w-fit bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md`
+          : `family-card ${isRoot ? "root-card" : ""} px-2 bg-white border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-50/30`
         }
       `}
     >

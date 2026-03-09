@@ -57,7 +57,6 @@ export default function FamilyTree({
     const equalizeSizes = () => {
       if (!containerRef.current) return;
 
-      // Select all individual card elements (not the couple container)
       const cards = containerRef.current.querySelectorAll<HTMLElement>(".family-card");
       if (cards.length === 0) return;
 
@@ -67,28 +66,47 @@ export default function FamilyTree({
         card.style.minHeight = "";
       });
 
-      // Find the global max width and height across ALL cards
+      // Find the global max width and height across ALL cards (excluding root if needed for base measurement)
       let globalMaxW = 0;
       let globalMaxH = 0;
       cards.forEach((card) => {
-        globalMaxW = Math.max(globalMaxW, card.offsetWidth);
+        if (!card.classList.contains("root-card")) {
+          globalMaxW = Math.max(globalMaxW, card.offsetWidth);
+        }
         globalMaxH = Math.max(globalMaxH, card.offsetHeight);
       });
+
+      // If no normal cards, use root's natural width as base/3 or just measure all
+      if (globalMaxW === 0) {
+        cards.forEach(card => {
+          globalMaxW = Math.max(globalMaxW, card.offsetWidth);
+        });
+      }
 
       // Apply global max to ALL cards
       if (globalMaxW > 0 && globalMaxH > 0) {
         cards.forEach((card) => {
-          card.style.minWidth = `${globalMaxW}px`;
+          if (card.classList.contains("root-card")) {
+            card.style.minWidth = `${globalMaxW * 3}px`;
+          } else {
+            card.style.minWidth = `${globalMaxW}px`;
+          }
           card.style.minHeight = `${globalMaxH}px`;
         });
       }
     };
 
-    const timeoutId = setTimeout(equalizeSizes, 50);
+    // Run multiple times to account for image loading and layout shifts
+    const timer1 = setTimeout(equalizeSizes, 50);
+    const timer2 = setTimeout(equalizeSizes, 300);
+    const timer3 = setTimeout(equalizeSizes, 1000);
+
     window.addEventListener("resize", equalizeSizes);
 
     return () => {
-      clearTimeout(timeoutId);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
       window.removeEventListener("resize", equalizeSizes);
     };
   }, [
@@ -144,7 +162,7 @@ export default function FamilyTree({
             <div
               className={`flex relative z-10 items-stretch h-full${showAvatar ? " bg-white rounded-[7px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-stone-200/80 transition-opacity" : ""}`}
             >
-              <FamilyNodeCard person={data.person} level={level} />
+              <FamilyNodeCard person={data.person} level={level} isRoot={level === 0} />
 
               {data.spouses.length > 0 &&
                 data.spouses.map((spouseData, idx) => (

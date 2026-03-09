@@ -45,7 +45,7 @@ export default function FamilyNodeCard({
     <div
       onClick={onClickCard}
       className={`
-        group py-1 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 relative h-full rounded-[7px]
+        group py-1 flex flex-col items-center ${showAvatar ? "justify-start" : "justify-center"} transition-all duration-300 hover:-translate-y-1 relative h-full rounded-[7px]
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
         ${showAvatar
           ? `family-card ${isRoot ? "root-card" : ""} px-0 sm:px-0 w-fit bg-amber-50 border border-amber-300/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md`
@@ -116,7 +116,7 @@ export default function FamilyNodeCard({
       )}
 
       {/* 2. Gender Icon + Name */}
-      <div className={`flex flex-col items-center justify-center gap-1 w-full relative z-10 ${showAvatar ? "px-0" : ""}`}>
+      <div className={`flex flex-col items-center gap-1 w-full relative z-10 ${showAvatar ? "px-0 justify-center" : "flex-1 justify-evenly px-1"}`}>
         <div
           className={`
             font-bold text-center leading-[1.2] transition-colors cursor-pointer break-words w-full px-0.5

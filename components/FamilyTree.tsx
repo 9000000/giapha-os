@@ -100,7 +100,6 @@ export default function FamilyTree({
     const timer1 = setTimeout(equalizeSizes, 50);
     const timer2 = setTimeout(equalizeSizes, 300);
     const timer3 = setTimeout(equalizeSizes, 1000);
-    const timer4 = setTimeout(equalizeSizes, 2000);
 
     window.addEventListener("resize", equalizeSizes);
 
@@ -108,7 +107,6 @@ export default function FamilyTree({
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
-      clearTimeout(timer4);
       window.removeEventListener("resize", equalizeSizes);
     };
   }, [
@@ -161,7 +159,9 @@ export default function FamilyTree({
             data-level={level}
           >
             {/* Main Person & Spouses Row */}
-            <div className="flex relative z-10 h-full">
+            <div
+              className={`flex relative z-10 items-stretch h-full${showAvatar ? " bg-white rounded-[7px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-stone-200/80 transition-opacity" : ""}`}
+            >
               <FamilyNodeCard person={data.person} level={level} isRoot={level === 0} />
 
               {data.spouses.length > 0 &&

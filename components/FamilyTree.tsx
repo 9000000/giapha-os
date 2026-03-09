@@ -28,20 +28,7 @@ export default function FamilyTree({
   const [hideFemales, setHideFemales] = useState(false);
   const [expandedInLawNodes, setExpandedInLawNodes] = useState<Set<string>>(new Set());
 
-  const { showAvatar, treeBackground } = useDashboard();
-
-  const bgClass = (() => {
-    switch (treeBackground) {
-      case "white": return "bg-white";
-      case "slate": return "bg-stone-50";
-      case "lotus": return "bg-lotus";
-      case "tree": return "bg-tree";
-      case "red": return "bg-red";
-      case "parchment":
-      default:
-        return "bg-parchment";
-    }
-  })();
+  const { showAvatar } = useDashboard();
 
   const {
     scale,
@@ -273,7 +260,7 @@ export default function FamilyTree({
 
       <div
         ref={containerRef}
-        className={`w-full h-full overflow-auto ${bgClass} ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`w-full h-full overflow-auto ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUpOrLeave}

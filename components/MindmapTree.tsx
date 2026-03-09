@@ -22,7 +22,7 @@ export default function MindmapTree({
   roots,
   canEdit,
 }: MindmapTreeProps) {
-  const { showAvatar, setMemberModalId, treeBackground } = useDashboard();
+  const { showAvatar, setMemberModalId } = useDashboard();
   const [hideSpouses, setHideSpouses] = useState(false);
   const [hideMales, setHideMales] = useState(false);
   const [hideFemales, setHideFemales] = useState(false);
@@ -30,19 +30,6 @@ export default function MindmapTree({
     type: "expand" | "collapse";
     ts: number;
   } | null>(null);
-
-  const bgClass = (() => {
-    switch (treeBackground) {
-      case "white": return "bg-white";
-      case "slate": return "bg-stone-50";
-      case "lotus": return "bg-lotus";
-      case "tree": return "bg-tree";
-      case "red": return "bg-red";
-      case "parchment":
-      default:
-        return "bg-parchment";
-    }
-  })();
 
   const ctx: MindmapContextData = useMemo(() => {
     const adj = buildAdjacencyLists(relationships, personsMap);
@@ -83,7 +70,7 @@ export default function MindmapTree({
   }
 
   return (
-    <div className={`w-full h-full relative p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-140px)] flex justify-start lg:justify-center overflow-x-auto ${bgClass}`}>
+    <div className="w-full h-full relative p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-140px)] flex justify-start lg:justify-center overflow-x-auto">
       <MindmapToolbar
         hideSpouses={hideSpouses}
         setHideSpouses={setHideSpouses}

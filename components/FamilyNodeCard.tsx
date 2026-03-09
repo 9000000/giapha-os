@@ -49,7 +49,7 @@ export default function FamilyNodeCard({
         ${isDeceased ? "grayscale-[0.4] opacity-80" : ""}
         ${showAvatar
           ? `family-card ${isRoot ? "root-card" : ""} px-0 sm:px-0 w-fit bg-amber-50 border border-amber-300/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md`
-          : `family-card ${isRoot ? "root-card" : ""} px-1 bg-amber-50 border border-amber-300/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-400 hover:shadow-md hover:bg-amber-100/50`
+          : `family-card ${isRoot ? "root-card" : ""} px-0 bg-amber-200 border border-amber-400/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:border-amber-500 hover:shadow-md hover:bg-amber-300/70`
         }
       `}
     >

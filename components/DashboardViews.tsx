@@ -81,6 +81,8 @@ export default function DashboardViews({
     switch (treeBackground) {
       case "white": return "bg-white";
       case "slate": return "bg-stone-50";
+      case "lotus": return "bg-lotus";
+      case "tree": return "bg-tree";
       case "parchment":
       default:
         return "bg-parchment";

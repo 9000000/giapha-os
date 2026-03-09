@@ -137,6 +137,26 @@ export default function BaseToolbar({
                   />
                   Xám nhạt (Stone)
                 </label>
+                <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                  <input
+                    type="radio"
+                    name="tree_bg"
+                    checked={treeBackground === "lotus"}
+                    onChange={() => setTreeBackground("lotus")}
+                    className="text-amber-600 focus:ring-amber-500 cursor-pointer"
+                  />
+                  🪷 Hoa sen
+                </label>
+                <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                  <input
+                    type="radio"
+                    name="tree_bg"
+                    checked={treeBackground === "tree"}
+                    onChange={() => setTreeBackground("tree")}
+                    className="text-amber-600 focus:ring-amber-500 cursor-pointer"
+                  />
+                  🌳 Cây đa
+                </label>
               </div>
 
               <div className="h-px w-full bg-stone-100 my-1 flex items-center gap-2"></div>

@@ -18,7 +18,7 @@ export default function DashboardMemberList({
 }) {
   const { setShowCreateMember } = useDashboard();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState("updated_desc");
+  const [sortOption, setSortOption] = useState("generation_desc");
 
   const [filterOption, setFilterOption] = useState("all");
 
@@ -201,11 +201,45 @@ export default function DashboardMemberList({
       </div>
 
       {sortedPersons.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedPersons.map((person) => (
-            <PersonCard key={person.id} person={person} />
-          ))}
-        </div>
+        sortOption.startsWith("generation") ? (
+          <div className="space-y-12">
+            {(Object.entries(
+              sortedPersons.reduce((acc: Record<number, Person[]>, person: Person) => {
+                const gen = person.generation || 0;
+                if (!acc[gen]) acc[gen] = [];
+                acc[gen].push(person);
+                return acc;
+              }, {} as Record<number, Person[]>)
+            ) as [string, Person[]][])
+              .sort(([a], [b]) =>
+                sortOption === "generation_asc"
+                  ? Number(a) - Number(b)
+                  : Number(b) - Number(a)
+              )
+              .map(([gen, persons]) => (
+                <div key={`gen-${gen}`}>
+                  <div className="flex items-center justify-center mb-8">
+                    <div className="flex-grow border-t border-amber-200/60"></div>
+                    <span className="mx-4 px-6 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-700 font-semibold text-sm shadow-sm whitespace-nowrap">
+                      {Number(gen) === 0 ? "Chưa xác định đời" : `Đời thứ ${gen}`}
+                    </span>
+                    <div className="flex-grow border-t border-amber-200/60"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {persons.map((person) => (
+                      <PersonCard key={person.id} person={person} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedPersons.map((person) => (
+              <PersonCard key={person.id} person={person} />
+            ))}
+          </div>
+        )
       ) : (
         <div className="text-center py-12 text-stone-400 italic">
           {initialPersons.length > 0

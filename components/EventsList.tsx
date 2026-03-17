@@ -123,6 +123,18 @@ function EventCard({
           <span className="shrink-0 text-[10px] font-sans font-bold text-stone-500 bg-stone-100 border border-stone-200/60 rounded-md px-1.5 py-0.5 whitespace-nowrap tracking-wider">
             {isBirthday ? "Sinh nhật" : isCustom ? "Sự kiện" : "Ngày giỗ"}
           </span>
+          {/* Age badge for living birthday */}
+          {isBirthday && !event.isDeceased && event.originYear && (
+            <span className="shrink-0 text-[10px] font-sans font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 rounded-md px-1.5 py-0.5 whitespace-nowrap tracking-wider">
+              {new Date().getFullYear() - event.originYear} tuổi
+            </span>
+          )}
+          {/* Years since death badge for death anniversary */}
+          {!isBirthday && !isCustom && event.originYear && (
+            <span className="shrink-0 text-[10px] font-sans font-bold text-rose-700 bg-rose-50 border border-rose-200/60 rounded-md px-1.5 py-0.5 whitespace-nowrap tracking-wider">
+              Năm thứ {new Date().getFullYear() - event.originYear + 1}
+            </span>
+          )}
           {isBirthday &&
             event.originDay &&
             event.originMonth &&

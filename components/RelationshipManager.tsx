@@ -73,9 +73,10 @@ export default function RelationshipManager({
       name: string;
       gender: "male" | "female" | "other";
       birthYear: string;
+      birthOrder: string;
       isProcessing: boolean;
     }[]
-  >([{ name: "", gender: "male", birthYear: "", isProcessing: false }]);
+  >([{ name: "", gender: "male", birthYear: "", birthOrder: "1", isProcessing: false }]);
 
   // Quick Add Spouse State
   const [isAddingSpouse, setIsAddingSpouse] = useState(false);
@@ -318,6 +319,7 @@ export default function RelationshipManager({
           full_name: string;
           gender: "male" | "female" | "other";
           birth_year?: number;
+          birth_order?: number | null;
         } = {
           full_name: child.name.trim(),
           gender: child.gender,
@@ -325,6 +327,12 @@ export default function RelationshipManager({
         if (child.birthYear.trim() !== "") {
           const year = parseInt(child.birthYear);
           if (!isNaN(year)) personPayload.birth_year = year;
+        }
+        if (child.birthOrder.trim() !== "") {
+          const order = parseInt(child.birthOrder);
+          personPayload.birth_order = !isNaN(order) ? order : null;
+        } else {
+          personPayload.birth_order = null;
         }
 
         const { data: newPersonData, error: insertError } = await supabase
@@ -362,7 +370,7 @@ export default function RelationshipManager({
       if (successCount === validChildren.length) {
         setIsAddingBulk(false);
         setBulkChildren([
-          { name: "", gender: "male", birthYear: "", isProcessing: false },
+          { name: "", gender: "male", birthYear: "", birthOrder: "1", isProcessing: false },
         ]);
         setSelectedSpouseId("");
         fetchRelationships();
@@ -849,89 +857,112 @@ export default function RelationshipManager({
               </select>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="block text-xs font-medium text-stone-500 mb-1">
                 Danh sách các con
               </label>
               {bulkChildren.map((child, index) => (
-                <div key={index} className="flex gap-2 items-center">
-                  <span className="text-stone-400 text-xs w-4">
-                    {index + 1}.
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Họ và tên..."
-                    value={child.name}
-                    onChange={(e) => {
-                      const newBulk = [...bulkChildren];
-                      newBulk[index].name = e.target.value;
-                      setBulkChildren(newBulk);
-                    }}
-                    className="flex-2 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
-                  />
-                  <select
-                    value={child.gender}
-                    onChange={(e) => {
-                      const newBulk = [...bulkChildren];
-                      newBulk[index].gender = e.target.value as
-                        | "male"
-                        | "female"
-                        | "other";
-                      setBulkChildren(newBulk);
-                    }}
-                    className="flex-1 bg-white text-stone-900 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
-                  >
-                    <option value="male">Nam</option>
-                    <option value="female">Nữ</option>
-                    <option value="other">Khác</option>
-                  </select>
-                  <input
-                    type="number"
-                    placeholder="Năm sinh"
-                    value={child.birthYear}
-                    onChange={(e) => {
-                      const newBulk = [...bulkChildren];
-                      newBulk[index].birthYear = e.target.value;
-                      setBulkChildren(newBulk);
-                    }}
-                    className="flex-1 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border w-24"
-                  />
-                  <button
-                    onClick={() => {
-                      const newBulk = bulkChildren.filter(
-                        (_, i) => i !== index,
-                      );
-                      // Always keep at least one row
-                      if (newBulk.length === 0) {
-                        newBulk.push({
-                          name: "",
-                          gender: "male",
-                          birthYear: "",
-                          isProcessing: false,
-                        });
-                      }
-                      setBulkChildren(newBulk);
-                    }}
-                    className="text-stone-400 hover:text-red-500 p-2"
-                  >
-                    ✕
-                  </button>
+                <div
+                  key={index}
+                  className="bg-white border border-sky-100 rounded-xl p-3 shadow-sm"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-sky-700">
+                      Con thứ {index + 1}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const newBulk = bulkChildren.filter(
+                          (_, i) => i !== index,
+                        );
+                        if (newBulk.length === 0) {
+                          newBulk.push({
+                            name: "",
+                            gender: "male",
+                            birthYear: "",
+                            birthOrder: "1",
+                            isProcessing: false,
+                          });
+                        }
+                        // Recalculate default birthOrder for remaining rows
+                        setBulkChildren(newBulk);
+                      }}
+                      className="text-stone-300 hover:text-red-500 transition-colors p-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="number"
+                      title="Thứ tự sinh"
+                      placeholder="#"
+                      value={child.birthOrder}
+                      min={1}
+                      onChange={(e) => {
+                        const newBulk = [...bulkChildren];
+                        newBulk[index].birthOrder = e.target.value;
+                        setBulkChildren(newBulk);
+                      }}
+                      className="w-14 bg-sky-50 text-sky-800 font-bold text-sm text-center rounded-md border-sky-200 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Họ và tên *"
+                      value={child.name}
+                      onChange={(e) => {
+                        const newBulk = [...bulkChildren];
+                        newBulk[index].name = e.target.value;
+                        setBulkChildren(newBulk);
+                      }}
+                      className="flex-1 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                    />
+                    <select
+                      value={child.gender}
+                      onChange={(e) => {
+                        const newBulk = [...bulkChildren];
+                        newBulk[index].gender = e.target.value as
+                          | "male"
+                          | "female"
+                          | "other";
+                        setBulkChildren(newBulk);
+                      }}
+                      className="bg-white text-stone-900 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                    >
+                      <option value="male">Nam</option>
+                      <option value="female">Nữ</option>
+                      <option value="other">Khác</option>
+                    </select>
+                    <input
+                      type="number"
+                      placeholder="Năm sinh"
+                      value={child.birthYear}
+                      onChange={(e) => {
+                        const newBulk = [...bulkChildren];
+                        newBulk[index].birthYear = e.target.value;
+                        setBulkChildren(newBulk);
+                      }}
+                      className="w-24 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                    />
+                  </div>
                 </div>
               ))}
 
               <button
                 onClick={() => {
+                  const nextOrder = bulkChildren.length + 1;
                   setBulkChildren([
                     ...bulkChildren,
                     {
                       name: "",
                       gender: "male",
                       birthYear: "",
+                      birthOrder: String(nextOrder),
                       isProcessing: false,
                     },
                   ]);
                 }}
-                className="text-sky-600 text-xs font-semibold hover:text-sky-800 mt-2 px-6"
+                className="w-full py-2.5 border-2 border-dashed border-sky-200 bg-sky-50/50 hover:bg-sky-50 rounded-xl text-sky-600 text-xs font-semibold hover:text-sky-800 hover:border-sky-400 transition-all mt-1"
               >
                 + Thêm dòng
               </button>
@@ -955,6 +986,7 @@ export default function RelationshipManager({
                       name: "",
                       gender: "male",
                       birthYear: "",
+                      birthOrder: "1",
                       isProcessing: false,
                     },
                   ]);

@@ -217,11 +217,23 @@ export default async function DashboardLaunchpad() {
                           <Icon className={`size-4 ${cfg.color}`} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-semibold text-stone-700 truncate flex items-center gap-2">
-                            {evt.personName}
-                            <span className="text-xs font-medium text-stone-400 bg-stone-100/80 px-1.5 py-0.5 rounded-md">
+                          <div className="text-sm font-semibold text-stone-700 flex flex-wrap items-center gap-1.5">
+                            <span className="truncate">{evt.personName}</span>
+                            <span className="text-xs font-medium text-stone-400 bg-stone-100/80 px-1.5 py-0.5 rounded-md shrink-0">
                               {evt.type === "birthday" ? "Sinh nhật" : evt.type === "death_anniversary" ? "Ngày giỗ" : "Sự kiện"}
                             </span>
+                            {/* Age badge for living birthday */}
+                            {evt.type === "birthday" && !evt.isDeceased && evt.originYear && (
+                              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-md shrink-0">
+                                {new Date().getFullYear() - evt.originYear} tuổi
+                              </span>
+                            )}
+                            {/* Years since death badge */}
+                            {evt.type === "death_anniversary" && evt.originYear && (
+                              <span className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200/60 px-1.5 py-0.5 rounded-md shrink-0">
+                                Năm thứ {new Date().getFullYear() - evt.originYear + 1}
+                              </span>
+                            )}
                           </div>
                           <div className="text-xs text-stone-500 font-medium pt-1 flex flex-col gap-0.5">
                             {evt.type === "death_anniversary" ? (

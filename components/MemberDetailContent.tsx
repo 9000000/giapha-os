@@ -12,16 +12,18 @@ import {
 } from "@/utils/dateHelpers";
 import { motion, Variants } from "framer-motion";
 import {
+  Baby,
   Briefcase,
   ChevronDown,
   Info,
   Leaf,
   MapPin,
   Phone,
+  UserPlus,
   Users,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { FemaleIcon, MaleIcon } from "./GenderIcons";
 
 interface MemberDetailContentProps {
@@ -38,6 +40,31 @@ export default function MemberDetailContent({
   canEdit = false,
 }: MemberDetailContentProps) {
   const [isNoteExpanded, setIsNoteExpanded] = useState(false);
+  const [relStats, setRelStats] = useState<{
+    biologicalChildren: number;
+    maleBiologicalChildren: number;
+    femaleBiologicalChildren: number;
+    paternalGrandchildren: number;
+    maternalGrandchildren: number;
+    sonInLaw: number;
+    daughterInLaw: number;
+  } | null>(null);
+
+  const handleStatsLoaded = useCallback(
+    (stats: {
+      biologicalChildren: number;
+      maleBiologicalChildren: number;
+      femaleBiologicalChildren: number;
+      paternalGrandchildren: number;
+      maternalGrandchildren: number;
+      sonInLaw: number;
+      daughterInLaw: number;
+    }) => {
+      setRelStats(stats);
+    },
+    [],
+  );
+
   const fullPerson = { ...person, ...privateData };
   const note = (fullPerson.note as string) || "";
   const isNoteLong = note.length > 300;
@@ -300,6 +327,123 @@ export default function MemberDetailContent({
                   </motion.div>
                 );
               })()}
+
+              {/* Children Stats Card */}
+              {relStats &&
+                (relStats.biologicalChildren > 0 ||
+                  relStats.sonInLaw > 0 ||
+                  relStats.daughterInLaw > 0 ||
+                  relStats.paternalGrandchildren > 0 ||
+                  relStats.maternalGrandchildren > 0) && (
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 sm:col-span-2 md:col-span-3"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></span>
+                      <h3 className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
+                        Hậu duệ
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {/* Biological Children */}
+                      {relStats.biologicalChildren > 0 && (
+                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100 flex items-center gap-3">
+                          <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg">
+                            <Users className="size-5" />
+                          </div>
+                          <div>
+                            <p className="text-xl font-black text-stone-700 leading-none">
+                              {relStats.biologicalChildren}
+                            </p>
+                            <div className="space-y-1.5 w-full text-sm">
+                              {relStats.maleBiologicalChildren > 0 && (
+                                <span className="font-medium text-sky-700 bg-sky-100/50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                  <MaleIcon className="size-2.5" />{" "}
+                                  {relStats.maleBiologicalChildren} Trai
+                                </span>
+                              )}
+                              {relStats.femaleBiologicalChildren > 0 && (
+                                <span className="font-medium text-rose-700 bg-rose-100/50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                  <FemaleIcon className="size-2.5" />{" "}
+                                  {relStats.femaleBiologicalChildren} Gái
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* In-Laws */}
+                      {(relStats.sonInLaw > 0 ||
+                        relStats.daughterInLaw > 0) && (
+                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100 flex items-center gap-3">
+                          <div className="p-2 bg-stone-200/50 text-stone-600 rounded-lg">
+                            <UserPlus className="size-5" />
+                          </div>
+                          <div className="w-full">
+                            <div className="space-y-1.5 w-full">
+                              {relStats.daughterInLaw > 0 && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-stone-600 font-medium">
+                                    Con dâu
+                                  </span>
+                                  <span className="font-bold text-stone-800">
+                                    {relStats.daughterInLaw}
+                                  </span>
+                                </div>
+                              )}
+                              {relStats.sonInLaw > 0 && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-stone-600 font-medium">
+                                    Con rể
+                                  </span>
+                                  <span className="font-bold text-stone-800">
+                                    {relStats.sonInLaw}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Grandchildren */}
+                      {(relStats.paternalGrandchildren > 0 ||
+                        relStats.maternalGrandchildren > 0) && (
+                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100 flex items-center gap-3">
+                          <div className="p-2 bg-emerald-100/50 text-emerald-600 rounded-lg">
+                            <Baby className="size-5" />
+                          </div>
+                          <div className="w-full">
+                            <div className="space-y-1.5 w-full">
+                              {relStats.paternalGrandchildren > 0 && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-stone-600 font-medium">
+                                    Cháu nội
+                                  </span>
+                                  <span className="font-bold text-stone-800">
+                                    {relStats.paternalGrandchildren}
+                                  </span>
+                                </div>
+                              )}
+                              {relStats.maternalGrandchildren > 0 && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-stone-600 font-medium">
+                                    Cháu ngoại
+                                  </span>
+                                  <span className="font-bold text-stone-800">
+                                    {relStats.maternalGrandchildren}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
             </div>
           </div>
         </motion.div>
@@ -374,6 +518,7 @@ export default function MemberDetailContent({
                   isAdmin={isAdmin}
                   canEdit={canEdit}
                   personGender={person.gender}
+                  onStatsLoaded={handleStatsLoaded}
                 />
               </div>
             </motion.section>

@@ -15,6 +15,15 @@ interface RelationshipManagerProps {
   isAdmin: boolean;
   canEdit?: boolean;
   personGender: string; // Passed down to calculate default spouse gender
+  onStatsLoaded?: (stats: {
+    biologicalChildren: number;
+    maleBiologicalChildren: number;
+    femaleBiologicalChildren: number;
+    paternalGrandchildren: number;
+    maternalGrandchildren: number;
+    sonInLaw: number;
+    daughterInLaw: number;
+  }) => void;
 }
 
 interface EnrichedRelationship {
@@ -30,6 +39,7 @@ export default function RelationshipManager({
   isAdmin,
   canEdit = false,
   personGender,
+  onStatsLoaded,
 }: RelationshipManagerProps) {
   const supabase = createClient();
   const dashboardContext = useContext(DashboardContext);
@@ -180,13 +190,64 @@ export default function RelationshipManager({
         }
       }
 
+      if (onStatsLoaded) {
+        const biologicalChildrenList = formattedRels.filter(
+          (r) => r.direction === "child" && r.type === "biological_child",
+        );
+        const biologicalChildren = biologicalChildrenList.length;
+        const maleBiologicalChildren = biologicalChildrenList.filter(c => c.targetPerson.gender === "male").length;
+        const femaleBiologicalChildren = biologicalChildrenList.filter(c => c.targetPerson.gender === "female").length;
+
+        const daughterInLaw = formattedRels.filter(
+          (r) =>
+            r.direction === "child_in_law" && r.targetPerson.gender === "female",
+        ).length;
+        const sonInLaw = formattedRels.filter(
+          (r) =>
+            r.direction === "child_in_law" && r.targetPerson.gender === "male",
+        ).length;
+
+        // Fetch Grandchildren mapping
+        let paternalGrandchildren = 0;
+        let maternalGrandchildren = 0;
+        if (childrenIds.length > 0) {
+           const { data: grandchildrenData } = await supabase
+             .from("relationships")
+             .select("id, person_a")
+             .in("type", ["biological_child", "adopted_child"])
+             .in("person_a", childrenIds);
+           
+           if (grandchildrenData) {
+             const maleChildrenIds = formattedRels
+               .filter((r) => r.direction === "child" && r.targetPerson.gender === "male")
+               .map((r) => r.targetPerson.id);
+             const femaleChildrenIds = formattedRels
+               .filter((r) => r.direction === "child" && r.targetPerson.gender === "female")
+               .map((r) => r.targetPerson.id);
+
+             paternalGrandchildren = grandchildrenData.filter((g) => maleChildrenIds.includes(g.person_a)).length;
+             maternalGrandchildren = grandchildrenData.filter((g) => femaleChildrenIds.includes(g.person_a)).length;
+           }
+        }
+        
+        onStatsLoaded({ 
+          biologicalChildren, 
+          maleBiologicalChildren, 
+          femaleBiologicalChildren, 
+          paternalGrandchildren,
+          maternalGrandchildren, 
+          sonInLaw, 
+          daughterInLaw 
+        });
+      }
+
       setRelationships(formattedRels);
     } catch (err) {
       console.error("Error fetching relationships:", err);
     } finally {
       setLoading(false);
     }
-  }, [personId, supabase]);
+  }, [personId, supabase, onStatsLoaded]);
 
   useEffect(() => {
     fetchRelationships();

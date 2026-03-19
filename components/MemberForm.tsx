@@ -96,6 +96,18 @@ export default function MemberForm({
     }
   }, [initialData]);
 
+  const slugify = (str: string) => {
+    return str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[đĐ]/g, "d")
+      .replace(/([^0-9a-z-\s])/g, "")
+      .replace(/(\s+)/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
+
   const handleSolarChange = (type: "year" | "month" | "day", val: number | "", isDeath: boolean) => {
     if (!isDeath) {
       if (type === "year") setBirthYear(val);
@@ -254,29 +266,10 @@ export default function MemberForm({
     }
 
     try {
-      let finalAvatarUrl = avatarUrl;
+      let currentAvatarUrl = avatarUrl;
+      let currentPersonId = initialData?.id;
 
-      // 0. Handle Avatar Upload if a new file is selected
-      if (avatarFile) {
-        const fileExt = avatarFile.name.split(".").pop();
-        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, avatarFile);
-
-        if (uploadError) throw uploadError;
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("avatars").getPublicUrl(filePath);
-
-        finalAvatarUrl = publicUrl;
-      }
-
-      // 1. Upsert public data
-      const personData = {
+      const getPersonData = (url: string | null) => ({
         full_name: fullName,
         gender,
         birth_year: birthYear === "" ? null : Number(birthYear),
@@ -291,18 +284,38 @@ export default function MemberForm({
         birth_order: birthOrder === "" ? null : Number(birthOrder),
         generation: generation === "" ? null : Number(generation),
         other_names: otherNames || null,
-        avatar_url: finalAvatarUrl || null,
+        avatar_url: url,
         note: note || null,
-      };
-
-      let personId = initialData?.id;
+      });
 
       if (!isAdmin) {
         // Editor workflow -> create change request
+        const uploadId = currentPersonId || Math.random().toString(36).substring(2, 15);
+        if (avatarFile) {
+          const fileExt = avatarFile.name.split(".").pop();
+          const slugName = slugify(fullName);
+          const fileName = `${uploadId}_${slugName}_${Date.now()}.${fileExt}`;
+          const filePath = `${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("avatars")
+            .upload(filePath, avatarFile, { upsert: true });
+
+          if (uploadError) throw uploadError;
+
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+          currentAvatarUrl = publicUrl;
+        }
+
+        const personData = getPersonData(currentAvatarUrl || null);
+
         const res = await createChangeRequest(
           isEditing ? "update" : "insert",
           "persons",
-          isEditing ? personId! : null,
+          isEditing ? currentPersonId! : null,
           personData,
           isEditing ? initialData : null
         );
@@ -318,26 +331,51 @@ export default function MemberForm({
         return;
       }
 
-      if (isEditing && personId) {
-        const { error: updateError } = await supabase
-          .from("persons")
-          .update(personData)
-          .eq("id", personId);
-        if (updateError) throw updateError;
-      } else {
+      if (!isEditing || !currentPersonId) {
         const { data: newPerson, error: createError } = await supabase
           .from("persons")
-          .insert(personData)
+          .insert(getPersonData(currentAvatarUrl || null))
           .select()
           .single();
         if (createError) throw createError;
-        personId = newPerson.id;
+        currentPersonId = newPerson.id;
+      } else {
+        const { error: updateError } = await supabase
+          .from("persons")
+          .update(getPersonData(currentAvatarUrl || null))
+          .eq("id", currentPersonId);
+        if (updateError) throw updateError;
       }
 
-      // 2. Upsert private data (only if admin and personId exists)
-      if (isAdmin && personId) {
+      if (avatarFile && currentPersonId) {
+        const fileExt = avatarFile.name.split(".").pop();
+        const slugName = slugify(fullName);
+        const fileName = `${currentPersonId}_${slugName}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, avatarFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+        currentAvatarUrl = publicUrl;
+
+        const { error: updateAvatarError } = await supabase
+          .from("persons")
+          .update({ avatar_url: currentAvatarUrl })
+          .eq("id", currentPersonId);
+        if (updateAvatarError) throw updateAvatarError;
+      }
+
+      // 2. Upsert private data (only if admin and currentPersonId exists)
+      if (isAdmin && currentPersonId) {
         const privateData = {
-          person_id: personId,
+          person_id: currentPersonId,
           phone_number: phoneNumber || null,
           occupation: occupation || null,
           current_residence: currentResidence || null,
@@ -351,12 +389,12 @@ export default function MemberForm({
       }
 
       // After save: use callback if provided, otherwise fall back to page navigation
-      if (!personId)
+      if (!currentPersonId)
         throw new Error("Không lấy được ID thành viên sau khi lưu.");
       if (onSuccess) {
-        onSuccess(personId);
+        onSuccess(currentPersonId);
       } else {
-        router.push("/dashboard/members/" + personId);
+        router.push("/dashboard/members/" + currentPersonId);
         router.refresh();
       }
     } catch (err) {

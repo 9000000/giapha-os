@@ -1,0 +1,79 @@
+{
+  "@capacitor/android": {
+    "current": "8.1.0",
+    "wanted": "8.2.0",
+    "latest": "8.2.0",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\@capacitor\\android"
+  },
+  "@capacitor/cli": {
+    "current": "8.1.0",
+    "wanted": "8.2.0",
+    "latest": "8.2.0",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\@capacitor\\cli"
+  },
+  "@capacitor/core": {
+    "current": "8.1.0",
+    "wanted": "8.2.0",
+    "latest": "8.2.0",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\@capacitor\\core"
+  },
+  "@supabase/supabase-js": {
+    "current": "2.99.2",
+    "wanted": "2.99.3",
+    "latest": "2.99.3",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\@supabase\\supabase-js"
+  },
+  "@tailwindcss/postcss": {
+    "current": "4.2.1",
+    "wanted": "4.2.2",
+    "latest": "4.2.2",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\@tailwindcss\\postcss"
+  },
+  "eslint": {
+    "current": "9.39.4",
+    "wanted": "9.39.4",
+    "latest": "10.0.3",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\eslint"
+  },
+  "eslint-config-next": {
+    "current": "16.1.6",
+    "wanted": "16.1.6",
+    "latest": "16.2.0",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\eslint-config-next"
+  },
+  "framer-motion": {
+    "current": "12.37.0",
+    "wanted": "12.38.0",
+    "latest": "12.38.0",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\framer-motion"
+  },
+  "jspdf": {
+    "current": "4.2.0",
+    "wanted": "4.2.1",
+    "latest": "4.2.1",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\jspdf"
+  },
+  "next": {
+    "current": "16.1.6",
+    "wanted": "16.1.6",
+    "latest": "16.2.0",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\next"
+  },
+  "tailwindcss": {
+    "current": "4.2.1",
+    "wanted": "4.2.2",
+    "latest": "4.2.2",
+    "dependent": "gia-pha-ho-nong",
+    "location": "C:\\Users\\NongTuan\\Desktop\\Github\\gia-pha-ho-nong\\node_modules\\tailwindcss"
+  }
+}

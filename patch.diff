@@ -1,0 +1,429 @@
+commit 2a5f87fce09f2ba2a940fb54a07c5d4b9f2e596a
+Author: minhtc <minhtc.git@homielab.com>
+Date:   Thu Mar 19 15:14:34 2026 +0700
+
+    feat: Implement in-law status calculation and refactor member form avatar upload to use person ID in filenames.
+
+diff --git a/app/dashboard/lineage/page.tsx b/app/dashboard/lineage/page.tsx
+index 0629819..f58ced4 100644
+--- a/app/dashboard/lineage/page.tsx
++++ b/app/dashboard/lineage/page.tsx
+@@ -18,6 +18,7 @@ export default async function LineagePage() {
+ 
+   const { data: relsData } = await supabase.from("relationships").select("*");
+ 
++  // Identify "roots" - people with no parents
+   const persons = personsData || [];
+   const relationships = relsData || [];
+ 
+@@ -29,10 +30,10 @@ export default async function LineagePage() {
+           <h1 className="title">Thứ tự gia phả</h1>
+           <p className="text-stone-500 mt-2 text-sm sm:text-base max-w-2xl">
+             Tự động tính toán và cập nhật{" "}
+-            <strong className="text-stone-700">thế hệ</strong> (đời thứ mấy tính
+-            từ tổ) và <strong className="text-stone-700">thứ tự sinh</strong>{" "}
+-            (con trưởng, con thứ…) cho tất cả thành viên. Xem preview trước khi
+-            áp dụng.
++            <strong className="text-stone-700">thế hệ</strong>,{" "}
++            <strong className="text-stone-700">thứ tự sinh</strong> và{" "}
++            <strong className="text-stone-700">trạng thái Dâu/Rể</strong> cho
++            tất cả thành viên. Xem preview trước khi áp dụng.
+           </p>
+         </div>
+ 
+@@ -53,7 +54,7 @@ export default async function LineagePage() {
+               </div>
+             </div>
+           </div>
+-          <div className="bg-white/80 rounded-2xl p-5 border border-stone-200/60 shadow-sm">
++          <div className="bg-white/80 rounded-2xl p-5 border border-stone-200/60 shadow-sm flex flex-col gap-4">
+             <div className="flex items-start gap-3">
+               <span className="text-2xl">👶</span>
+               <div>
+@@ -67,6 +68,19 @@ export default async function LineagePage() {
+                 </p>
+               </div>
+             </div>
++            <div className="flex items-start gap-3">
++              <span className="text-2xl">💍</span>
++              <div>
++                <h3 className="font-bold text-stone-800 text-sm mb-1">
++                  Dâu / Rể (In-Law Status)
++                </h3>
++                <p className="text-stone-500 text-xs leading-relaxed">
++                  Tự động xác định là dâu/rể nếu thành viên có vợ/chồng trong hệ
++                  thống nhưng không có thông tin bố/mẹ. Giúp hiển thị đúng thẻ
++                  phân loại ngoài danh sách.
++                </p>
++              </div>
++            </div>
+           </div>
+         </div>
+ 
+diff --git a/components/LineageManager.tsx b/components/LineageManager.tsx
+index 9a55cca..c4dbc29 100644
+--- a/components/LineageManager.tsx
++++ b/components/LineageManager.tsx
+@@ -26,6 +26,9 @@ interface ComputedUpdate {
+   new_generation: number | null;
+   old_birth_order: number | null;
+   new_birth_order: number | null;
++  old_is_in_law: boolean;
++  new_is_in_law: boolean;
++  gender: string;
+   changed: boolean;
+ }
+ 
+@@ -146,6 +149,73 @@ function computeGenerations(
+   return genMap;
+ }
+ 
++function computeInLaws(
++  persons: Person[],
++  relationships: Relationship[],
++): Map<string, boolean> {
++  // A person is an in-law if they have a spouse in the tree but no parents in the tree
++  const childParents = new Map<string, string[]>();
++  const spouseMap = new Map<string, string[]>();
++
++  for (const r of relationships) {
++    if (r.type === "biological_child" || r.type === "adopted_child") {
++      if (!childParents.has(r.person_b)) childParents.set(r.person_b, []);
++      childParents.get(r.person_b)!.push(r.person_a);
++    } else if (r.type === "marriage") {
++      if (!spouseMap.has(r.person_a)) spouseMap.set(r.person_a, []);
++      spouseMap.get(r.person_a)!.push(r.person_b);
++      if (!spouseMap.has(r.person_b)) spouseMap.set(r.person_b, []);
++      spouseMap.get(r.person_b)!.push(r.person_a);
++    }
++  }
++
++  const inLawMap = new Map<string, boolean>();
++
++  // Identify "roots" - people with no parents
++  for (const p of persons) {
++    const hasParents = childParents.has(p.id);
++    const hasSpouse = spouseMap.has(p.id);
++
++    // Rule: If they have parents in the tree, they are bloodline (NOT in-law)
++    if (hasParents) {
++      inLawMap.set(p.id, false);
++      continue;
++    }
++
++    // Rule: If they have no parents but DO have a spouse
++    if (hasSpouse) {
++      // Ambiguity check: If NEITHER spouse has parents, one is root, one is in-law.
++      // Usually, we keep the one already marked as NOT in-law as the root,
++      // or we use gender as a fallback (male = bloodline in many traditional Vietnamese genealogies).
++      const spouses = spouseMap.get(p.id) || [];
++      const anySpouseHasParents = spouses.some((sId) => childParents.has(sId));
++
++      if (anySpouseHasParents) {
++        // Spouse is bloodline -> this person is definitely an in-law
++        inLawMap.set(p.id, true);
++      } else {
++        // Neither has parents. Identify the "core" ancestor.
++        // If one is already marked as not in-law in DB, keep it.
++        // Otherwise, prioritize male.
++        const spousesData = spouses.map((sId) =>
++          persons.find((per) => per.id === sId),
++        );
++        const shouldBeBloodline =
++          !p.is_in_law ||
++          (p.gender === "male" &&
++            spousesData.every((s) => s?.gender !== "male"));
++
++        inLawMap.set(p.id, !shouldBeBloodline);
++      }
++    } else {
++      // No parents and no spouse -> Root (Generation 1) -> NOT in-law
++      inLawMap.set(p.id, false);
++    }
++  }
++
++  return inLawMap;
++}
++
+ function computeBirthOrders(
+   persons: Person[],
+   relationships: Relationship[],
+@@ -216,10 +286,13 @@ export default function LineageManager({
+     try {
+       const genMap = computeGenerations(persons, relationships);
+       const orderMap = computeBirthOrders(persons, relationships);
++      const inLawMap = computeInLaws(persons, relationships);
+ 
+       const result: ComputedUpdate[] = persons.map((p) => {
+         const newGen = genMap.has(p.id) ? genMap.get(p.id)! : null;
+         const newOrder = orderMap.has(p.id) ? orderMap.get(p.id)! : null;
++        const newInLaw = inLawMap.get(p.id) ?? false;
++
+         return {
+           id: p.id,
+           full_name: p.full_name,
+@@ -227,7 +300,13 @@ export default function LineageManager({
+           new_generation: newGen,
+           old_birth_order: p.birth_order,
+           new_birth_order: newOrder,
+-          changed: newGen !== p.generation || newOrder !== p.birth_order,
++          old_is_in_law: p.is_in_law,
++          new_is_in_law: newInLaw,
++          gender: p.gender,
++          changed:
++            newGen !== p.generation ||
++            newOrder !== p.birth_order ||
++            newInLaw !== p.is_in_law,
+         };
+       });
+ 
+@@ -269,6 +348,7 @@ export default function LineageManager({
+               .update({
+                 generation: u.new_generation,
+                 birth_order: u.new_birth_order,
++                is_in_law: u.new_is_in_law,
+               })
+               .eq("id", u.id),
+           ),
+@@ -371,20 +451,23 @@ export default function LineageManager({
+             <div className="overflow-x-auto">
+               <table className="w-full text-sm">
+                 <thead>
+-                  <tr className="bg-stone-50 border-b border-stone-200/80">
+-                    <th className="text-left px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">
+-                      Tên
+-                    </th>
+-                    <th className="text-center px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">
+-                      Thế hệ (cũ → mới)
+-                    </th>
+-                    <th className="text-center px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">
+-                      Thứ tự sinh (cũ → mới)
+-                    </th>
+-                    <th className="text-center px-4 py-3 font-semibold text-stone-600">
+-                      Trạng thái
+-                    </th>
+-                  </tr>
++                    <tr className="bg-stone-50 border-b border-stone-200/80">
++                      <th className="text-left px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">
++                        Tên
++                      </th>
++                      <th className="text-center px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">
++                        Thế hệ
++                      </th>
++                      <th className="text-center px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">
++                        Thứ tự
++                      </th>
++                      <th className="text-center px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">
++                        Dâu/Rể
++                      </th>
++                      <th className="text-center px-4 py-3 font-semibold text-stone-600">
++                        Trạng thái
++                      </th>
++                    </tr>
+                 </thead>
+                 <tbody>
+                   {displayedRows.map((u, i) => (
+@@ -423,17 +506,44 @@ export default function LineageManager({
+                           </>
+                         )}
+                       </td>
+-                      <td className="px-4 py-3 text-center">
+-                        {u.changed ? (
+-                          <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 border border-amber-200/60">
+-                            Cập nhật
+-                          </span>
+-                        ) : (
+-                          <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-stone-400 border border-stone-200/60">
+-                            Không đổi
++                        <td className="px-4 py-3 text-center">
++                          <span
++                            className={
++                              u.old_is_in_law !== u.new_is_in_law
++                                ? "text-stone-400"
++                                : ""
++                            }
++                          >
++                            {u.old_is_in_law
++                              ? u.gender === "male"
++                                ? "Rể"
++                                : "Dâu"
++                              : "—"}
+                           </span>
+-                        )}
+-                      </td>
++                          {u.old_is_in_law !== u.new_is_in_law && (
++                            <>
++                              <span className="mx-2 text-stone-300">→</span>
++                              <span className="font-bold text-amber-700">
++                                {u.new_is_in_law
++                                  ? u.gender === "male"
++                                    ? "Rể"
++                                    : "Dâu"
++                                  : "Máu thịt"}
++                              </span>
++                            </>
++                          )}
++                        </td>
++                        <td className="px-4 py-3 text-center">
++                          {u.changed ? (
++                            <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 border border-amber-200/60">
++                              Cập nhật
++                            </span>
++                          ) : (
++                            <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-stone-400 border border-stone-200/60">
++                              Không đổi
++                            </span>
++                          )}
++                        </td>
+                     </tr>
+                   ))}
+                 </tbody>
+diff --git a/components/MemberForm.tsx b/components/MemberForm.tsx
+index 98e4e83..e66f7db 100644
+--- a/components/MemberForm.tsx
++++ b/components/MemberForm.tsx
+@@ -106,6 +106,18 @@ export default function MemberForm({
+     initialData?.current_residence || "",
+   );
+ 
++  const slugify = (str: string) => {
++    return str
++      .toLowerCase()
++      .normalize("NFD")
++      .replace(/[\u0300-\u036f]/g, "")
++      .replace(/[đĐ]/g, "d")
++      .replace(/([^0-9a-z-\s])/g, "")
++      .replace(/(\s+)/g, "-")
++      .replace(/-+/g, "-")
++      .replace(/^-+|-+$/g, "");
++  };
++
+   const handleSolarDeathChange = (
+     field: "day" | "month" | "year",
+     val: string,
+@@ -278,29 +290,10 @@ export default function MemberForm({
+     }
+ 
+     try {
+-      let finalAvatarUrl = avatarUrl;
+-
+-      // 0. Handle Avatar Upload if a new file is selected
+-      if (avatarFile) {
+-        const fileExt = avatarFile.name.split(".").pop();
+-        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+-        const filePath = `${fileName}`;
+-
+-        const { error: uploadError } = await supabase.storage
+-          .from("avatars")
+-          .upload(filePath, avatarFile);
+-
+-        if (uploadError) throw uploadError;
++      let currentAvatarUrl = avatarUrl;
+ 
+-        const {
+-          data: { publicUrl },
+-        } = supabase.storage.from("avatars").getPublicUrl(filePath);
+-
+-        finalAvatarUrl = publicUrl;
+-      }
+-
+-      // 1. Upsert public data
+-      const personData = {
++      // Update person data helper to avoid duplication
++      const getPersonData = (url: string | null) => ({
+         full_name: fullName,
+         gender,
+         birth_year: birthYear === "" ? null : Number(birthYear),
+@@ -329,32 +322,61 @@ export default function MemberForm({
+         birth_order: birthOrder === "" ? null : Number(birthOrder),
+         generation: generation === "" ? null : Number(generation),
+         other_names: otherNames || null,
+-        avatar_url: finalAvatarUrl || null,
++        avatar_url: url,
+         note: note || null,
+-      };
++      });
+ 
+-      let personId = initialData?.id;
++      let currentPersonId = initialData?.id;
+ 
+-      if (isEditing && personId) {
+-        const { error: updateError } = await supabase
+-          .from("persons")
+-          .update(personData)
+-          .eq("id", personId);
+-        if (updateError) throw updateError;
+-      } else {
++      // For a new member, we must insert first to get the ID for the avatar filename
++      if (!isEditing || !currentPersonId) {
+         const { data: newPerson, error: createError } = await supabase
+           .from("persons")
+-          .insert(personData)
++          .insert(getPersonData(currentAvatarUrl || null))
+           .select()
+           .single();
+         if (createError) throw createError;
+-        personId = newPerson.id;
++        currentPersonId = newPerson.id;
++      } else {
++        // Update existing member info first
++        const { error: updateError } = await supabase
++          .from("persons")
++          .update(getPersonData(currentAvatarUrl || null))
++          .eq("id", currentPersonId);
++        if (updateError) throw updateError;
++      }
++
++      // 2. Handle Avatar Upload if a new file is selected (now we have currentPersonId)
++      if (avatarFile && currentPersonId) {
++        const fileExt = avatarFile.name.split(".").pop();
++        const slugName = slugify(fullName);
++        const fileName = `${currentPersonId}_${slugName}.${fileExt}`;
++        const filePath = `${fileName}`;
++
++        const { error: uploadError } = await supabase.storage
++          .from("avatars")
++          .upload(filePath, avatarFile, { upsert: true });
++
++        if (uploadError) throw uploadError;
++
++        const {
++          data: { publicUrl },
++        } = supabase.storage.from("avatars").getPublicUrl(filePath);
++
++        currentAvatarUrl = publicUrl;
++
++        // Update the person with the final avatar URL
++        const { error: updateAvatarError } = await supabase
++          .from("persons")
++          .update({ avatar_url: currentAvatarUrl })
++          .eq("id", currentPersonId);
++        if (updateAvatarError) throw updateAvatarError;
+       }
+ 
+-      // 2. Upsert private data (only if admin and personId exists)
+-      if (isAdmin && personId) {
++      // 3. Upsert private data (only if admin and currentPersonId exists)
++      if (isAdmin && currentPersonId) {
+         const privateData = {
+-          person_id: personId,
++          person_id: currentPersonId,
+           phone_number: phoneNumber || null,
+           occupation: occupation || null,
+           current_residence: currentResidence || null,
+@@ -368,12 +390,12 @@ export default function MemberForm({
+       }
+ 
+       // After save: use callback if provided, otherwise fall back to page navigation
+-      if (!personId)
++      if (!currentPersonId)
+         throw new Error("Không lấy được ID thành viên sau khi lưu.");
+       if (onSuccess) {
+-        onSuccess(personId);
++        onSuccess(currentPersonId);
+       } else {
+-        router.push("/dashboard/members/" + personId);
++        router.push("/dashboard/members/" + currentPersonId);
+         router.refresh();
+       }
+     } catch (err) {

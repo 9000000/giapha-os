@@ -326,7 +326,28 @@ export async function importData(
   }
 
   // 6. Insert relationships (stripped of id/created_at to avoid conflicts)
-  const relationships = importPayload.relationships.map(sanitizeRelationship);
+  const uniqueRels = new Map<string, Omit<RelationshipExport, "id" | "created_at" | "updated_at">>();
+  
+  importPayload.relationships.forEach((r) => {
+    // Ngăn chặn self-referencing (cha mẹ = con cái, hoặc tự kết hôn)
+    if (r.person_a === r.person_b) return;
+
+    let key = "";
+    if (r.type === "marriage") {
+      // Hôn nhân: A cưới B giống B cưới A, sắp xếp để tạo key duy nhất
+      const [p1, p2] = [r.person_a, r.person_b].sort();
+      key = `marriage_${p1}_${p2}`;
+    } else {
+      // Quan hệ cha-con: tính thứ tự
+      key = `${r.type}_${r.person_a}_${r.person_b}`;
+    }
+
+    if (!uniqueRels.has(key)) {
+      uniqueRels.set(key, sanitizeRelationship(r as any));
+    }
+  });
+
+  const relationships = Array.from(uniqueRels.values());
 
   for (let i = 0; i < relationships.length; i += CHUNK) {
     const chunk = relationships.slice(i, i + CHUNK);

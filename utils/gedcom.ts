@@ -364,23 +364,43 @@ export function parseGedcom(gedcom: string): {
       }
     }
 
-    if (husb && wife) {
-      relationships.push({
-        type: "marriage",
-        person_a: husb,
-        person_b: wife,
-      });
+    if (husb && wife && husb !== wife) {
+      // Kiểm tra tránh trùng lặp quan hệ hôn nhân
+      const marriageExists = relationships.some(
+        (r) =>
+          r.type === "marriage" &&
+          ((r.person_a === husb && r.person_b === wife) ||
+            (r.person_a === wife && r.person_b === husb))
+      );
+      if (!marriageExists) {
+        relationships.push({
+          type: "marriage",
+          person_a: husb,
+          person_b: wife,
+        });
+      }
     }
 
     // Assigning children to the first available parent
     const parentA = husb || wife;
     if (parentA) {
       for (const childId of children) {
-        relationships.push({
-          type: "biological_child",
-          person_a: parentA,
-          person_b: childId,
-        });
+        if (childId !== parentA && childId !== husb && childId !== wife) {
+          // Kiểm tra tránh trùng lặp quan hệ cha con
+          const childExists = relationships.some(
+            (r) =>
+              r.type === "biological_child" &&
+              r.person_a === parentA &&
+              r.person_b === childId
+          );
+          if (!childExists) {
+            relationships.push({
+              type: "biological_child",
+              person_a: parentA,
+              person_b: childId,
+            });
+          }
+        }
       }
     }
   }

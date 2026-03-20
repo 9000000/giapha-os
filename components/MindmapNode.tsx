@@ -56,12 +56,12 @@ export const MindmapNode = memo(
     const hasChildren = data.children.length > 0;
 
     return (
-      <div className={`relative py-1.5 ${level > 0 ? "pl-6" : "pl-0"}`}>
+      <div className={`relative py-1.5 ${level > 0 ? "pl-10" : "pl-0"}`}>
         {/* Draw the connecting L-shape line from the parent to this node */}
         {level > 0 && (
           <>
             <div
-              className="absolute border-l-[1.5px] border-amber-400/70"
+              className="absolute border-l-[3px] border-amber-500/70"
               style={{
                 left: "0",
                 top: isLast ? "-16px" : "-16px",
@@ -70,11 +70,11 @@ export const MindmapNode = memo(
               }}
             ></div>
             <div
-              className="absolute border-l-[1.5px] border-b-[1.5px] border-amber-400/70 rounded-bl-xl"
+              className="absolute border-l-[3px] border-b-[3px] border-amber-500/70 rounded-bl-xl"
               style={{
                 left: "0",
                 top: "24px",
-                width: "24px",
+                width: "40px",
                 height: "24px",
               }}
             ></div>
@@ -107,7 +107,7 @@ export const MindmapNode = memo(
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl p-2 sm:p-2.5 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px] ${data.spouses.length > 0
+                className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl p-2 sm:p-2.5 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden cursor-pointer w-[280px] shrink-0 ${data.spouses.length > 0
                     ? "border-[3px] border-yellow-400 bg-yellow-50 hover:border-yellow-500"
                     : data.person.is_deceased
                       ? "border-[3px] border-amber-400 bg-white ring-1 ring-amber-200 hover:border-amber-500"

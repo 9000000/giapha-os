@@ -61,7 +61,7 @@ export const MindmapNode = memo(
         {level > 0 && (
           <>
             <div
-              className="absolute border-l-[1.5px] border-stone-300"
+              className="absolute border-l-[1.5px] border-amber-400/70"
               style={{
                 left: "0",
                 top: isLast ? "-16px" : "-16px",
@@ -70,7 +70,7 @@ export const MindmapNode = memo(
               }}
             ></div>
             <div
-              className="absolute border-l-[1.5px] border-b-[1.5px] border-stone-300 rounded-bl-xl"
+              className="absolute border-l-[1.5px] border-b-[1.5px] border-amber-400/70 rounded-bl-xl"
               style={{
                 left: "0",
                 top: "24px",
@@ -107,9 +107,9 @@ export const MindmapNode = memo(
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl border p-2 sm:p-2.5 shadow-sm hover:shadow-md hover:bg-white/90 transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px] ${data.spouses.length > 0
-                    ? "border-yellow-400 border-[2px] bg-yellow-50/50 hover:border-yellow-500"
-                    : "border-stone-200/60 bg-white/60 hover:border-amber-300"
+                className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl border p-2 sm:p-2.5 shadow-md hover:shadow-lg hover:bg-white transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px] ${data.spouses.length > 0
+                    ? "border-yellow-400 border-[2px] bg-yellow-50 hover:border-yellow-500"
+                    : "border-stone-200 bg-white hover:border-amber-300"
                   } ${data.person.is_deceased ? "opacity-80 grayscale-[0.3]" : ""}`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}
               >
@@ -203,7 +203,7 @@ export const MindmapNode = memo(
                               e.stopPropagation();
                               ctx.setMemberModalId(spouseData.person.id);
                             }}
-                            className={`flex flex-col items-center gap-1 bg-stone-50/50 hover:bg-white rounded-xl p-1.5 border border-stone-200/60 hover:border-amber-300 transition-all shadow-sm hover:shadow-md group/spouse cursor-pointer
+                            className={`flex flex-col items-center gap-1 bg-stone-50 hover:bg-white rounded-xl p-1.5 border border-stone-200 hover:border-amber-300 transition-all shadow-sm hover:shadow-md group/spouse cursor-pointer
                             ${spouseData.person.is_deceased ? "opacity-80 grayscale-[0.3]" : ""}`}
                             title={
                               spouseData.note ||

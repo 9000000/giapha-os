@@ -76,8 +76,7 @@ export default function DashboardViews({
 
   // Xử lý background động
   const getBackgroundClass = () => {
-    if (currentView === "list") return "bg-stone-50/50";
-    // Màn hình tree và mindmap
+    // Màn hình tree, mindmap và list
     switch (treeBackground) {
       case "white": return "bg-white";
       case "slate": return "bg-stone-50";

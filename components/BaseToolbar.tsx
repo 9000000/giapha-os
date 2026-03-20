@@ -74,7 +74,7 @@ export default function BaseToolbar({
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2 px-4 h-10 rounded-full font-semibold text-sm shadow-sm border transition-all duration-300 ${showFilters
             ? "bg-amber-100/90 text-amber-800 border-amber-200"
-            : "bg-white/80 text-stone-600 border-stone-200/60 hover:bg-white hover:text-stone-900 hover:shadow-md backdrop-blur-md"
+            : "bg-white text-stone-600 border-stone-200 hover:bg-white hover:text-stone-900 hover:shadow-md"
             }`}
         >
           <Filter className="size-4" />
@@ -88,7 +88,7 @@ export default function BaseToolbar({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="absolute top-full right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl shadow-xl border border-stone-200/60 rounded-2xl p-4 flex flex-col gap-3 z-50"
+              className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl border border-stone-200 rounded-2xl p-4 flex flex-col gap-3 z-50"
             >
               <div className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">
                 HIỂN THỊ

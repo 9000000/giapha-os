@@ -107,7 +107,7 @@ export default function DashboardMemberList({
   return (
     <>
       <div className="mb-8 relative">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/60 backdrop-blur-xl p-4 sm:p-5 rounded-2xl shadow-sm border border-stone-200/60 transition-all duration-300 relative z-10 w-full">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 sm:p-5 rounded-2xl shadow-md border border-stone-200 transition-all duration-300 relative z-10 w-full">
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto flex-1">
             <div className="relative flex-1 max-w-sm group">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-stone-400 group-focus-within:text-amber-500 transition-colors" />

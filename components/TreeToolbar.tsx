@@ -18,7 +18,7 @@ export default function TreeToolbar({
   return (
     <BaseToolbar {...baseProps}>
       {/* Zoom Controls */}
-      <div className="flex items-center bg-white/80 backdrop-blur-md shadow-sm border border-stone-200/60 rounded-full overflow-hidden transition-opacity h-10">
+      <div className="flex items-center bg-white shadow-md border border-stone-200 rounded-full overflow-hidden transition-opacity h-10">
         <button
           onClick={handleZoomOut}
           className="px-3 h-full hover:bg-stone-100/50 text-stone-600 transition-colors disabled:opacity-50"

@@ -25,8 +25,11 @@ export default function PersonCard({ person }: PersonCardProps) {
   return (
     <button
       onClick={() => setMemberModalId(person.id)}
-      className={`group block relative bg-white p-2 sm:p-4 rounded-2xl shadow-lg border border-stone-200/80 ring-1 ring-stone-100 hover:border-amber-400 hover:ring-1 hover:ring-amber-400/30 hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden
-        ${isDeceased ? "opacity-80 grayscale-[0.3]" : ""}`}
+      className={`group block relative bg-white p-2 sm:p-4 rounded-2xl shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden
+        ${isDeceased
+          ? "border-2 border-amber-400 ring-1 ring-amber-200 hover:border-amber-500 hover:ring-amber-300/50"
+          : "border-2 border-emerald-400 ring-1 ring-emerald-200 hover:border-emerald-500 hover:ring-emerald-300/50"
+        }`}
     >
       {/* Decorative gradient blob */}
       {/* <div

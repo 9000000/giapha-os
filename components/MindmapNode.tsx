@@ -107,10 +107,12 @@ export const MindmapNode = memo(
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl border p-2 sm:p-2.5 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px] ${data.spouses.length > 0
-                    ? "border-yellow-400 border-[2px] bg-yellow-50 hover:border-yellow-500"
-                    : "border-stone-200/80 bg-white ring-1 ring-stone-100 hover:border-amber-300"
-                  } ${data.person.is_deceased ? "opacity-80 grayscale-[0.3]" : ""}`}
+                className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl p-2 sm:p-2.5 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px] ${data.spouses.length > 0
+                    ? "border-[2px] border-yellow-400 bg-yellow-50 hover:border-yellow-500"
+                    : data.person.is_deceased
+                      ? "border-2 border-amber-400 bg-white ring-1 ring-amber-200 hover:border-amber-500"
+                      : "border-2 border-emerald-400 bg-white ring-1 ring-emerald-200 hover:border-emerald-500"
+                  }`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}
               >
                 <div className="flex items-center gap-2.5 relative z-10 w-full">
@@ -203,8 +205,7 @@ export const MindmapNode = memo(
                               e.stopPropagation();
                               ctx.setMemberModalId(spouseData.person.id);
                             }}
-                            className={`flex flex-col items-center gap-1 bg-stone-50 hover:bg-white rounded-xl p-1.5 border border-stone-200 hover:border-amber-300 transition-all shadow-sm hover:shadow-md group/spouse cursor-pointer
-                            ${spouseData.person.is_deceased ? "opacity-80 grayscale-[0.3]" : ""}`}
+                            className={`flex flex-col items-center gap-1 bg-stone-50 hover:bg-white rounded-xl p-1.5 border border-stone-200 hover:border-amber-300 transition-all shadow-sm hover:shadow-md group/spouse cursor-pointer`}
                             title={
                               spouseData.note ||
                               (spouseData.person.gender === "male"

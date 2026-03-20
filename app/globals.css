@@ -154,7 +154,7 @@ select {
 /* Custom Backgrounds for Family Tree */
 .bg-lotus {
   background-color: #fcf8f2;
-  background-image: url("/bg-lotus.png");
+  background-image: url("/bg-lotus.webp");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -163,7 +163,7 @@ select {
 
 .bg-tree {
   background-color: #f7f3eb;
-  background-image: url("/bg-tree.png");
+  background-image: url("/bg-tree.webp");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -172,7 +172,7 @@ select {
 
 .bg-red {
   background-color: #8b1a1a;
-  background-image: url("/bg-red.png");
+  background-image: url("/bg-red.webp");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;

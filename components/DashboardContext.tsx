@@ -32,7 +32,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [showAvatar, setShowAvatar] = useState<boolean>(true);
   const [view, setViewState] = useState<ViewMode>("tree");
   const [rootId, setRootIdState] = useState<string | null>(null);
-  const [treeBackground, setTreeBackgroundState] = useState<BackgroundMode>("parchment");
+  const [treeBackground, setTreeBackgroundState] = useState<BackgroundMode>("red");
 
   // Initialize from URL once on mount (or when searchParams actually change from server init)
   // We use a ref or just simple effect
@@ -164,7 +164,7 @@ export function useDashboard(): DashboardState {
       setView: () => { },
       rootId: null,
       setRootId: () => { },
-      treeBackground: "parchment",
+      treeBackground: "red",
       setTreeBackground: () => { },
     };
   }

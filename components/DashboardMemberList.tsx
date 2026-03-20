@@ -106,24 +106,24 @@ export default function DashboardMemberList({
 
   return (
     <>
-      <div className="mb-8 relative">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 sm:p-5 rounded-2xl shadow-md border border-stone-200 transition-all duration-300 relative z-10 w-full">
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto flex-1">
+      <div className="mb-6 relative">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 bg-white p-2.5 sm:p-3 rounded-xl shadow-md border border-stone-200 transition-all duration-300 relative z-10 w-full">
+          <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto flex-1">
             <div className="relative flex-1 max-w-sm group">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
               <input
                 type="text"
                 placeholder="Tìm kiếm thành viên..."
-                className="bg-white/90 text-stone-900 w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200/80 shadow-sm placeholder-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                className="bg-white text-stone-900 w-full pl-9 pr-3 py-1.5 rounded-lg border border-stone-200/80 shadow-sm placeholder-stone-400 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 transition-all text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto items-center">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
               <div className="relative w-full sm:w-auto">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone-400 pointer-events-none" />
+                <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-stone-400 pointer-events-none" />
                 <select
-                  className="appearance-none bg-white/90 text-stone-700 w-full sm:w-40 pl-9 pr-8 py-2.5 rounded-xl border border-stone-200/80 shadow-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 hover:border-amber-300 font-medium text-sm transition-all focus:bg-white"
+                  className="appearance-none bg-white text-stone-700 w-full sm:w-36 pl-8 pr-7 py-1.5 rounded-lg border border-stone-200/80 shadow-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 hover:border-amber-300 font-medium text-sm transition-all"
                   value={filterOption}
                   onChange={(e) => setFilterOption(e.target.value)}
                 >
@@ -135,9 +135,9 @@ export default function DashboardMemberList({
                   <option value="deceased">Đã mất</option>
                   <option value="first_child">Con trưởng</option>
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <div className="absolute inset-y-0 right-0 flex items-center px-1.5 pointer-events-none">
                   <svg
-                    className="size-4 text-stone-400"
+                    className="size-3.5 text-stone-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -153,9 +153,9 @@ export default function DashboardMemberList({
               </div>
 
               <div className="relative w-full sm:w-auto">
-                <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone-400 pointer-events-none" />
+                <ArrowUpDown className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-stone-400 pointer-events-none" />
                 <select
-                  className="appearance-none bg-white/90 text-stone-700 w-full sm:w-52 pl-9 pr-8 py-2.5 rounded-xl border border-stone-200/80 shadow-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 hover:border-amber-300 font-medium text-sm transition-all focus:bg-white"
+                  className="appearance-none bg-white text-stone-700 w-full sm:w-48 pl-8 pr-7 py-1.5 rounded-lg border border-stone-200/80 shadow-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 hover:border-amber-300 font-medium text-sm transition-all"
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
                 >
@@ -170,9 +170,9 @@ export default function DashboardMemberList({
                     Theo thế hệ (Giảm dần)
                   </option>
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <div className="absolute inset-y-0 right-0 flex items-center px-1.5 pointer-events-none">
                   <svg
-                    className="size-4 text-stone-400"
+                    className="size-3.5 text-stone-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -220,7 +220,7 @@ export default function DashboardMemberList({
                 <div key={`gen-${gen}`}>
                   <div className="flex items-center justify-center mb-8">
                     <div className="flex-grow border-t border-amber-200/60"></div>
-                    <span className="mx-4 px-6 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-700 font-semibold text-sm shadow-sm whitespace-nowrap">
+                    <span className="mx-4 px-6 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800 font-semibold text-sm shadow-sm whitespace-nowrap">
                       {Number(gen) === 0 ? "Chưa xác định đời" : `Đời thứ ${gen}`}
                     </span>
                     <div className="flex-grow border-t border-amber-200/60"></div>

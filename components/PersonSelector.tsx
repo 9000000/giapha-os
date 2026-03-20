@@ -77,8 +77,8 @@ export default function PersonSelector({
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center gap-3 bg-white/60 border rounded-xl px-3 py-2 text-sm shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 group
-          ${isOpen ? "border-amber-300 bg-white shadow-md ring-2 ring-amber-500/10" : "border-stone-200/60 hover:border-amber-300 hover:bg-white/90 hover:shadow-md"}`}
+        className={`w-full flex items-center gap-3 bg-white border rounded-xl px-3 py-2 text-sm shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 group
+          ${isOpen ? "border-amber-300 bg-white shadow-lg ring-2 ring-amber-500/10" : "border-stone-200 hover:border-amber-300 hover:shadow-lg"}`}
       >
         <div className="relative shrink-0">
           <div
@@ -155,7 +155,7 @@ export default function PersonSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-xl border border-stone-200/80 rounded-xl shadow-xl max-h-80 flex flex-col overflow-hidden ring-1 ring-black/5"
+            className="absolute z-50 w-full mt-2 bg-white border border-stone-200 rounded-xl shadow-xl max-h-80 flex flex-col overflow-hidden ring-1 ring-black/5"
           >
             <div className="p-2 border-b border-stone-100/80 bg-stone-50/50 backdrop-blur-sm sticky top-0 z-10">
               <div className="relative">

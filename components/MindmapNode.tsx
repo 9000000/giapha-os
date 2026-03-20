@@ -108,10 +108,10 @@ export const MindmapNode = memo(
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
                 className={`mindmap-card group/card relative flex items-center gap-2 rounded-2xl p-2 sm:p-2.5 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden cursor-pointer min-w-[220px] ${data.spouses.length > 0
-                    ? "border-[2px] border-yellow-400 bg-yellow-50 hover:border-yellow-500"
+                    ? "border-[3px] border-yellow-400 bg-yellow-50 hover:border-yellow-500"
                     : data.person.is_deceased
-                      ? "border-2 border-amber-400 bg-white ring-1 ring-amber-200 hover:border-amber-500"
-                      : "border-2 border-emerald-400 bg-white ring-1 ring-emerald-200 hover:border-emerald-500"
+                      ? "border-[3px] border-amber-400 bg-white ring-1 ring-amber-200 hover:border-amber-500"
+                      : "border-[3px] border-emerald-400 bg-white ring-1 ring-emerald-200 hover:border-emerald-500"
                   }`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}
               >

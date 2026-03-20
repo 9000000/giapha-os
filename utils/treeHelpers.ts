@@ -148,12 +148,21 @@ export function getExcludedInLawIds(
     }
   });
 
-  // 4. Recursively add descendants of a parent
+  // 4. Recursively add descendants of a parent and their spouses
   const addDescendants = (parentId: string) => {
     const children = childrenByParent.get(parentId) || [];
     children.forEach((childId) => {
       if (!excluded.has(childId)) {
         excluded.add(childId);
+        
+        // Also exclude their spouses (spouses of descendants shouldn't be in the tree either)
+        const spouses = spouseMap.get(childId) || [];
+        spouses.forEach((spouseId) => {
+          if (!excluded.has(spouseId)) {
+            excluded.add(spouseId);
+          }
+        });
+
         addDescendants(childId);
       }
     });

@@ -121,6 +121,7 @@ export default function FamilyStats({
     // Gender
     const male = persons.filter((p) => p.gender === "male").length;
     const female = persons.filter((p) => p.gender === "female").length;
+    const otherGender = total - male - female;
 
     // In-laws
     const daughtersInLaw = persons.filter(
@@ -194,6 +195,7 @@ export default function FamilyStats({
       total,
       male,
       female,
+      otherGender,
       daughtersInLaw,
       sonsInLaw,
       deceased,
@@ -337,10 +339,19 @@ export default function FamilyStats({
                 className="bg-pink-400 flex items-center justify-center"
                 title={`Nữ: ${stats.female}`}
               />
+              {stats.otherGender > 0 && (
+                <motion.div
+                  initial={{ flex: 0 }}
+                  animate={{ flex: stats.otherGender }}
+                  transition={{ duration: 0.7, delay: 0.7 }}
+                  className="bg-stone-400 flex items-center justify-center"
+                  title={`Khác/Chưa rõ: ${stats.otherGender}`}
+                />
+              )}
             </>
           )}
         </div>
-        <div className="flex gap-6 mt-3 text-sm">
+        <div className="flex gap-6 mt-3 text-sm flex-wrap">
           <span className="flex items-center gap-2 text-stone-600">
             <span className="size-3 rounded-full bg-blue-400 inline-block" />
             Nam — {stats.male} người (
@@ -355,6 +366,16 @@ export default function FamilyStats({
               : 0}
             %)
           </span>
+          {stats.otherGender > 0 && (
+            <span className="flex items-center gap-2 text-stone-600">
+              <span className="size-3 rounded-full bg-stone-400 inline-block" />
+              Khác — {stats.otherGender} người (
+              {stats.total > 0
+                ? Math.round((stats.otherGender / stats.total) * 100)
+                : 0}
+              %)
+            </span>
+          )}
         </div>
       </motion.div>
 

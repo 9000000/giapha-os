@@ -27,8 +27,8 @@ export default function PersonCard({ person }: PersonCardProps) {
       onClick={() => setMemberModalId(person.id)}
       className={`group block relative bg-white p-2 sm:p-4 rounded-2xl shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 overflow-hidden
         ${isDeceased
-          ? "border-[3px] border-amber-400 ring-1 ring-amber-200 hover:border-amber-500 hover:ring-amber-300/50"
-          : "border-[3px] border-emerald-400 ring-1 ring-emerald-200 hover:border-emerald-500 hover:ring-emerald-300/50"
+          ? "border-[5px] border-amber-400 ring-1 ring-amber-200 hover:border-amber-500 hover:ring-amber-300/50"
+          : "border-[5px] border-emerald-400 ring-1 ring-emerald-200 hover:border-emerald-500 hover:ring-emerald-300/50"
         }`}
     >
       {/* Decorative gradient blob */}
@@ -108,10 +108,10 @@ export default function PersonCard({ person }: PersonCardProps) {
                 {person.is_in_law && (
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-xs border ${person.gender === "male"
-                        ? "bg-sky-50 text-sky-700 border-sky-200/60"
-                        : person.gender === "female"
-                          ? "bg-rose-50 text-rose-700 border-rose-200/60"
-                          : "bg-stone-50 text-stone-700 border-stone-200/60"
+                      ? "bg-sky-50 text-sky-700 border-sky-200/60"
+                      : person.gender === "female"
+                        ? "bg-rose-50 text-rose-700 border-rose-200/60"
+                        : "bg-stone-50 text-stone-700 border-stone-200/60"
                       }`}
                   >
                     {person.gender === "male"

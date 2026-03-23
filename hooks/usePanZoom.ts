@@ -21,6 +21,11 @@ export function usePanZoom(
   const dragStartRef = useRef({ x: 0, y: 0 });
   const stateAtDragStartRef = useRef<PanZoomState>({ x: 0, y: 0, scale: 1 });
 
+  // Touch-specific refs
+  const lastTouchDistRef = useRef(0);
+  const lastTouchCenterRef = useRef({ x: 0, y: 0 });
+  const isTouchPanRef = useRef(false);
+
   const clampScale = (s: number) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE);
 
   // Zoom toward a specific point (cursor position relative to container)
@@ -28,8 +33,6 @@ export function usePanZoom(
     (cursorX: number, cursorY: number, newScale: number) => {
       setState((prev) => {
         const clamped = clampScale(newScale);
-        // Calculate the point in content-space before zoom
-        // cursor position relative to the translated/scaled content
         const ratio = 1 - clamped / prev.scale;
         const newX = prev.x + (cursorX - prev.x) * ratio;
         const newY = prev.y + (cursorY - prev.y) * ratio;
@@ -73,20 +76,18 @@ export function usePanZoom(
     setState({ x: 0, y: 0, scale: 1 });
   }, []);
 
-  // Mouse wheel zoom at cursor position
+  // ── Mouse wheel zoom at cursor position ──
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const handleNativeWheel = (e: WheelEvent) => {
       e.preventDefault();
-      // Cursor position relative to the container element
       const rect = el.getBoundingClientRect();
       const cursorX = e.clientX - rect.left;
       const cursorY = e.clientY - rect.top;
 
       setState((prev) => {
-        // Smooth zoom factor based on deltaY
         const zoomFactor = 1 - e.deltaY * ZOOM_SENSITIVITY;
         const newScale = clampScale(prev.scale * zoomFactor);
         const ratio = 1 - newScale / prev.scale;
@@ -104,7 +105,146 @@ export function usePanZoom(
     };
   }, [containerRef, zoomAtPoint]);
 
-  // Pan via mouse drag (transform-based, not scroll-based)
+  // ── Touch events for mobile (pan + pinch zoom) ──
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const getTouchDistance = (t1: Touch, t2: Touch) => {
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const getTouchCenter = (t1: Touch, t2: Touch) => ({
+      x: (t1.clientX + t2.clientX) / 2,
+      y: (t1.clientY + t2.clientY) / 2,
+    });
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        // Single finger: start pan
+        isTouchPanRef.current = true;
+        hasDraggedRef.current = false;
+        dragStartRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+        // Capture current state at start of gesture
+        setState((prev) => {
+          stateAtDragStartRef.current = { ...prev };
+          return prev;
+        });
+      } else if (e.touches.length === 2) {
+        // Two fingers: start pinch zoom
+        e.preventDefault();
+        isTouchPanRef.current = false;
+        lastTouchDistRef.current = getTouchDistance(
+          e.touches[0],
+          e.touches[1],
+        );
+        lastTouchCenterRef.current = getTouchCenter(
+          e.touches[0],
+          e.touches[1],
+        );
+        // Capture current state at start of pinch
+        setState((prev) => {
+          stateAtDragStartRef.current = { ...prev };
+          return prev;
+        });
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1 && isTouchPanRef.current) {
+        // Single finger pan
+        const dx = e.touches[0].clientX - dragStartRef.current.x;
+        const dy = e.touches[0].clientY - dragStartRef.current.y;
+
+        if (!hasDraggedRef.current && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+          hasDraggedRef.current = true;
+        }
+
+        if (hasDraggedRef.current) {
+          e.preventDefault();
+          setState({
+            ...stateAtDragStartRef.current,
+            x: stateAtDragStartRef.current.x + dx,
+            y: stateAtDragStartRef.current.y + dy,
+          });
+        }
+      } else if (e.touches.length === 2) {
+        // Pinch zoom + pan
+        e.preventDefault();
+        const newDist = getTouchDistance(e.touches[0], e.touches[1]);
+        const newCenter = getTouchCenter(e.touches[0], e.touches[1]);
+        const rect = el.getBoundingClientRect();
+
+        // Zoom based on pinch distance change
+        const scaleFactor = newDist / lastTouchDistRef.current;
+        const prevCenter = lastTouchCenterRef.current;
+
+        setState((prev) => {
+          const newScale = clampScale(prev.scale * scaleFactor);
+          // Zoom toward pinch center (relative to container)
+          const cx = newCenter.x - rect.left;
+          const cy = newCenter.y - rect.top;
+          const ratio = 1 - newScale / prev.scale;
+
+          // Also pan by the movement of the pinch center
+          const panDx = newCenter.x - prevCenter.x;
+          const panDy = newCenter.y - prevCenter.y;
+
+          return {
+            x: prev.x + (cx - prev.x) * ratio + panDx,
+            y: prev.y + (cy - prev.y) * ratio + panDy,
+            scale: newScale,
+          };
+        });
+
+        lastTouchDistRef.current = newDist;
+        lastTouchCenterRef.current = newCenter;
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length === 0) {
+        isTouchPanRef.current = false;
+        // Small delay to prevent click after drag
+        if (hasDraggedRef.current) {
+          setTimeout(() => {
+            hasDraggedRef.current = false;
+          }, 100);
+        }
+      } else if (e.touches.length === 1) {
+        // Went from 2 fingers to 1: restart single-finger pan
+        isTouchPanRef.current = true;
+        hasDraggedRef.current = false;
+        dragStartRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+        setState((prev) => {
+          stateAtDragStartRef.current = { ...prev };
+          return prev;
+        });
+      }
+    };
+
+    el.addEventListener("touchstart", handleTouchStart, { passive: false });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+    el.addEventListener("touchend", handleTouchEnd);
+    el.addEventListener("touchcancel", handleTouchEnd);
+
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove", handleTouchMove);
+      el.removeEventListener("touchend", handleTouchEnd);
+      el.removeEventListener("touchcancel", handleTouchEnd);
+    };
+  }, [containerRef]);
+
+  // ── Mouse Pan (desktop) ──
   const handleMouseDown = (e: MouseEvent<HTMLElement>) => {
     setIsPressed(true);
     hasDraggedRef.current = false;
@@ -151,6 +291,8 @@ export function usePanZoom(
     transformStyle: {
       transform: `translate(${state.x}px, ${state.y}px) scale(${state.scale})`,
       transformOrigin: "0 0",
+      // Prevent iOS Safari rubber-banding on the transform element
+      touchAction: "none",
     } as React.CSSProperties,
     isPressed,
     isDragging,

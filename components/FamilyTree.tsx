@@ -266,12 +266,13 @@ export default function FamilyTree({
       <div
         ref={containerRef}
         className={`w-full h-full overflow-hidden ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
+        style={{ touchAction: "none" }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUpOrLeave}
         onMouseLeave={handleMouseUpOrLeave}
         onClickCapture={handleClickCapture}
-        onDragStart={(e) => e.preventDefault()} // Prevent browser default dragging of links/images
+        onDragStart={(e) => e.preventDefault()}
       >
         {/* 
         Use w-max to prevent wrapping and allow scrolling. 

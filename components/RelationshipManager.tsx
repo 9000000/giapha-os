@@ -31,6 +31,8 @@ interface EnrichedRelationship {
   direction: "parent" | "child" | "spouse" | "child_in_law" | "sibling";
   targetPerson: Person;
   note: string | null;
+  sortOrder?: number | null;
+  sortYear?: number | null;
 }
 
 export default function RelationshipManager({
@@ -247,6 +249,8 @@ export default function RelationshipManager({
                 direction: "child_in_law",
                 targetPerson: spousePerson,
                 note: noteLabel,
+                sortOrder: childPerson.birth_order ?? null,
+                sortYear: childPerson.birth_year ?? null,
               });
             }
           });
@@ -667,12 +671,26 @@ export default function RelationshipManager({
     relationships
       .filter((r) => r.direction === type)
       .sort((a, b) => {
-        const yearA = a.targetPerson.birth_year;
-        const yearB = b.targetPerson.birth_year;
-        if (yearA == null && yearB == null) return 0;
-        if (yearA == null) return 1;
-        if (yearB == null) return -1;
-        return yearA - yearB;
+        const getKeys = (rel: EnrichedRelationship) => {
+          let order = rel.targetPerson.birth_order;
+          let year = rel.targetPerson.birth_year;
+          if (rel.sortOrder !== undefined) order = rel.sortOrder;
+          if (rel.sortYear !== undefined) year = rel.sortYear;
+          return { order, year };
+        };
+
+        const keysA = getKeys(a);
+        const keysB = getKeys(b);
+
+        if (keysA.order != null && keysB.order != null) return keysA.order - keysB.order;
+        if (keysA.order != null) return -1;
+        if (keysB.order != null) return 1;
+
+        if (keysA.year != null && keysB.year != null) return keysA.year - keysB.year;
+        if (keysA.year != null) return -1;
+        if (keysB.year != null) return 1;
+
+        return 0;
       });
 
   if (loading)
@@ -683,7 +701,7 @@ export default function RelationshipManager({
     );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* List Sections */}
       {["parent", "spouse", "sibling", "child", "child_in_law"].map((group) => {
         const items = groupByType(group);
@@ -699,13 +717,13 @@ export default function RelationshipManager({
         return (
           <div
             key={group}
-            className="border-b border-stone-100 pb-4 last:border-0"
+            className="border-b border-stone-100 pb-3 last:border-0"
           >
-            <h4 className="font-bold text-stone-700 mb-3 flex justify-between items-center text-sm uppercase tracking-wide">
+            <h4 className="font-bold text-stone-700 mb-2 flex justify-between items-center text-xs uppercase tracking-wide">
               {title}
             </h4>
             {items.length > 0 ? (
-              <ul className="space-y-3">
+              <ul className="space-y-1">
                 {items.map((rel) => (
                   <li
                     key={rel.id}
@@ -713,7 +731,7 @@ export default function RelationshipManager({
                   >
                     <button
                       onClick={() => handlePersonClick(rel.targetPerson.id)}
-                      className="flex items-center gap-3 hover:bg-stone-100 p-2.5 -mx-2.5 rounded-xl transition-all duration-200 flex-1 text-left"
+                      className="flex items-center gap-3 hover:bg-stone-100 p-2 -mx-2 rounded-xl transition-all duration-200 flex-1 text-left"
                     >
                       <div
                         className={`h-8 w-8 rounded-full flex items-center justify-center text-xs text-white overflow-hidden

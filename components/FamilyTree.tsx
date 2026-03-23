@@ -314,20 +314,21 @@ export default function FamilyTree({
           style={transformStyle}
         >
           {/* Tiêu đề Cuộn giấy */}
-          <div className="flex flex-col items-center justify-center mb-16 relative w-full pointer-events-none">
-            <div className="relative inline-flex items-center justify-center text-center w-[800px] max-w-[95vw] h-[250px]">
+          <div className="flex flex-col items-center justify-center -mb-8 sm:-mb-16 relative w-full pointer-events-none z-10">
+            {/* Tăng chiều cao container để chứa đủ cuộn giấy, dùng object-cover để cắt bớt lề rỗng trên/dưới của ảnh gốc */}
+            <div className="relative inline-flex items-center justify-center text-center w-[1200px] max-w-[120vw] h-[300px] sm:h-[400px] overflow-visible">
               <img 
                 src="/scroll-bg.png" 
                 alt="Banner" 
-                className="absolute inset-0 z-0 w-full h-full object-contain drop-shadow-2xl" 
+                className="absolute inset-0 z-0 w-full h-full object-cover object-center drop-shadow-2xl" 
               />
-              <div className="relative z-10 flex flex-col items-center justify-center -translate-y-4">
-                <span className="text-yellow-600 font-bold text-2xl sm:text-3xl drop-shadow-md mb-2" style={{ textShadow: "2px 2px 4px rgba(255,255,255,0.9)" }}>Đại Gia Đình</span>
-                <span className="text-red-700 font-extrabold text-4xl sm:text-6xl uppercase tracking-widest drop-shadow-xl" style={{ textShadow: "2px 2px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 3px 3px 6px rgba(0,0,0,0.3)" }}>Họ Nông</span>
+              <div className="relative z-10 flex flex-col items-center justify-center translate-y-[-10px] sm:translate-y-[-20px]">
+                <span className="text-yellow-600 font-bold text-3xl sm:text-5xl drop-shadow-md mb-2 sm:mb-4" style={{ textShadow: "2px 2px 4px rgba(255,255,255,0.9)" }}>Đại Gia Đình</span>
+                <span className="text-red-700 font-extrabold text-5xl sm:text-8xl uppercase tracking-widest drop-shadow-xl" style={{ textShadow: "3px 3px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 4px 4px 10px rgba(0,0,0,0.5)" }}>Họ Nông</span>
               </div>
             </div>
           </div>
-          <ul>
+          <ul className="relative z-0">
             {treeNodes}
           </ul>
         </div>

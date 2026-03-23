@@ -29,7 +29,7 @@ export default function ViewToggle() {
 
   return (
     <div 
-      className="flex bg-stone-200/90 p-1 rounded-full w-fit border border-stone-300 drop-shadow-sm"
+      className="flex bg-stone-100/95 p-1 rounded-full w-fit border border-stone-300 shadow-md backdrop-blur-md"
       onMouseEnter={() => setIsToolbarVisible(true)}
     >
       {tabs.map((tab) => {

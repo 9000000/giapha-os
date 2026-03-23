@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { usePanZoom } from "@/hooks/usePanZoom";
@@ -45,19 +45,17 @@ export default function FamilyTree({
       handleClickCapture,
       handleZoomIn,
       handleZoomOut,
-      handleResetZoom,
     },
   } = usePanZoom(containerRef);
 
   // Auto-center content; on mobile default zoom 60%
-  useEffect(() => {
-    const centerContent = () => {
-      const container = containerRef.current;
-      const content = contentRef.current;
-      if (!container || !content) return;
+  const centerTree = useCallback(() => {
+    const container = containerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
 
-      const isMobile = window.innerWidth < 768;
-      const targetScale = isMobile ? 0.6 : 1;
+    const isMobile = window.innerWidth < 768;
+    const targetScale = isMobile ? 0.6 : 1;
 
       // Get the natural (unscaled) size of the content
       const contentWidth = content.scrollWidth;
@@ -68,18 +66,19 @@ export default function FamilyTree({
       // Small top padding
       const y = 0;
 
-      setTransform({ x, y, scale: targetScale });
-    };
+    setTransform({ x, y, scale: targetScale });
+  }, [setTransform]);
 
+  useEffect(() => {
     // Run after content renders
-    const t1 = setTimeout(centerContent, 100);
-    const t2 = setTimeout(centerContent, 500);
+    const t1 = setTimeout(centerTree, 100);
+    const t2 = setTimeout(centerTree, 500);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [roots, setTransform]);
+  }, [roots, centerTree]);
 
   useEffect(() => {
     const equalizeSizes = () => {
@@ -281,7 +280,7 @@ export default function FamilyTree({
         scale={scale}
         handleZoomIn={handleZoomIn}
         handleZoomOut={handleZoomOut}
-        handleResetZoom={handleResetZoom}
+        handleResetZoom={centerTree}
         hideSpouses={hideSpouses}
         setHideSpouses={setHideSpouses}
         hideMales={hideMales}

@@ -92,11 +92,11 @@ export default function DashboardViews({
   return (
     <>
       <main
-        className={`flex-1 overflow-auto flex flex-col ${getBackgroundClass()}`}
+        className={`flex-1 overflow-auto flex flex-col relative ${getBackgroundClass()}`}
       >
         {currentView !== "list" && persons.length > 0 && activeRootId && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 relative z-20">
-            <div className="flex flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-20 pointer-events-none">
+            <div className="flex flex-row items-center gap-3 w-full sm:w-auto pointer-events-auto">
               <div className="flex-1 min-w-0">
                 <RootSelector persons={persons} currentRootId={activeRootId} />
               </div>
@@ -111,13 +111,13 @@ export default function DashboardViews({
             </div>
             <div
               id="tree-toolbar-portal"
-              className="flex items-center gap-2 flex-wrap justify-center sm:ml-auto"
+              className="flex items-center gap-2 flex-wrap justify-center sm:ml-auto pointer-events-auto"
             />
           </div>
         )}
 
         {currentView === "list" && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 w-full relative z-10">
             <DashboardMemberList initialPersons={persons} relationships={relationships} canEdit={canEdit} />
           </div>
         )}

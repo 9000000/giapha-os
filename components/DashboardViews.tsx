@@ -197,10 +197,10 @@ export default function DashboardViews({
       <main
         className={`flex-1 overflow-auto flex flex-col relative ${getBackgroundClass()}`}
       >
-        {currentView !== "list" && persons.length > 0 && activeRootId && (
+        {persons.length > 0 && activeRootId && (
           <div 
-            className={`absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-30 pointer-events-none transition-all duration-500 ${
-              isToolbarVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            className={`absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-50 pointer-events-none transition-all duration-500 ${
+              currentView === "list" || isToolbarVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
             }`}
             onMouseEnter={() => {
               isHoveredRef.current = true;
@@ -210,26 +210,30 @@ export default function DashboardViews({
               isHoveredRef.current = false;
             }}
           >
-            <div className={`flex flex-row items-center gap-3 w-full sm:w-auto transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
-              <div className="flex-1 min-w-0">
-                <RootSelector persons={persons} currentRootId={activeRootId} />
+            {currentView !== "list" ? (
+              <div className={`flex flex-row items-center gap-3 w-full sm:w-auto relative z-40 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
+                <div className="flex-1 min-w-0">
+                  <RootSelector persons={persons} currentRootId={activeRootId} />
+                </div>
+                <Link
+                  href="/dashboard/members/new"
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-xl shadow-sm transition-colors border border-amber-500/50 shrink-0"
+                >
+                  <Plus className="size-4" />
+                  <span className="hidden sm:inline">Thêm vào Cây</span>
+                  <span className="sm:hidden">Thêm</span>
+                </Link>
               </div>
-              <Link
-                href="/dashboard/members/new"
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-xl shadow-sm transition-colors border border-amber-500/50 shrink-0"
-              >
-                <Plus className="size-4" />
-                <span className="hidden sm:inline">Thêm vào Cây</span>
-                <span className="sm:hidden">Thêm</span>
-              </Link>
-            </div>
+            ) : (
+              <div className="hidden sm:block w-full sm:w-auto" />
+            )}
 
-            <div className={`w-full sm:w-auto flex justify-center order-last sm:order-none transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
+            <div className={`w-full sm:w-auto flex justify-center order-last sm:order-none relative z-30 transition-colors ${currentView === "list" || isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
               <ViewToggle />
             </div>
             <div
               id="tree-toolbar-portal"
-              className={`flex items-center gap-2 flex-wrap justify-center sm:ml-auto transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}
+              className={`flex items-center gap-2 flex-wrap justify-center sm:ml-auto relative z-50 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}
             />
           </div>
         )}

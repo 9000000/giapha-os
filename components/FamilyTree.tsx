@@ -313,6 +313,20 @@ export default function FamilyTree({
           className={`w-max min-w-full mx-auto p-4 pt-16 css-tree ${isDragging ? "opacity-90" : ""}`}
           style={transformStyle}
         >
+          {/* Tiêu đề Cuộn giấy */}
+          <div className="flex flex-col items-center justify-center mb-16 relative w-full pointer-events-none">
+            <div className="relative inline-flex items-center justify-center text-center w-[800px] max-w-[95vw] h-[250px]">
+              <img 
+                src="/scroll-bg.png" 
+                alt="Banner" 
+                className="absolute inset-0 z-0 w-full h-full object-contain drop-shadow-2xl" 
+              />
+              <div className="relative z-10 flex flex-col items-center justify-center -translate-y-4">
+                <span className="text-yellow-600 font-bold text-2xl sm:text-3xl drop-shadow-md mb-2" style={{ textShadow: "2px 2px 4px rgba(255,255,255,0.9)" }}>Đại Gia Đình</span>
+                <span className="text-red-700 font-extrabold text-4xl sm:text-6xl uppercase tracking-widest drop-shadow-xl" style={{ textShadow: "2px 2px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 3px 3px 6px rgba(0,0,0,0.3)" }}>Họ Nông</span>
+              </div>
+            </div>
+          </div>
           <ul>
             {treeNodes}
           </ul>

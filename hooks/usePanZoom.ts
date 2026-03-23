@@ -1,67 +1,122 @@
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+
+interface PanZoomState {
+  x: number;
+  y: number;
+  scale: number;
+}
+
+const MIN_SCALE = 0.2;
+const MAX_SCALE = 3;
+const ZOOM_SENSITIVITY = 0.001;
+const BUTTON_ZOOM_STEP = 0.15;
 
 export function usePanZoom(
   containerRef: React.RefObject<HTMLDivElement | null>,
 ) {
+  const [state, setState] = useState<PanZoomState>({ x: 0, y: 0, scale: 1 });
   const [isPressed, setIsPressed] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const hasDraggedRef = useRef(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [scrollStart, setScrollStart] = useState({ left: 0, top: 0 });
-  const [scale, setScale] = useState(1);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const stateAtDragStartRef = useRef<PanZoomState>({ x: 0, y: 0, scale: 1 });
 
-  const handleZoomIn = () => setScale((s) => Math.min(s + 0.1, 2));
-  const handleZoomOut = () => setScale((s) => Math.max(s - 0.1, 0.3));
-  const handleResetZoom = () => setScale(1);
+  const clampScale = (s: number) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE);
 
-  // Thêm sự kiện con lăn chuột để zoom
+  // Zoom toward a specific point (cursor position relative to container)
+  const zoomAtPoint = useCallback(
+    (cursorX: number, cursorY: number, newScale: number) => {
+      setState((prev) => {
+        const clamped = clampScale(newScale);
+        // Calculate the point in content-space before zoom
+        // cursor position relative to the translated/scaled content
+        const ratio = 1 - clamped / prev.scale;
+        const newX = prev.x + (cursorX - prev.x) * ratio;
+        const newY = prev.y + (cursorY - prev.y) * ratio;
+        return { x: newX, y: newY, scale: clamped };
+      });
+    },
+    [],
+  );
+
+  const handleZoomIn = useCallback(() => {
+    const el = containerRef.current;
+    const cx = el ? el.clientWidth / 2 : 0;
+    const cy = el ? el.clientHeight / 2 : 0;
+    setState((prev) => {
+      const newScale = clampScale(prev.scale + BUTTON_ZOOM_STEP);
+      const ratio = 1 - newScale / prev.scale;
+      return {
+        x: prev.x + (cx - prev.x) * ratio,
+        y: prev.y + (cy - prev.y) * ratio,
+        scale: newScale,
+      };
+    });
+  }, [containerRef]);
+
+  const handleZoomOut = useCallback(() => {
+    const el = containerRef.current;
+    const cx = el ? el.clientWidth / 2 : 0;
+    const cy = el ? el.clientHeight / 2 : 0;
+    setState((prev) => {
+      const newScale = clampScale(prev.scale - BUTTON_ZOOM_STEP);
+      const ratio = 1 - newScale / prev.scale;
+      return {
+        x: prev.x + (cx - prev.x) * ratio,
+        y: prev.y + (cy - prev.y) * ratio,
+        scale: newScale,
+      };
+    });
+  }, [containerRef]);
+
+  const handleResetZoom = useCallback(() => {
+    setState({ x: 0, y: 0, scale: 1 });
+  }, []);
+
+  // Mouse wheel zoom at cursor position
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const handleNativeWheel = (e: WheelEvent) => {
-      // Prevent browser from scrolling the container
       e.preventDefault();
+      // Cursor position relative to the container element
+      const rect = el.getBoundingClientRect();
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
 
-      // Determine the direction
-      setScale((s) => {
-        // e.deltaY < 0 (scroll up) -> Zoom IN
-        // e.deltaY > 0 (scroll down) -> Zoom OUT
-        // Use a slight smoother delta (0.05 or 0.1) based on standard mouse wheel
-        const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
-        return Math.min(Math.max(s + zoomDelta, 0.3), 2);
+      setState((prev) => {
+        // Smooth zoom factor based on deltaY
+        const zoomFactor = 1 - e.deltaY * ZOOM_SENSITIVITY;
+        const newScale = clampScale(prev.scale * zoomFactor);
+        const ratio = 1 - newScale / prev.scale;
+        return {
+          x: prev.x + (cursorX - prev.x) * ratio,
+          y: prev.y + (cursorY - prev.y) * ratio,
+          scale: newScale,
+        };
       });
     };
 
-    // { passive: false } allows us to call e.preventDefault()
     el.addEventListener("wheel", handleNativeWheel, { passive: false });
     return () => {
       el.removeEventListener("wheel", handleNativeWheel);
     };
-  }, [containerRef]);
+  }, [containerRef, zoomAtPoint]);
 
-  // Center horizontally on initial render or when dependencies change
-  // We leave it to the consumer to call a similar effect if needed,
-  // or they can pass external triggers here. For simplicity, we just provide the tools.
-
+  // Pan via mouse drag (transform-based, not scroll-based)
   const handleMouseDown = (e: MouseEvent<HTMLElement>) => {
     setIsPressed(true);
     hasDraggedRef.current = false;
-    setDragStart({ x: e.pageX, y: e.pageY });
-    if (containerRef.current) {
-      setScrollStart({
-        left: containerRef.current.scrollLeft,
-        top: containerRef.current.scrollTop,
-      });
-    }
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    stateAtDragStartRef.current = { ...state };
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
-    if (!isPressed || !containerRef.current) return;
+    if (!isPressed) return;
 
-    // Only start dragging if moved a bit to allow simple clicks
-    const dx = e.pageX - dragStart.x;
-    const dy = e.pageY - dragStart.y;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
 
     if (!hasDraggedRef.current && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
       setIsDragging(true);
@@ -70,8 +125,11 @@ export function usePanZoom(
 
     if (hasDraggedRef.current) {
       e.preventDefault();
-      containerRef.current.scrollLeft = scrollStart.left - dx;
-      containerRef.current.scrollTop = scrollStart.top - dy;
+      setState({
+        ...stateAtDragStartRef.current,
+        x: stateAtDragStartRef.current.x + dx,
+        y: stateAtDragStartRef.current.y + dy,
+      });
     }
   };
 
@@ -81,7 +139,6 @@ export function usePanZoom(
   };
 
   const handleClickCapture = (e: MouseEvent<HTMLElement>) => {
-    // Intercept clicks if we were dragging, prevent links from opening
     if (hasDraggedRef.current) {
       e.stopPropagation();
       e.preventDefault();
@@ -90,7 +147,11 @@ export function usePanZoom(
   };
 
   return {
-    scale,
+    scale: state.scale,
+    transformStyle: {
+      transform: `translate(${state.x}px, ${state.y}px) scale(${state.scale})`,
+      transformOrigin: "0 0",
+    } as React.CSSProperties,
     isPressed,
     isDragging,
     handlers: {

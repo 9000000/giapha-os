@@ -32,6 +32,7 @@ export default function FamilyTree({
 
   const {
     scale,
+    transformStyle,
     isPressed,
     isDragging,
     handlers: {
@@ -46,10 +47,9 @@ export default function FamilyTree({
   } = usePanZoom(containerRef);
 
   useEffect(() => {
-    // Center the scroll area horizontally on initial render
+    // Center the content initially
     if (containerRef.current) {
-      const el = containerRef.current;
-      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+      // No longer need to set scrollLeft since we use transform-based pan
     }
   }, [roots]);
 
@@ -265,7 +265,7 @@ export default function FamilyTree({
 
       <div
         ref={containerRef}
-        className={`w-full h-full overflow-auto ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`w-full h-full overflow-hidden ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUpOrLeave}
@@ -280,11 +280,8 @@ export default function FamilyTree({
       */}
         <div
           id="export-container"
-          className={`w-max min-w-full mx-auto p-4 pt-16 css-tree transition-all duration-200 ${isDragging ? "opacity-90" : ""}`}
-          style={{
-            transform: `scale(${scale})`,
-            transformOrigin: "top center",
-          }}
+          className={`w-max min-w-full mx-auto p-4 pt-16 css-tree ${isDragging ? "opacity-90" : ""}`}
+          style={transformStyle}
         >
           <ul>
             {treeNodes}

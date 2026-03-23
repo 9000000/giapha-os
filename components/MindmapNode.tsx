@@ -121,6 +121,7 @@ export const MindmapNode = memo(
                       <div className="relative shrink-0">
                         <div
                           className={`size-10 rounded-full overflow-hidden flex items-center justify-center text-white text-xs font-bold shadow-md ring-2 ring-white transition-transform duration-300 group-hover/card:scale-105
+                    ${data.person.is_deceased ? "grayscale opacity-85 saturate-[0.6]" : ""}
                     ${data.person.gender === "male"
                               ? "bg-linear-to-br from-sky-400 to-sky-700"
                               : data.person.gender === "female"
@@ -130,11 +131,11 @@ export const MindmapNode = memo(
                         >
                           {data.person.avatar_url ? (
                             <Image
-                              unoptimized
+                              quality={95}
                               src={data.person.avatar_url}
                               alt={data.person.full_name}
-                              width={40}
-                              height={40}
+                              width={256}
+                              height={256}
                               className="h-full w-full object-cover"
                             />
                           ) : (
@@ -216,6 +217,7 @@ export const MindmapNode = memo(
                             {ctx.showAvatar && (
                               <div
                                 className={`size-8 rounded-full overflow-hidden flex items-center justify-center text-white text-[10px] font-bold shadow-sm ring-2 ring-white transition-transform duration-300 group-hover/spouse:scale-105
+                        ${spouseData.person.is_deceased ? "grayscale opacity-85 saturate-[0.6]" : ""}
                         ${spouseData.person.gender === "male"
                                     ? "bg-linear-to-br from-sky-400 to-sky-700"
                                     : spouseData.person.gender === "female"
@@ -225,11 +227,11 @@ export const MindmapNode = memo(
                               >
                                 {spouseData.person.avatar_url ? (
                                   <Image
-                                    unoptimized
+                                    quality={95}
                                     src={spouseData.person.avatar_url}
                                     alt={spouseData.person.full_name}
-                                    width={32}
-                                    height={32}
+                                    width={256}
+                                    height={256}
                                     className="h-full w-full object-cover"
                                   />
                                 ) : (

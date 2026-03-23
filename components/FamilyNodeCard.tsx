@@ -90,6 +90,7 @@ export default function FamilyNodeCard({
           <div
             className={`
               h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
+              ${isDeceased ? "grayscale opacity-85 saturate-[0.6]" : ""}
               ${person.gender === "male"
                 ? "bg-linear-to-br from-sky-400 to-sky-700"
                 : person.gender === "female"
@@ -103,9 +104,9 @@ export default function FamilyNodeCard({
                 src={person.avatar_url}
                 alt={person.full_name}
                 className="w-full h-full object-cover"
-                width={64}
-                height={64}
-                sizes="(max-width: 640px) 40px, (max-width: 768px) 48px, 56px"
+                width={256}
+                height={256}
+                quality={95}
               />
             ) : (
               <DefaultAvatar gender={person.gender} />

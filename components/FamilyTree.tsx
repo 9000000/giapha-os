@@ -30,11 +30,14 @@ export default function FamilyTree({
 
   const { showAvatar } = useDashboard();
 
+  const contentRef = useRef<HTMLDivElement>(null);
+
   const {
     scale,
     transformStyle,
     isPressed,
     isDragging,
+    setTransform,
     handlers: {
       handleMouseDown,
       handleMouseMove,
@@ -46,12 +49,37 @@ export default function FamilyTree({
     },
   } = usePanZoom(containerRef);
 
+  // Auto-center content; on mobile default zoom 60%
   useEffect(() => {
-    // Center the content initially
-    if (containerRef.current) {
-      // No longer need to set scrollLeft since we use transform-based pan
-    }
-  }, [roots]);
+    const centerContent = () => {
+      const container = containerRef.current;
+      const content = contentRef.current;
+      if (!container || !content) return;
+
+      const isMobile = window.innerWidth < 768;
+      const targetScale = isMobile ? 0.6 : 1;
+
+      // Get the natural (unscaled) size of the content
+      const contentWidth = content.scrollWidth;
+      const containerWidth = container.clientWidth;
+
+      // Center horizontally: offset so that scaled content is centered
+      const x = (containerWidth - contentWidth * targetScale) / 2;
+      // Small top padding
+      const y = 0;
+
+      setTransform({ x, y, scale: targetScale });
+    };
+
+    // Run after content renders
+    const t1 = setTimeout(centerContent, 100);
+    const t2 = setTimeout(centerContent, 500);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [roots, setTransform]);
 
   useEffect(() => {
     const equalizeSizes = () => {
@@ -280,6 +308,7 @@ export default function FamilyTree({
         p-8 adds padding inside scroll area.
       */}
         <div
+          ref={contentRef}
           id="export-container"
           className={`w-max min-w-full mx-auto p-4 pt-16 css-tree ${isDragging ? "opacity-90" : ""}`}
           style={transformStyle}

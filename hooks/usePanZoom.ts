@@ -286,6 +286,11 @@ export function usePanZoom(
     }
   };
 
+  // Allow external control of the transform state (e.g. auto-center on mobile)
+  const setTransform = useCallback((newState: PanZoomState) => {
+    setState(newState);
+  }, []);
+
   return {
     scale: state.scale,
     transformStyle: {
@@ -296,6 +301,7 @@ export function usePanZoom(
     } as React.CSSProperties,
     isPressed,
     isDragging,
+    setTransform,
     handlers: {
       handleMouseDown,
       handleMouseMove,

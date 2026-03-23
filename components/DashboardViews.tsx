@@ -4,7 +4,7 @@ import { useDashboard } from "@/components/DashboardContext";
 import DashboardMemberList from "@/components/DashboardMemberList";
 import RootSelector from "@/components/RootSelector";
 import { Person, Relationship } from "@/types";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Loader2, Plus } from "lucide-react";
 import Link from "next/link";
@@ -34,6 +34,60 @@ export default function DashboardViews({
   canEdit = false,
 }: DashboardViewsProps) {
   const { view: currentView, rootId, treeBackground } = useDashboard();
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const isHoveredRef = useRef(false);
+
+  useEffect(() => {
+    if (currentView === "list") {
+      setIsToolbarVisible(true);
+      return;
+    }
+
+    let timeoutId: NodeJS.Timeout;
+
+    const handleActivity = (e?: Event) => {
+      clearTimeout(timeoutId);
+
+      // Nếu đang kéo/vuốt màn hình thì ẩn ngay lập tức
+      let isDragging = false;
+      if (e) {
+        if (e.type === "touchmove" || e.type === "wheel") {
+          isDragging = true;
+        } else if (e.type === "mousemove" && (e as MouseEvent).buttons > 0) {
+          isDragging = true;
+        }
+      }
+
+      if (isDragging) {
+        setIsToolbarVisible(false);
+        return;
+      }
+
+      setIsToolbarVisible(true);
+      timeoutId = setTimeout(() => {
+        if (!isHoveredRef.current) {
+          setIsToolbarVisible(false);
+        }
+      }, 3000);
+    };
+
+    handleActivity();
+
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("touchstart", handleActivity);
+    window.addEventListener("touchmove", handleActivity);
+    window.addEventListener("wheel", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+
+    return () => {
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
+      window.removeEventListener("touchmove", handleActivity);
+      window.removeEventListener("wheel", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+      clearTimeout(timeoutId);
+    };
+  }, [currentView]);
 
   // Prepare map and roots for tree views
   const { personsMap, roots, defaultRootId } = useMemo(() => {
@@ -95,8 +149,19 @@ export default function DashboardViews({
         className={`flex-1 overflow-auto flex flex-col relative ${getBackgroundClass()}`}
       >
         {currentView !== "list" && persons.length > 0 && activeRootId && (
-          <div className="absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-20 pointer-events-none">
-            <div className="flex flex-row items-center gap-3 w-full sm:w-auto pointer-events-auto">
+          <div 
+            className={`absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-20 pointer-events-none transition-all duration-500 ${
+              isToolbarVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            }`}
+            onMouseEnter={() => {
+              isHoveredRef.current = true;
+              setIsToolbarVisible(true);
+            }}
+            onMouseLeave={() => {
+              isHoveredRef.current = false;
+            }}
+          >
+            <div className={`flex flex-row items-center gap-3 w-full sm:w-auto transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
               <div className="flex-1 min-w-0">
                 <RootSelector persons={persons} currentRootId={activeRootId} />
               </div>
@@ -111,7 +176,7 @@ export default function DashboardViews({
             </div>
             <div
               id="tree-toolbar-portal"
-              className="flex items-center gap-2 flex-wrap justify-center sm:ml-auto pointer-events-auto"
+              className={`flex items-center gap-2 flex-wrap justify-center sm:ml-auto transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}
             />
           </div>
         )}

@@ -212,11 +212,13 @@ export default function MemberForm({
 
   // Private fields
   const [phoneNumber, setPhoneNumber] = useState(
-    initialData?.phone_number || "",
+    initialData?.phone_number ?? "",
   );
-  const [occupation, setOccupation] = useState(initialData?.occupation || "");
+  const [occupation, setOccupation] = useState(
+    initialData?.occupation ?? "",
+  );
   const [currentResidence, setCurrentResidence] = useState(
-    initialData?.current_residence || "",
+    initialData?.current_residence ?? "",
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -374,18 +376,32 @@ export default function MemberForm({
 
       // 2. Upsert private data (only if admin and currentPersonId exists)
       if (isAdmin && currentPersonId) {
-        const privateData = {
+        const normalizedData = {
           person_id: currentPersonId,
-          phone_number: phoneNumber || null,
-          occupation: occupation || null,
-          current_residence: currentResidence || null,
+          phone_number: phoneNumber?.trim() || null,
+          occupation: occupation?.trim() || null,
+          current_residence: currentResidence?.trim() || null,
         };
 
-        const { error: privateError } = await supabase
-          .from("person_details_private")
-          .upsert(privateData); // Upsert works for both new and existing if we use person_id as unique key
+        const hasData =
+          normalizedData.phone_number ||
+          normalizedData.occupation ||
+          normalizedData.current_residence;
 
-        if (privateError) throw privateError;
+        if (hasData) {
+          const { error } = await supabase
+            .from("person_details_private")
+            .upsert(normalizedData);
+
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from("person_details_private")
+            .delete()
+            .eq("person_id", currentPersonId);
+
+          if (error) throw error;
+        }
       }
 
       // After save: use callback if provided, otherwise fall back to page navigation

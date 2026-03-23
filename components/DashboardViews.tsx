@@ -33,9 +33,9 @@ export default function DashboardViews({
   relationships,
   canEdit = false,
 }: DashboardViewsProps) {
-  const { view: currentView, rootId, treeBackground } = useDashboard();
-  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const { view: currentView, rootId, treeBackground, isToolbarVisible, setIsToolbarVisible } = useDashboard();
   const isHoveredRef = useRef(false);
+  const lastYRef = useRef(0);
 
   useEffect(() => {
     if (currentView === "list") {
@@ -46,48 +46,92 @@ export default function DashboardViews({
     let timeoutId: NodeJS.Timeout;
 
     const handleActivity = (e?: Event) => {
-      clearTimeout(timeoutId);
+      // Nếu sự kiện là bắt đầu chạm/nhấn, ghi nhận toạ độ Y
+      if (e && (e.type === "touchstart" || e.type === "mousedown")) {
+        const clientY = "touches" in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
+        lastYRef.current = clientY;
+        return;
+      }
 
-      // Nếu đang kéo/vuốt màn hình thì ẩn ngay lập tức
+      // Di chuột không nhấn (desktop): chỉ hiện nếu ở vùng trên cùng màn hình
+      if (e && e.type === "mousemove" && (e as MouseEvent).buttons === 0) {
+        if ((e as MouseEvent).clientY < 80) {
+          clearTimeout(timeoutId);
+          setIsToolbarVisible(true);
+          timeoutId = setTimeout(() => {
+            if (!isHoveredRef.current) setIsToolbarVisible(false);
+          }, 3000);
+        }
+        return;
+      }
+
       let isDragging = false;
+      let isPullingDown = false;
+
       if (e) {
-        if (e.type === "touchmove" || e.type === "wheel") {
+        if (e.type === "touchmove") {
           isDragging = true;
+          const currentY = (e as TouchEvent).touches[0].clientY;
+          if (currentY - lastYRef.current > 5) {
+            isPullingDown = true;
+            lastYRef.current = currentY;
+          } else if (currentY - lastYRef.current < -5) {
+            isPullingDown = false; // kéo lên
+            lastYRef.current = currentY;
+          }
+        } else if (e.type === "wheel") {
+          isDragging = true;
+          if ((e as WheelEvent).deltaY < 0) {
+            isPullingDown = true; // Cuộn lên (bù lại nội dung đi xuống)
+          } else if ((e as WheelEvent).deltaY > 0) {
+            isPullingDown = false;
+          }
         } else if (e.type === "mousemove" && (e as MouseEvent).buttons > 0) {
           isDragging = true;
+          const currentY = (e as MouseEvent).clientY;
+          if (currentY - lastYRef.current > 5) {
+            isPullingDown = true;
+            lastYRef.current = currentY;
+          } else if (currentY - lastYRef.current < -5) {
+            isPullingDown = false;
+            lastYRef.current = currentY;
+          }
         }
       }
 
       if (isDragging) {
-        setIsToolbarVisible(false);
-        return;
-      }
-
-      setIsToolbarVisible(true);
-      timeoutId = setTimeout(() => {
-        if (!isHoveredRef.current) {
+        clearTimeout(timeoutId);
+        if (isPullingDown) {
+          setIsToolbarVisible(true);
+          timeoutId = setTimeout(() => {
+            if (!isHoveredRef.current) setIsToolbarVisible(false);
+          }, 3000);
+        } else {
           setIsToolbarVisible(false);
         }
-      }, 3000);
+      }
     };
 
-    handleActivity();
-
+    window.addEventListener("mousedown", handleActivity);
     window.addEventListener("mousemove", handleActivity);
     window.addEventListener("touchstart", handleActivity);
     window.addEventListener("touchmove", handleActivity);
     window.addEventListener("wheel", handleActivity);
-    window.addEventListener("keydown", handleActivity);
+
+    // Initial timeout cho trạng thái chưa thao tác
+    timeoutId = setTimeout(() => {
+      setIsToolbarVisible(false);
+    }, 3000);
 
     return () => {
+      window.removeEventListener("mousedown", handleActivity);
       window.removeEventListener("mousemove", handleActivity);
       window.removeEventListener("touchstart", handleActivity);
       window.removeEventListener("touchmove", handleActivity);
       window.removeEventListener("wheel", handleActivity);
-      window.removeEventListener("keydown", handleActivity);
       clearTimeout(timeoutId);
     };
-  }, [currentView]);
+  }, [currentView, setIsToolbarVisible]);
 
   // Prepare map and roots for tree views
   const { personsMap, roots, defaultRootId } = useMemo(() => {

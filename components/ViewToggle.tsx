@@ -7,7 +7,7 @@ import { useDashboard } from "./DashboardContext";
 export type ViewMode = "list" | "tree" | "mindmap";
 
 export default function ViewToggle() {
-  const { view: currentView, setView } = useDashboard();
+  const { view: currentView, setView, isToolbarVisible, setIsToolbarVisible } = useDashboard();
 
   const tabs = [
     {
@@ -28,7 +28,12 @@ export default function ViewToggle() {
   ] as const;
 
   return (
-    <div className="flex bg-stone-200/50 p-1 rounded-full shadow-inner w-fit mx-auto mt-2 mb-1 relative border border-stone-200/60 backdrop-blur-sm z-10">
+    <div 
+      className={`absolute top-3 left-1/2 -translate-x-1/2 flex bg-stone-200/50 p-1 rounded-full shadow-inner w-fit mx-auto border border-stone-200/60 backdrop-blur-sm z-30 transition-all duration-500 ${
+        isToolbarVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
+      }`}
+      onMouseEnter={() => setIsToolbarVisible(true)}
+    >
       {tabs.map((tab) => {
         const isActive = currentView === tab.id;
         return (

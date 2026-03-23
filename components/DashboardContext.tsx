@@ -19,6 +19,8 @@ interface DashboardState {
   setRootId: (id: string | null) => void;
   treeBackground: BackgroundMode;
   setTreeBackground: (bg: BackgroundMode) => void;
+  isToolbarVisible: boolean;
+  setIsToolbarVisible: (visible: boolean) => void;
 }
 
 export const DashboardContext = createContext<DashboardState | undefined>(
@@ -33,6 +35,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [view, setViewState] = useState<ViewMode>("tree");
   const [rootId, setRootIdState] = useState<string | null>(null);
   const [treeBackground, setTreeBackgroundState] = useState<BackgroundMode>("red");
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   // Initialize from URL once on mount (or when searchParams actually change from server init)
   // We use a ref or just simple effect
@@ -141,6 +144,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setRootId,
         treeBackground,
         setTreeBackground,
+        isToolbarVisible,
+        setIsToolbarVisible,
       }}
     >
       {children}
@@ -166,6 +171,8 @@ export function useDashboard(): DashboardState {
       setRootId: () => { },
       treeBackground: "red",
       setTreeBackground: () => { },
+      isToolbarVisible: true,
+      setIsToolbarVisible: () => { },
     };
   }
   return context;

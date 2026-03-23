@@ -1,4 +1,4 @@
-import { MouseEvent, useRef, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 
 export function usePanZoom(
   containerRef: React.RefObject<HTMLDivElement | null>,
@@ -13,6 +13,32 @@ export function usePanZoom(
   const handleZoomIn = () => setScale((s) => Math.min(s + 0.1, 2));
   const handleZoomOut = () => setScale((s) => Math.max(s - 0.1, 0.3));
   const handleResetZoom = () => setScale(1);
+
+  // Thêm sự kiện con lăn chuột để zoom
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleNativeWheel = (e: WheelEvent) => {
+      // Prevent browser from scrolling the container
+      e.preventDefault();
+
+      // Determine the direction
+      setScale((s) => {
+        // e.deltaY < 0 (scroll up) -> Zoom IN
+        // e.deltaY > 0 (scroll down) -> Zoom OUT
+        // Use a slight smoother delta (0.05 or 0.1) based on standard mouse wheel
+        const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
+        return Math.min(Math.max(s + zoomDelta, 0.3), 2);
+      });
+    };
+
+    // { passive: false } allows us to call e.preventDefault()
+    el.addEventListener("wheel", handleNativeWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", handleNativeWheel);
+    };
+  }, [containerRef]);
 
   // Center horizontally on initial render or when dependencies change
   // We leave it to the consumer to call a similar effect if needed,

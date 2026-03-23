@@ -4,7 +4,7 @@ import MemberDetailContent from "@/components/MemberDetailContent";
 import MemberForm from "@/components/MemberForm";
 import { Person } from "@/types";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowLeft, Edit2, ExternalLink, X } from "lucide-react";
+import { AlertCircle, ArrowLeft, Edit2, ExternalLink, Info, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -31,6 +31,7 @@ export default function MemberDetailModal() {
     string,
     unknown
   > | null>(null);
+  const [pendingRequests, setPendingRequests] = useState<{ action: string }[] | null>(null);
 
   const closeModal = () => {
     setMemberModalId(null);
@@ -58,9 +59,17 @@ export default function MemberDetailModal() {
             .single()
           : null;
 
-        const [personResult, privateResult] = await Promise.all([
+        const pendingQuery = supabase
+          .from("change_requests")
+          .select("action")
+          .eq("target_table", "persons")
+          .eq("target_record_id", id)
+          .eq("status", "pending");
+
+        const [personResult, privateResult, pendingResult] = await Promise.all([
           personQuery,
           privateQuery,
+          pendingQuery,
         ]);
 
         if (personResult.error || !personResult.data) {
@@ -68,6 +77,7 @@ export default function MemberDetailModal() {
         }
         setPerson(personResult.data);
         setPrivateData(isAdmin ? (privateResult?.data || {}) : null);
+        setPendingRequests(pendingResult.data || null);
       } catch (err) {
         console.error("Error fetching member details:", err);
         // @ts-expect-error - err is caught as unknown, but we check for message
@@ -141,6 +151,9 @@ export default function MemberDetailModal() {
   const formInitialData = person
     ? { ...person, ...(privateData ?? {}) }
     : undefined;
+
+  const isPendingUpdate = pendingRequests?.some((r) => r.action === "update");
+  const isPendingDelete = pendingRequests?.some((r) => r.action === "delete");
 
   return (
     <AnimatePresence>
@@ -232,6 +245,23 @@ export default function MemberDetailModal() {
             ) : isEditing && formInitialData ? (
               /* ── EDIT MODE ── */
               <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-8 pt-16 pb-8">
+                {(isPendingUpdate || isPendingDelete) && (
+                  <div className="mb-6 bg-amber-50/80 backdrop-blur-sm border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-xs">
+                    <div className="p-2 bg-amber-100/80 text-amber-600 rounded-lg shrink-0 mt-0.5">
+                      <Info className="size-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wide">
+                        Cảnh báo: Hồ sơ đang chờ phê duyệt
+                      </h3>
+                      <p className="text-sm font-medium text-amber-700/80 mt-1">
+                        {isPendingDelete
+                          ? "Người này đang có yêu cầu XOÁ chờ Quản trị viên duyệt. Chỉnh sửa của bạn có thể vô nghĩa nếu hồ sơ bị xoá."
+                          : "Đã có yêu cầu cập nhật chờ duyệt cho người này. Việc bạn gửi yêu cầu chỉnh sửa mới có thể sẽ ghi đè lên yêu cầu trước đó."}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <h2 className="text-xl font-serif font-bold text-stone-800 mb-6">
                   Chỉnh sửa thành viên
                 </h2>
@@ -262,6 +292,23 @@ export default function MemberDetailModal() {
             ) : person ? (
               /* ── DETAIL MODE ── */
               <div className="flex-1 overflow-y-auto custom-scrollbar">
+                {(isPendingUpdate || isPendingDelete) && (
+                  <div className="m-4 sm:m-6 sm:mb-0 mb-4 bg-amber-50/80 backdrop-blur-sm border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-xs">
+                    <div className="p-2 bg-amber-100/80 text-amber-600 rounded-lg shrink-0 mt-0.5">
+                      <Info className="size-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wide">
+                        Hồ sơ đang chờ phê duyệt
+                      </h3>
+                      <p className="text-sm font-medium text-amber-700/80 mt-1">
+                        {isPendingDelete
+                          ? "Người dùng này đang có yêu cầu XOÁ chờ Quản trị viên phê duyệt."
+                          : "Có thông tin cập nhật mới cho người này đang chờ Quản trị viên duyệt và áp dụng."}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <MemberDetailContent
                   person={person}
                   privateData={privateData}

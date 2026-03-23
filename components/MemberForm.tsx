@@ -324,15 +324,12 @@ export default function MemberForm({
 
         if (res.error) throw new Error(res.error);
 
-        // After a successful change request, use onSuccess to re-fetch data
-        // (including pending requests) so the banner shows immediately.
+        // After a successful change request, refresh to show the pending banner.
+        // - Modal: onSuccess re-fetches data (including pending requests)
+        // - Edit page (Server Component): router.refresh() re-renders the page
         if (onSuccess && currentPersonId) {
           onSuccess(currentPersonId);
-        } else if (currentPersonId) {
-          router.push("/dashboard/members/" + currentPersonId);
-          router.refresh();
         } else {
-          router.push("/dashboard/members");
           router.refresh();
         }
         return;

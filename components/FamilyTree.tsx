@@ -310,7 +310,7 @@ export default function FamilyTree({
         <div
           ref={contentRef}
           id="export-container"
-          className={`w-max min-w-full mx-auto p-4 pt-16 css-tree ${isDragging ? "opacity-90" : ""}`}
+          className={`w-max min-w-full mx-auto p-4 pt-16 ${isDragging ? "opacity-90" : ""}`}
           style={transformStyle}
         >
           {/* Tiêu đề Cuộn giấy */}
@@ -327,9 +327,11 @@ export default function FamilyTree({
               />
             </div>
           </div>
-          <ul className="relative z-0">
-            {treeNodes}
-          </ul>
+          <div className="css-tree relative z-0">
+            <ul>
+              {treeNodes}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

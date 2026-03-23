@@ -28,14 +28,15 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
 
   return (
     <DashboardProvider>
-      <ViewToggle />
-      <DashboardViews
-        persons={persons}
-        relationships={relationships}
-        canEdit={canEdit}
-      />
-
-      <MemberDetailModal />
+      <div className="relative flex-1 flex flex-col h-full w-full overflow-hidden">
+        <ViewToggle />
+        <DashboardViews
+          persons={persons}
+          relationships={relationships}
+          canEdit={canEdit}
+        />
+        <MemberDetailModal />
+      </div>
     </DashboardProvider>
   );
 }

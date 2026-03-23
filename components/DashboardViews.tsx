@@ -46,21 +46,19 @@ export default function DashboardViews({
     let timeoutId: NodeJS.Timeout;
 
     const handleActivity = (e?: Event) => {
-      // Nếu sự kiện là bắt đầu chạm/nhấn, ghi nhận toạ độ Y
       if (e && (e.type === "touchstart" || e.type === "mousedown")) {
         const clientY = "touches" in e ? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).clientY;
         lastYRef.current = clientY;
         return;
       }
 
-      // Di chuột không nhấn (desktop): chỉ hiện nếu ở vùng trên cùng màn hình
       if (e && e.type === "mousemove" && (e as MouseEvent).buttons === 0) {
         if ((e as MouseEvent).clientY < 80) {
           clearTimeout(timeoutId);
           setIsToolbarVisible(true);
           timeoutId = setTimeout(() => {
             if (!isHoveredRef.current) setIsToolbarVisible(false);
-          }, 3000);
+          }, 4500);
         }
         return;
       }
@@ -70,29 +68,35 @@ export default function DashboardViews({
 
       if (e) {
         if (e.type === "touchmove") {
-          isDragging = true;
           const currentY = (e as TouchEvent).touches[0].clientY;
-          if (currentY - lastYRef.current > 5) {
+          const delta = currentY - lastYRef.current;
+          if (delta > 8) {
+            isDragging = true;
             isPullingDown = true;
             lastYRef.current = currentY;
-          } else if (currentY - lastYRef.current < -5) {
-            isPullingDown = false; // kéo lên
+          } else if (delta < -8) {
+            isDragging = true;
+            isPullingDown = false;
             lastYRef.current = currentY;
           }
         } else if (e.type === "wheel") {
-          isDragging = true;
-          if ((e as WheelEvent).deltaY < 0) {
-            isPullingDown = true; // Cuộn lên (bù lại nội dung đi xuống)
-          } else if ((e as WheelEvent).deltaY > 0) {
+          const deltaY = (e as WheelEvent).deltaY;
+          if (deltaY < -10) {
+            isDragging = true;
+            isPullingDown = true;
+          } else if (deltaY > 10) {
+            isDragging = true;
             isPullingDown = false;
           }
         } else if (e.type === "mousemove" && (e as MouseEvent).buttons > 0) {
-          isDragging = true;
           const currentY = (e as MouseEvent).clientY;
-          if (currentY - lastYRef.current > 5) {
+          const delta = currentY - lastYRef.current;
+          if (delta > 8) {
+            isDragging = true;
             isPullingDown = true;
             lastYRef.current = currentY;
-          } else if (currentY - lastYRef.current < -5) {
+          } else if (delta < -8) {
+            isDragging = true;
             isPullingDown = false;
             lastYRef.current = currentY;
           }
@@ -105,7 +109,7 @@ export default function DashboardViews({
           setIsToolbarVisible(true);
           timeoutId = setTimeout(() => {
             if (!isHoveredRef.current) setIsToolbarVisible(false);
-          }, 3000);
+          }, 4500);
         } else {
           setIsToolbarVisible(false);
         }

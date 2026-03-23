@@ -324,8 +324,13 @@ export default function MemberForm({
 
         if (res.error) throw new Error(res.error);
 
-        if (onCancel) {
-          onCancel();
+        // After a successful change request, use onSuccess to re-fetch data
+        // (including pending requests) so the banner shows immediately.
+        if (onSuccess && currentPersonId) {
+          onSuccess(currentPersonId);
+        } else if (currentPersonId) {
+          router.push("/dashboard/members/" + currentPersonId);
+          router.refresh();
         } else {
           router.push("/dashboard/members");
           router.refresh();

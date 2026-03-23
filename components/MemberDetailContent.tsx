@@ -337,9 +337,9 @@ export default function MemberDetailContent({
                   relStats.maternalGrandchildren > 0) && (
                   <motion.div
                     variants={itemVariants}
-                    className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 sm:col-span-2 md:col-span-3"
+                    className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 sm:col-span-2 md:col-span-3"
                   >
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
                       <span className="size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></span>
                       <h3 className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
                         Hậu duệ
@@ -348,10 +348,10 @@ export default function MemberDetailContent({
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {/* Biological Children */}
                       {relStats.biologicalChildren > 0 && (
-                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100/80 flex flex-col">
-                          <div className="flex items-center justify-between mb-2">
+                        <div className="bg-stone-50/50 rounded-xl p-2.5 border border-stone-100/80 flex flex-col">
+                          <div className="flex items-center justify-between mb-1.5">
                             <div className="flex items-center gap-2">
-                              <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg">
+                              <div className="p-1.5 bg-blue-100/50 text-blue-600 rounded-lg">
                                 <Users className="size-4" />
                               </div>
                               <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">
@@ -363,15 +363,15 @@ export default function MemberDetailContent({
                             </span>
                           </div>
                           <div className="h-px bg-stone-200/60 w-full my-1.5"></div>
-                          <div className="flex items-center gap-1.5 mt-auto">
+                          <div className="flex items-center gap-2 mt-auto">
                             {relStats.maleBiologicalChildren > 0 && (
-                              <span className="font-medium text-sky-700 bg-sky-100/50 px-1.5 py-0.5 rounded flex items-center gap-1 text-[10px]">
-                                <MaleIcon className="size-2.5" /> {relStats.maleBiologicalChildren}
+                              <span className="font-medium text-sky-700 bg-sky-100/50 px-2 py-0.5 rounded flex items-center gap-1.5 text-xs">
+                                <MaleIcon className="size-3" /> {relStats.maleBiologicalChildren}
                               </span>
                             )}
                             {relStats.femaleBiologicalChildren > 0 && (
-                              <span className="font-medium text-rose-700 bg-rose-100/50 px-1.5 py-0.5 rounded flex items-center gap-1 text-[10px]">
-                                <FemaleIcon className="size-2.5" /> {relStats.femaleBiologicalChildren}
+                              <span className="font-medium text-rose-700 bg-rose-100/50 px-2 py-0.5 rounded flex items-center gap-1.5 text-xs">
+                                <FemaleIcon className="size-3" /> {relStats.femaleBiologicalChildren}
                               </span>
                             )}
                           </div>
@@ -381,9 +381,9 @@ export default function MemberDetailContent({
                       {/* In-Laws */}
                       {(relStats.sonInLaw > 0 ||
                         relStats.daughterInLaw > 0) && (
-                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100/80 flex flex-col">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="p-2 bg-stone-200/50 text-stone-600 rounded-lg">
+                        <div className="bg-stone-50/50 rounded-xl p-2.5 border border-stone-100/80 flex flex-col">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="p-1.5 bg-stone-200/50 text-stone-600 rounded-lg">
                               <UserPlus className="size-4" />
                             </div>
                             <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">
@@ -411,9 +411,9 @@ export default function MemberDetailContent({
                       {/* Grandchildren */}
                       {(relStats.paternalGrandchildren > 0 ||
                         relStats.maternalGrandchildren > 0) && (
-                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100/80 flex flex-col">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="p-2 bg-emerald-100/50 text-emerald-600 rounded-lg">
+                        <div className="bg-stone-50/50 rounded-xl p-2.5 border border-stone-100/80 flex flex-col">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="p-1.5 bg-emerald-100/50 text-emerald-600 rounded-lg">
                               <Baby className="size-4" />
                             </div>
                             <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">

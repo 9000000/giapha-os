@@ -345,33 +345,33 @@ export default function MemberDetailContent({
                         Hậu duệ
                       </h3>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {/* Biological Children */}
                       {relStats.biologicalChildren > 0 && (
-                        <div className="bg-stone-50/50 rounded-xl p-4 border border-stone-100/80 flex flex-col gap-3">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2.5 bg-blue-100/50 text-blue-600 rounded-lg">
-                              <Users className="size-5" />
-                            </div>
-                            <div>
-                              <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block mb-0.5">
+                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100/80 flex flex-col">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg">
+                                <Users className="size-4" />
+                              </div>
+                              <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">
                                 Con ruột
                               </span>
-                              <span className="text-2xl font-black text-stone-700 leading-none">
-                                {relStats.biologicalChildren}
-                              </span>
                             </div>
+                            <span className="text-xl font-black text-stone-700">
+                              {relStats.biologicalChildren}
+                            </span>
                           </div>
-                          <div className="h-px bg-stone-200/60 w-full mt-auto"></div>
-                          <div className="flex items-center gap-2">
+                          <div className="h-px bg-stone-200/60 w-full my-1.5"></div>
+                          <div className="flex items-center gap-1.5 mt-auto">
                             {relStats.maleBiologicalChildren > 0 && (
-                              <span className="font-medium text-sky-700 bg-sky-100/50 px-2 py-1 rounded flex items-center gap-1.5 text-xs">
-                                <MaleIcon className="size-3" /> {relStats.maleBiologicalChildren}
+                              <span className="font-medium text-sky-700 bg-sky-100/50 px-1.5 py-0.5 rounded flex items-center gap-1 text-[10px]">
+                                <MaleIcon className="size-2.5" /> {relStats.maleBiologicalChildren}
                               </span>
                             )}
                             {relStats.femaleBiologicalChildren > 0 && (
-                              <span className="font-medium text-rose-700 bg-rose-100/50 px-2 py-1 rounded flex items-center gap-1.5 text-xs">
-                                <FemaleIcon className="size-3" /> {relStats.femaleBiologicalChildren}
+                              <span className="font-medium text-rose-700 bg-rose-100/50 px-1.5 py-0.5 rounded flex items-center gap-1 text-[10px]">
+                                <FemaleIcon className="size-2.5" /> {relStats.femaleBiologicalChildren}
                               </span>
                             )}
                           </div>
@@ -381,35 +381,27 @@ export default function MemberDetailContent({
                       {/* In-Laws */}
                       {(relStats.sonInLaw > 0 ||
                         relStats.daughterInLaw > 0) && (
-                        <div className="bg-stone-50/50 rounded-xl p-4 border border-stone-100/80 flex flex-col gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-stone-200/50 text-stone-600 rounded-lg">
-                              <UserPlus className="size-5" />
+                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100/80 flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="p-2 bg-stone-200/50 text-stone-600 rounded-lg">
+                              <UserPlus className="size-4" />
                             </div>
                             <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">
                               Dâu / Rể
                             </span>
                           </div>
-                          <div className="h-px bg-stone-200/60 w-full mt-auto"></div>
-                          <div className="flex flex-col gap-2 w-full">
+                          <div className="h-px bg-stone-200/60 w-full my-1.5"></div>
+                          <div className="flex flex-col gap-1 w-full mt-auto">
                             {relStats.daughterInLaw > 0 && (
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-stone-500 font-medium tracking-wide">
-                                  Con dâu
-                                </span>
-                                <span className="font-bold text-stone-700 text-sm">
-                                  {relStats.daughterInLaw}
-                                </span>
+                                <span className="text-stone-500 font-medium">Con dâu</span>
+                                <span className="font-bold text-stone-700">{relStats.daughterInLaw}</span>
                               </div>
                             )}
                             {relStats.sonInLaw > 0 && (
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-stone-500 font-medium tracking-wide">
-                                  Con rể
-                                </span>
-                                <span className="font-bold text-stone-700 text-sm">
-                                  {relStats.sonInLaw}
-                                </span>
+                                <span className="text-stone-500 font-medium">Con rể</span>
+                                <span className="font-bold text-stone-700">{relStats.sonInLaw}</span>
                               </div>
                             )}
                           </div>
@@ -419,35 +411,27 @@ export default function MemberDetailContent({
                       {/* Grandchildren */}
                       {(relStats.paternalGrandchildren > 0 ||
                         relStats.maternalGrandchildren > 0) && (
-                        <div className="bg-stone-50/50 rounded-xl p-4 border border-stone-100/80 flex flex-col gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-emerald-100/50 text-emerald-600 rounded-lg">
-                              <Baby className="size-5" />
+                        <div className="bg-stone-50/50 rounded-xl p-3 border border-stone-100/80 flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="p-2 bg-emerald-100/50 text-emerald-600 rounded-lg">
+                              <Baby className="size-4" />
                             </div>
                             <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">
                               Cháu
                             </span>
                           </div>
-                          <div className="h-px bg-stone-200/60 w-full mt-auto"></div>
-                          <div className="flex flex-col gap-2 w-full">
+                          <div className="h-px bg-stone-200/60 w-full my-1.5"></div>
+                          <div className="flex flex-col gap-1 w-full mt-auto">
                             {relStats.paternalGrandchildren > 0 && (
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-stone-500 font-medium tracking-wide">
-                                  Cháu nội
-                                </span>
-                                <span className="font-bold text-stone-700 text-sm">
-                                  {relStats.paternalGrandchildren}
-                                </span>
+                                <span className="text-stone-500 font-medium">Cháu nội</span>
+                                <span className="font-bold text-stone-700">{relStats.paternalGrandchildren}</span>
                               </div>
                             )}
                             {relStats.maternalGrandchildren > 0 && (
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-stone-500 font-medium tracking-wide">
-                                  Cháu ngoại
-                                </span>
-                                <span className="font-bold text-stone-700 text-sm">
-                                  {relStats.maternalGrandchildren}
-                                </span>
+                                <span className="text-stone-500 font-medium">Cháu ngoại</span>
+                                <span className="font-bold text-stone-700">{relStats.maternalGrandchildren}</span>
                               </div>
                             )}
                           </div>

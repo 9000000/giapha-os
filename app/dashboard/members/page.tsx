@@ -1,7 +1,7 @@
 import { DashboardProvider } from "@/components/DashboardContext";
 import DashboardViews from "@/components/DashboardViews";
 import MemberDetailModal from "@/components/MemberDetailModal";
-import ViewToggle from "@/components/ViewToggle";
+
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
 
 interface PageProps {
@@ -29,7 +29,7 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   return (
     <DashboardProvider>
       <div className="relative flex-1 flex flex-col h-full w-full overflow-hidden">
-        <ViewToggle />
+
         <DashboardViews
           persons={persons}
           relationships={relationships}

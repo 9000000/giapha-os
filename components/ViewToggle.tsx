@@ -29,9 +29,7 @@ export default function ViewToggle() {
 
   return (
     <div 
-      className={`absolute top-3 left-1/2 -translate-x-1/2 flex bg-stone-200/50 p-1 rounded-full shadow-inner w-fit mx-auto border border-stone-200/60 backdrop-blur-sm z-30 transition-all duration-500 ${
-        isToolbarVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
-      }`}
+      className="flex bg-stone-200/90 p-1 rounded-full w-fit border border-stone-300 drop-shadow-sm"
       onMouseEnter={() => setIsToolbarVisible(true)}
     >
       {tabs.map((tab) => {

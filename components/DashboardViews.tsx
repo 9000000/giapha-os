@@ -3,6 +3,7 @@
 import { useDashboard } from "@/components/DashboardContext";
 import DashboardMemberList from "@/components/DashboardMemberList";
 import RootSelector from "@/components/RootSelector";
+import ViewToggle from "@/components/ViewToggle";
 import { Person, Relationship } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -198,8 +199,8 @@ export default function DashboardViews({
       >
         {currentView !== "list" && persons.length > 0 && activeRootId && (
           <div 
-            className={`absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-20 pointer-events-none transition-all duration-500 ${
-              isToolbarVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+            className={`absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-30 pointer-events-none transition-all duration-600 ease-out bg-white/95 backdrop-blur-md shadow-sm border-b border-stone-200/80 ${
+              isToolbarVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
             }`}
             onMouseEnter={() => {
               isHoveredRef.current = true;
@@ -221,6 +222,10 @@ export default function DashboardViews({
                 <span className="hidden sm:inline">Thêm vào Cây</span>
                 <span className="sm:hidden">Thêm</span>
               </Link>
+            </div>
+
+            <div className={`w-full sm:w-auto flex justify-center order-last sm:order-none transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
+              <ViewToggle />
             </div>
             <div
               id="tree-toolbar-portal"

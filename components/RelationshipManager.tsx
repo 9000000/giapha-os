@@ -28,7 +28,7 @@ interface RelationshipManagerProps {
 interface EnrichedRelationship {
   id: string;
   type: RelationshipType;
-  direction: "parent" | "child" | "spouse" | "child_in_law";
+  direction: "parent" | "child" | "spouse" | "child_in_law" | "sibling";
   targetPerson: Person;
   note: string | null;
 }
@@ -146,6 +146,68 @@ export default function RelationshipManager({
         });
       });
 
+      // Fetch siblings (children of same parents)
+      const parentIds = formattedRels
+        .filter((r) => r.direction === "parent")
+        .map((r) => r.targetPerson.id);
+
+      if (parentIds.length > 0) {
+        const { data: siblingsData } = await supabase
+          .from("relationships")
+          .select("*, person_b_data:persons!person_b(*)")
+          .in("type", ["biological_child", "adopted_child"])
+          .in("person_a", parentIds)
+          .neq("person_b", personId);
+
+        if (siblingsData) {
+          const uniqueSiblings = new Map();
+          for (const s of siblingsData) {
+            if (!uniqueSiblings.has(s.person_b) || s.type === "biological_child") {
+              uniqueSiblings.set(s.person_b, s);
+            }
+          }
+
+          uniqueSiblings.forEach((s) => {
+            const siblingPerson = s.person_b_data;
+            if (siblingPerson) {
+              const isAdopted = s.type === "adopted_child";
+              const typeLabel = isAdopted ? "nuôi" : "ruột";
+              const gender = siblingPerson.gender;
+
+              let isOlder: boolean | null = null;
+              if (siblingPerson.birth_year != null && person.birth_year != null) {
+                isOlder = siblingPerson.birth_year < person.birth_year;
+              } else if (siblingPerson.birth_order != null && person.birth_order != null) {
+                isOlder = siblingPerson.birth_order < person.birth_order;
+              }
+
+              let relationLabel = "";
+              if (isOlder === true) {
+                if (gender === "male") relationLabel = `Anh (${typeLabel})`;
+                else if (gender === "female") relationLabel = `Chị (${typeLabel})`;
+                else relationLabel = `Anh/Chị (${typeLabel})`;
+              } else if (isOlder === false) {
+                if (gender === "male") relationLabel = `Em trai (${typeLabel})`;
+                else if (gender === "female") relationLabel = `Em gái (${typeLabel})`;
+                else relationLabel = `Em (${typeLabel})`;
+              } else {
+                if (gender === "male") relationLabel = `Anh/em trai (${typeLabel})`;
+                else if (gender === "female") relationLabel = `Chị/em gái (${typeLabel})`;
+                else relationLabel = `Anh chị/em (${typeLabel})`;
+              }
+
+              formattedRels.push({
+                id: s.id + "_sibling",
+                type: s.type,
+                direction: "sibling",
+                targetPerson: siblingPerson,
+                note: relationLabel + (s.note ? ` - ${s.note}` : ""),
+              });
+            }
+          });
+        }
+      }
+
       // Fetch in-laws (spouses of children)
       const childrenIds = formattedRels
         .filter((r) => r.direction === "child")
@@ -212,33 +274,33 @@ export default function RelationshipManager({
         let paternalGrandchildren = 0;
         let maternalGrandchildren = 0;
         if (childrenIds.length > 0) {
-           const { data: grandchildrenData } = await supabase
-             .from("relationships")
-             .select("id, person_a")
-             .in("type", ["biological_child", "adopted_child"])
-             .in("person_a", childrenIds);
-           
-           if (grandchildrenData) {
-             const maleChildrenIds = formattedRels
-               .filter((r) => r.direction === "child" && r.targetPerson.gender === "male")
-               .map((r) => r.targetPerson.id);
-             const femaleChildrenIds = formattedRels
-               .filter((r) => r.direction === "child" && r.targetPerson.gender === "female")
-               .map((r) => r.targetPerson.id);
+          const { data: grandchildrenData } = await supabase
+            .from("relationships")
+            .select("id, person_a")
+            .in("type", ["biological_child", "adopted_child"])
+            .in("person_a", childrenIds);
 
-             paternalGrandchildren = grandchildrenData.filter((g) => maleChildrenIds.includes(g.person_a)).length;
-             maternalGrandchildren = grandchildrenData.filter((g) => femaleChildrenIds.includes(g.person_a)).length;
-           }
+          if (grandchildrenData) {
+            const maleChildrenIds = formattedRels
+              .filter((r) => r.direction === "child" && r.targetPerson.gender === "male")
+              .map((r) => r.targetPerson.id);
+            const femaleChildrenIds = formattedRels
+              .filter((r) => r.direction === "child" && r.targetPerson.gender === "female")
+              .map((r) => r.targetPerson.id);
+
+            paternalGrandchildren = grandchildrenData.filter((g) => maleChildrenIds.includes(g.person_a)).length;
+            maternalGrandchildren = grandchildrenData.filter((g) => femaleChildrenIds.includes(g.person_a)).length;
+          }
         }
-        
-        onStatsLoaded({ 
-          biologicalChildren, 
-          maleBiologicalChildren, 
-          femaleBiologicalChildren, 
+
+        onStatsLoaded({
+          biologicalChildren,
+          maleBiologicalChildren,
+          femaleBiologicalChildren,
           paternalGrandchildren,
-          maternalGrandchildren, 
-          sonInLaw, 
-          daughterInLaw 
+          maternalGrandchildren,
+          sonInLaw,
+          daughterInLaw
         });
       }
 
@@ -623,12 +685,13 @@ export default function RelationshipManager({
   return (
     <div className="space-y-6">
       {/* List Sections */}
-      {["parent", "spouse", "child", "child_in_law"].map((group) => {
+      {["parent", "spouse", "sibling", "child", "child_in_law"].map((group) => {
         const items = groupByType(group);
         let title = "";
         if (group === "parent") title = "Bố / Mẹ";
         if (group === "spouse") title = "Vợ / Chồng";
         if (group === "child") title = "Con cái";
+        if (group === "sibling") title = "Anh / Chị / Em";
         if (group === "child_in_law") title = "Con dâu / Con rể";
 
         if (items.length === 0 && !isAdmin) return null; // Hide empty sections for members? Or show empty state?

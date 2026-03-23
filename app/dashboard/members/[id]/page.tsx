@@ -1,7 +1,7 @@
 import DeleteMemberButton from "@/components/DeleteMemberButton";
 import MemberDetailContent from "@/components/MemberDetailContent";
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Info } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -41,6 +41,17 @@ export default async function MemberDetailPage({ params }: PageProps) {
     privateData = data;
   }
 
+  // Check for pending change requests
+  const { data: pendingRequests } = await supabase
+    .from("change_requests")
+    .select("action")
+    .eq("target_table", "persons")
+    .eq("target_record_id", id)
+    .eq("status", "pending");
+
+  const isPendingUpdate = pendingRequests?.some((r) => r.action === "update");
+  const isPendingDelete = pendingRequests?.some((r) => r.action === "delete");
+
   return (
     <div className="flex-1 w-full relative flex flex-col pb-8">
       {/* Decorative background blurs */}
@@ -72,6 +83,24 @@ export default async function MemberDetailPage({ params }: PageProps) {
       </div>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 relative z-10 w-full flex-1">
+        {(isPendingUpdate || isPendingDelete) && (
+          <div className="mb-6 bg-amber-50/80 backdrop-blur-sm border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-xs">
+            <div className="p-2 bg-amber-100/80 text-amber-600 rounded-lg shrink-0 mt-0.5">
+              <Info className="size-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wide">
+                Hồ sơ đang chờ phê duyệt
+              </h3>
+              <p className="text-sm font-medium text-amber-700/80 mt-1">
+                {isPendingDelete
+                  ? "Người dùng này đang có yêu cầu XOÁ chờ Quản trị viên phê duyệt."
+                  : "Có thông tin cập nhật mới cho người này đang chờ Quản trị viên duyệt và áp dụng."}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white/60 rounded-2xl shadow-sm border border-stone-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
           <MemberDetailContent
             person={person}

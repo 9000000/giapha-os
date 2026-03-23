@@ -1,6 +1,6 @@
 import MemberForm from "@/components/MemberForm";
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Info } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -55,6 +55,17 @@ export default async function EditMemberPage({ params }: PageProps) {
 
   const initialData = isAdmin ? { ...person, ...privateData } : { ...person };
 
+  // Check for pending change requests
+  const { data: pendingRequests } = await supabase
+    .from("change_requests")
+    .select("action")
+    .eq("target_table", "persons")
+    .eq("target_record_id", id)
+    .eq("status", "pending");
+
+  const isPendingUpdate = pendingRequests?.some((r) => r.action === "update");
+  const isPendingDelete = pendingRequests?.some((r) => r.action === "delete");
+
   return (
     <div className="flex-1 w-full relative flex flex-col pb-8">
       {/* Decorative background blurs */}
@@ -75,6 +86,24 @@ export default async function EditMemberPage({ params }: PageProps) {
       </div>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 relative z-10 w-full flex-1">
+        {(isPendingUpdate || isPendingDelete) && (
+          <div className="mb-6 bg-amber-50/80 backdrop-blur-sm border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-xs">
+            <div className="p-2 bg-amber-100/80 text-amber-600 rounded-lg shrink-0 mt-0.5">
+              <Info className="size-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wide">
+                Cảnh báo: Hồ sơ đang chờ phê duyệt
+              </h3>
+              <p className="text-sm font-medium text-amber-700/80 mt-1">
+                {isPendingDelete
+                  ? "Người này đang có yêu cầu XOÁ chờ Quản trị viên duyệt. Chỉnh sửa của bạn có thể vô nghĩa nếu hồ sơ bị xoá."
+                  : "Đã có yêu cầu cập nhật chờ duyệt cho người này. Việc bạn gửi yêu cầu chỉnh sửa mới có thể sẽ ghi đè lên yêu cầu trước đó."}
+              </p>
+            </div>
+          </div>
+        )}
+
         <MemberForm initialData={initialData} isEditing={true} isAdmin={isAdmin} />
       </main>
     </div>

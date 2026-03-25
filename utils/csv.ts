@@ -2,6 +2,9 @@ import { Person, Relationship } from "@/types";
 import JSZip from "jszip";
 import Papa from "papaparse";
 
+const UTF8_BOM = "\uFEFF";
+
+
 interface PersonDetailsPrivateRow {
   person_id: string;
   phone_number: string | null;
@@ -24,8 +27,8 @@ export async function exportToCsvZip(data: {
   person_details_private?: PersonDetailsPrivateRow[];
   custom_events?: CustomEventRow[];
 }): Promise<Blob> {
-  const personsCsv = Papa.unparse(data.persons);
-  const relationshipsCsv = Papa.unparse(data.relationships);
+  const personsCsv = UTF8_BOM + Papa.unparse(data.persons);
+  const relationshipsCsv = UTF8_BOM + Papa.unparse(data.relationships);
 
   const zip = new JSZip();
   zip.file("persons.csv", personsCsv);
@@ -34,12 +37,12 @@ export async function exportToCsvZip(data: {
   if (data.person_details_private && data.person_details_private.length > 0) {
     zip.file(
       "person_details_private.csv",
-      Papa.unparse(data.person_details_private),
+      UTF8_BOM + Papa.unparse(data.person_details_private),
     );
   }
 
   if (data.custom_events && data.custom_events.length > 0) {
-    zip.file("custom_events.csv", Papa.unparse(data.custom_events));
+    zip.file("custom_events.csv", UTF8_BOM + Papa.unparse(data.custom_events));
   }
 
   const zipBlob = await zip.generateAsync({ type: "blob" });
@@ -64,8 +67,15 @@ export async function parseCsvZip(zipBlob: Blob): Promise<{
     );
   }
 
-  const personsCsvStr = await personsFile.async("text");
-  const relationshipsCsvStr = await relationshipsFile.async("text");
+  const personsCsvRaw = await personsFile.async("text");
+  const relationshipsCsvRaw = await relationshipsFile.async("text");
+
+  const personsCsvStr = personsCsvRaw.startsWith(UTF8_BOM)
+    ? personsCsvRaw.slice(1)
+    : personsCsvRaw;
+  const relationshipsCsvStr = relationshipsCsvRaw.startsWith(UTF8_BOM)
+    ? relationshipsCsvRaw.slice(1)
+    : relationshipsCsvRaw;
 
   const personsParsed = Papa.parse<Partial<Person>>(personsCsvStr, {
     header: true,
@@ -103,7 +113,8 @@ export async function parseCsvZip(zipBlob: Blob): Promise<{
   // Parse person_details_private.csv (optional, backward compat)
   const privateFile = loadedZip.file("person_details_private.csv");
   if (privateFile) {
-    const privateCsvStr = await privateFile.async("text");
+    const raw = await privateFile.async("text");
+    const privateCsvStr = raw.startsWith(UTF8_BOM) ? raw.slice(1) : raw;
     const privateParsed = Papa.parse<PersonDetailsPrivateRow>(privateCsvStr, {
       header: true,
       skipEmptyLines: true,
@@ -121,7 +132,8 @@ export async function parseCsvZip(zipBlob: Blob): Promise<{
   // Parse custom_events.csv (optional, backward compat)
   const eventsFile = loadedZip.file("custom_events.csv");
   if (eventsFile) {
-    const eventsCsvStr = await eventsFile.async("text");
+    const raw = await eventsFile.async("text");
+    const eventsCsvStr = raw.startsWith(UTF8_BOM) ? raw.slice(1) : raw;
     const eventsParsed = Papa.parse<CustomEventRow>(eventsCsvStr, {
       header: true,
       skipEmptyLines: true,

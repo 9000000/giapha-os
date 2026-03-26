@@ -238,15 +238,15 @@ export default async function DashboardLaunchpad() {
                           <div className="text-xs text-stone-500 font-medium pt-1 flex flex-col gap-0.5">
                             {evt.type === "death_anniversary" ? (
                               <span>
-                                Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày nữa)
+                                Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextLunarOccurrence || evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày nữa)
                               </span>
                             ) : (
                               <>
                                 <span>
-                                  Dương: <span className="text-stone-600">{evt.solarDateLabel}</span> ({getVietnameseWeekday(evt.nextOccurrence)}, còn {evt.solarDaysUntil} ngày)
+                                  Dương: <span className="text-stone-600">{evt.solarDateLabel}</span> ({getVietnameseWeekday(evt.nextSolarOccurrence || evt.nextOccurrence)}, còn {evt.solarDaysUntil} ngày)
                                 </span>
                                 <span>
-                                  Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày)
+                                  Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextLunarOccurrence || evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày)
                                 </span>
                               </>
                             )}

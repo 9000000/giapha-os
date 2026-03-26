@@ -13,8 +13,10 @@ export interface FamilyEvent {
   /** Display label for both solar and lunar representation */
   solarDateLabel: string;
   solarDaysUntil?: number;
+  nextSolarOccurrence?: Date;
   lunarDateLabel: string;
   lunarDaysUntil?: number;
+  nextLunarOccurrence?: Date;
   /** The actual year of original event (birth year or death year) */
   originYear?: number | null;
   originMonth?: number | null;
@@ -156,10 +158,12 @@ export function computeEvents(
         type: "birthday",
         nextOccurrence: next,
         daysUntil: Math.min(daysUntil, lunarDaysUntil ?? daysUntil),
+        nextSolarOccurrence: next,
         solarDateLabel: `${p.birth_day.toString().padStart(2, "0")}/${p.birth_month.toString().padStart(2, "0")}/${p.birth_year || next.getFullYear()}`,
         solarDaysUntil: daysUntil,
         lunarDateLabel,
         lunarDaysUntil,
+        nextLunarOccurrence: nextLunarOccurrence || undefined,
         originYear: p.birth_year || null,
         originMonth: p.birth_month,
         originDay: p.birth_day,
@@ -196,6 +200,7 @@ export function computeEvents(
           type: "death_anniversary",
           nextOccurrence: next,
           daysUntil,
+          nextLunarOccurrence: next,
           solarDateLabel: `${next.getDate().toString().padStart(2, "0")}/${(next.getMonth() + 1).toString().padStart(2, "0")}/${p.death_year || next.getFullYear()}`,
           lunarDateLabel: `${fallbackLunarDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")}/${p.death_year || lOccYear}`,
           lunarDaysUntil: daysUntil,
@@ -234,6 +239,7 @@ export function computeEvents(
     let lunarDateLabel = "";
     let lunarDaysUntil: number | undefined = undefined;
     let nextLunarYear: number | undefined = undefined;
+    let nextLunarOccResult: any = null;
     try {
       const sDate = Solar.fromYmd(y, m, d);
       const lDate = sDate.getLunar();
@@ -242,7 +248,7 @@ export function computeEvents(
       const isLMonthLeap = lMonthRaw < 0;
       const lMonthStr = Math.abs(lMonthRaw).toString().padStart(2, "0");
 
-      const nextLunarOccResult = nextSolarForLunar(Math.abs(lMonthRaw), lDay, today);
+      nextLunarOccResult = nextSolarForLunar(Math.abs(lMonthRaw), lDay, today);
       if (nextLunarOccResult) {
         const nextLunarOcc = nextLunarOccResult.date;
         lunarDaysUntil = Math.round((nextLunarOcc.getTime() - today.getTime()) / 86400000);
@@ -258,10 +264,12 @@ export function computeEvents(
       type: "custom_event",
       nextOccurrence: next,
       daysUntil: Math.min(daysUntil, lunarDaysUntil ?? daysUntil),
+      nextSolarOccurrence: next,
       solarDateLabel: `${d.toString().padStart(2, "0")}/${m.toString().padStart(2, "0")}/${y}`,
       solarDaysUntil: daysUntil,
       lunarDateLabel,
       lunarDaysUntil,
+      nextLunarOccurrence: nextLunarOccResult ? nextLunarOccResult?.date : undefined,
       originYear: y,
       isDeceased: false,
       location: ce.location,

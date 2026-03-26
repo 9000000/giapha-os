@@ -237,18 +237,21 @@ export default async function DashboardLaunchpad() {
                           </div>
                           <div className="text-xs text-stone-500 font-medium pt-1 flex flex-col gap-0.5">
                             {evt.type === "death_anniversary" ? (
-                              <span>
-                                Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextLunarOccurrence || evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày nữa)
-                              </span>
+                              <div className="flex flex-col sm:flex-row sm:gap-1">
+                                <span className="whitespace-nowrap">Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span></span>
+                                <span className="text-stone-400 sm:text-inherit">({getVietnameseWeekday(evt.nextLunarOccurrence || evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày nữa)</span>
+                              </div>
                             ) : (
-                              <>
-                                <span>
-                                  Dương: <span className="text-stone-600">{evt.solarDateLabel}</span> ({getVietnameseWeekday(evt.nextSolarOccurrence || evt.nextOccurrence)}, còn {evt.solarDaysUntil} ngày)
-                                </span>
-                                <span>
-                                  Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextLunarOccurrence || evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày)
-                                </span>
-                              </>
+                              <div className="flex flex-col gap-0.5 sm:gap-1">
+                                <div className="flex flex-col sm:flex-row sm:gap-1">
+                                  <span className="whitespace-nowrap">Dương: <span className="text-stone-600">{evt.solarDateLabel}</span></span>
+                                  <span className="text-stone-400 sm:text-inherit">({getVietnameseWeekday(evt.nextSolarOccurrence || evt.nextOccurrence)}, còn {evt.solarDaysUntil} ngày)</span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:gap-1">
+                                  <span className="whitespace-nowrap">Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span></span>
+                                  <span className="text-stone-400 sm:text-inherit">({getVietnameseWeekday(evt.nextLunarOccurrence || evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày)</span>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>

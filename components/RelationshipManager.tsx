@@ -100,28 +100,28 @@ export default function RelationshipManager({
   // Fetch relationships
   const fetchRelationships = useCallback(async () => {
     try {
-      // Get all relationships where this person involved
-      // This is a bit complex because we need to check both a and b columns
-      const { data: relsA, error: errA } = await supabase
-        .from("relationships")
-        .select(`*, target:persons!person_b(*)`) // if I am A, target is B
-        .eq("person_a", personId);
+      // ── BATCH 1: Fetch both directions in PARALLEL ──
+      const [resultA, resultB] = await Promise.all([
+        supabase
+          .from("relationships")
+          .select(`*, target:persons!person_b(*)`)
+          .eq("person_a", personId),
+        supabase
+          .from("relationships")
+          .select(`*, target:persons!person_a(*)`)
+          .eq("person_b", personId),
+      ]);
 
-      const { data: relsB, error: errB } = await supabase
-        .from("relationships")
-        .select(`*, target:persons!person_a(*)`) // if I am B, target is A
-        .eq("person_b", personId);
-
-      if (errA || errB) throw errA || errB;
+      if (resultA.error || resultB.error) throw resultA.error || resultB.error;
 
       const formattedRels: EnrichedRelationship[] = [];
 
       // Process Rels where I am Person A
-      relsA?.forEach((r) => {
+      resultA.data?.forEach((r) => {
         let direction: "parent" | "child" | "spouse" = "spouse";
         if (r.type === "marriage") direction = "spouse";
         else if (r.type === "biological_child" || r.type === "adopted_child")
-          direction = "child"; // I am A (Parent), B is Child
+          direction = "child";
 
         formattedRels.push({
           id: r.id,
@@ -133,11 +133,11 @@ export default function RelationshipManager({
       });
 
       // Process Rels where I am Person B
-      relsB?.forEach((r) => {
+      resultB.data?.forEach((r) => {
         let direction: "parent" | "child" | "spouse" = "spouse";
         if (r.type === "marriage") direction = "spouse";
         else if (r.type === "biological_child" || r.type === "adopted_child")
-          direction = "parent"; // I am B (Child), A is Parent
+          direction = "parent";
 
         formattedRels.push({
           id: r.id,
@@ -148,115 +148,126 @@ export default function RelationshipManager({
         });
       });
 
-      // Fetch siblings (children of same parents)
+      // Derive IDs for batch 2
       const parentIds = formattedRels
         .filter((r) => r.direction === "parent")
         .map((r) => r.targetPerson.id);
 
-      if (parentIds.length > 0) {
-        const { data: siblingsData } = await supabase
-          .from("relationships")
-          .select("*, person_b_data:persons!person_b(*)")
-          .in("type", ["biological_child", "adopted_child"])
-          .in("person_a", parentIds)
-          .neq("person_b", personId);
-
-        if (siblingsData) {
-          const uniqueSiblings = new Map();
-          for (const s of siblingsData) {
-            if (!uniqueSiblings.has(s.person_b) || s.type === "biological_child") {
-              uniqueSiblings.set(s.person_b, s);
-            }
-          }
-
-          uniqueSiblings.forEach((s) => {
-            const siblingPerson = s.person_b_data;
-            if (siblingPerson) {
-              const isAdopted = s.type === "adopted_child";
-              const typeLabel = isAdopted ? "nuôi" : "ruột";
-              const gender = siblingPerson.gender;
-
-              let isOlder: boolean | null = null;
-              if (siblingPerson.birth_year != null && person.birth_year != null) {
-                isOlder = siblingPerson.birth_year < person.birth_year;
-              } else if (siblingPerson.birth_order != null && person.birth_order != null) {
-                isOlder = siblingPerson.birth_order < person.birth_order;
-              }
-
-              let relationLabel = "";
-              if (isOlder === true) {
-                if (gender === "male") relationLabel = `Anh (${typeLabel})`;
-                else if (gender === "female") relationLabel = `Chị (${typeLabel})`;
-                else relationLabel = `Anh/Chị (${typeLabel})`;
-              } else if (isOlder === false) {
-                if (gender === "male") relationLabel = `Em trai (${typeLabel})`;
-                else if (gender === "female") relationLabel = `Em gái (${typeLabel})`;
-                else relationLabel = `Em (${typeLabel})`;
-              } else {
-                if (gender === "male") relationLabel = `Anh/em trai (${typeLabel})`;
-                else if (gender === "female") relationLabel = `Chị/em gái (${typeLabel})`;
-                else relationLabel = `Anh chị/em (${typeLabel})`;
-              }
-
-              formattedRels.push({
-                id: s.id + "_sibling",
-                type: s.type,
-                direction: "sibling",
-                targetPerson: siblingPerson,
-                note: relationLabel + (s.note ? ` - ${s.note}` : ""),
-              });
-            }
-          });
-        }
-      }
-
-      // Fetch in-laws (spouses of children)
       const childrenIds = formattedRels
         .filter((r) => r.direction === "child")
         .map((r) => r.targetPerson.id);
 
-      if (childrenIds.length > 0) {
-        const { data: childrenMarriages } = await supabase
-          .from("relationships")
-          .select(
-            `*, person_a_data:persons!person_a(*), person_b_data:persons!person_b(*)`,
-          )
-          .eq("type", "marriage")
-          .or(
-            `person_a.in.(${childrenIds.join(",")}),person_b.in.(${childrenIds.join(",")})`,
-          );
+      // ── BATCH 2: Siblings + In-laws + Grandchildren ALL in PARALLEL ──
+      const [siblingsResult, inLawsResult, grandchildrenResult] = await Promise.all([
+        // Siblings query
+        parentIds.length > 0
+          ? supabase
+              .from("relationships")
+              .select("*, person_b_data:persons!person_b(*)")
+              .in("type", ["biological_child", "adopted_child"])
+              .in("person_a", parentIds)
+              .neq("person_b", personId)
+          : Promise.resolve({ data: null }),
+        // In-laws query
+        childrenIds.length > 0
+          ? supabase
+              .from("relationships")
+              .select(`*, person_a_data:persons!person_a(*), person_b_data:persons!person_b(*)`)
+              .eq("type", "marriage")
+              .or(`person_a.in.(${childrenIds.join(",")}),person_b.in.(${childrenIds.join(",")})`)
+          : Promise.resolve({ data: null }),
+        // Grandchildren query (for stats)
+        childrenIds.length > 0 && onStatsLoaded
+          ? supabase
+              .from("relationships")
+              .select("id, person_a")
+              .in("type", ["biological_child", "adopted_child"])
+              .in("person_a", childrenIds)
+          : Promise.resolve({ data: null }),
+      ]);
 
-        if (childrenMarriages) {
-          childrenMarriages.forEach((m) => {
-            const isAChild = childrenIds.includes(m.person_a);
-            const childPerson = isAChild ? m.person_a_data : m.person_b_data;
-            const spousePerson = isAChild ? m.person_b_data : m.person_a_data;
-
-            if (spousePerson && childPerson) {
-              const spouseGender = spousePerson.gender;
-              let noteLabel = `Vợ/chồng của ${childPerson.full_name}`;
-              if (spouseGender === "female")
-                noteLabel = `Con dâu (vợ của ${childPerson.full_name})`;
-              if (spouseGender === "male")
-                noteLabel = `Con rể (chồng của ${childPerson.full_name})`;
-
-              // Append existing marriage note if any
-              if (m.note) noteLabel += ` - ${m.note}`;
-
-              formattedRels.push({
-                id: m.id + "_inlaw",
-                type: "marriage",
-                direction: "child_in_law",
-                targetPerson: spousePerson,
-                note: noteLabel,
-                sortOrder: childPerson.birth_order ?? null,
-                sortYear: childPerson.birth_year ?? null,
-              });
-            }
-          });
+      // ── Process siblings ──
+      const siblingsData = siblingsResult.data;
+      if (siblingsData) {
+        const uniqueSiblings = new Map();
+        for (const s of siblingsData) {
+          if (!uniqueSiblings.has(s.person_b) || s.type === "biological_child") {
+            uniqueSiblings.set(s.person_b, s);
+          }
         }
+
+        uniqueSiblings.forEach((s) => {
+          const siblingPerson = s.person_b_data;
+          if (siblingPerson) {
+            const isAdopted = s.type === "adopted_child";
+            const typeLabel = isAdopted ? "nuôi" : "ruột";
+            const gender = siblingPerson.gender;
+
+            let isOlder: boolean | null = null;
+            if (siblingPerson.birth_year != null && person.birth_year != null) {
+              isOlder = siblingPerson.birth_year < person.birth_year;
+            } else if (siblingPerson.birth_order != null && person.birth_order != null) {
+              isOlder = siblingPerson.birth_order < person.birth_order;
+            }
+
+            let relationLabel = "";
+            if (isOlder === true) {
+              if (gender === "male") relationLabel = `Anh (${typeLabel})`;
+              else if (gender === "female") relationLabel = `Chị (${typeLabel})`;
+              else relationLabel = `Anh/Chị (${typeLabel})`;
+            } else if (isOlder === false) {
+              if (gender === "male") relationLabel = `Em trai (${typeLabel})`;
+              else if (gender === "female") relationLabel = `Em gái (${typeLabel})`;
+              else relationLabel = `Em (${typeLabel})`;
+            } else {
+              if (gender === "male") relationLabel = `Anh/em trai (${typeLabel})`;
+              else if (gender === "female") relationLabel = `Chị/em gái (${typeLabel})`;
+              else relationLabel = `Anh chị/em (${typeLabel})`;
+            }
+
+            formattedRels.push({
+              id: s.id + "_sibling",
+              type: s.type,
+              direction: "sibling",
+              targetPerson: siblingPerson,
+              note: relationLabel + (s.note ? ` - ${s.note}` : ""),
+            });
+          }
+        });
       }
 
+      // ── Process in-laws ──
+      const childrenMarriages = inLawsResult.data;
+      if (childrenMarriages) {
+        childrenMarriages.forEach((m) => {
+          const isAChild = childrenIds.includes(m.person_a);
+          const childPerson = isAChild ? m.person_a_data : m.person_b_data;
+          const spousePerson = isAChild ? m.person_b_data : m.person_a_data;
+
+          if (spousePerson && childPerson) {
+            const spouseGender = spousePerson.gender;
+            let noteLabel = `Vợ/chồng của ${childPerson.full_name}`;
+            if (spouseGender === "female")
+              noteLabel = `Con dâu (vợ của ${childPerson.full_name})`;
+            if (spouseGender === "male")
+              noteLabel = `Con rể (chồng của ${childPerson.full_name})`;
+
+            if (m.note) noteLabel += ` - ${m.note}`;
+
+            formattedRels.push({
+              id: m.id + "_inlaw",
+              type: "marriage",
+              direction: "child_in_law",
+              targetPerson: spousePerson,
+              note: noteLabel,
+              sortOrder: childPerson.birth_order ?? null,
+              sortYear: childPerson.birth_year ?? null,
+            });
+          }
+        });
+      }
+
+      // ── Compute stats (no extra query needed — grandchildren already fetched) ──
       if (onStatsLoaded) {
         const biologicalChildrenList = formattedRels.filter(
           (r) => r.direction === "child" && r.type === "biological_child",
@@ -274,27 +285,19 @@ export default function RelationshipManager({
             r.direction === "child_in_law" && r.targetPerson.gender === "male",
         ).length;
 
-        // Fetch Grandchildren mapping
         let paternalGrandchildren = 0;
         let maternalGrandchildren = 0;
-        if (childrenIds.length > 0) {
-          const { data: grandchildrenData } = await supabase
-            .from("relationships")
-            .select("id, person_a")
-            .in("type", ["biological_child", "adopted_child"])
-            .in("person_a", childrenIds);
+        const grandchildrenData = grandchildrenResult.data;
+        if (grandchildrenData) {
+          const maleChildrenIds = formattedRels
+            .filter((r) => r.direction === "child" && r.targetPerson.gender === "male")
+            .map((r) => r.targetPerson.id);
+          const femaleChildrenIds = formattedRels
+            .filter((r) => r.direction === "child" && r.targetPerson.gender === "female")
+            .map((r) => r.targetPerson.id);
 
-          if (grandchildrenData) {
-            const maleChildrenIds = formattedRels
-              .filter((r) => r.direction === "child" && r.targetPerson.gender === "male")
-              .map((r) => r.targetPerson.id);
-            const femaleChildrenIds = formattedRels
-              .filter((r) => r.direction === "child" && r.targetPerson.gender === "female")
-              .map((r) => r.targetPerson.id);
-
-            paternalGrandchildren = grandchildrenData.filter((g) => maleChildrenIds.includes(g.person_a)).length;
-            maternalGrandchildren = grandchildrenData.filter((g) => femaleChildrenIds.includes(g.person_a)).length;
-          }
+          paternalGrandchildren = grandchildrenData.filter((g) => maleChildrenIds.includes(g.person_a)).length;
+          maternalGrandchildren = grandchildrenData.filter((g) => femaleChildrenIds.includes(g.person_a)).length;
         }
 
         onStatsLoaded({
@@ -304,7 +307,7 @@ export default function RelationshipManager({
           paternalGrandchildren,
           maternalGrandchildren,
           sonInLaw,
-          daughterInLaw
+          daughterInLaw,
         });
       }
 

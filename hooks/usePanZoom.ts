@@ -307,7 +307,6 @@ export function usePanZoom(
     transformStyle: {
       transform: `translate(${state.x}px, ${state.y}px) scale(${state.scale})`,
       transformOrigin: "0 0",
-      willChange: "transform",
       touchAction: "none",
     } as React.CSSProperties,
     isPressed,

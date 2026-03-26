@@ -11,7 +11,6 @@ import {
   AlignLeft,
   Cake,
   CalendarDays,
-  Clock,
   Flower,
   MapPin,
   Plus,
@@ -46,10 +45,16 @@ const DAY_LABELS: Record<number, string> = {
   1: "Ngày mai",
 };
 
-function daysUntilLabel(days: number): string | null {
-  if (days in DAY_LABELS) return DAY_LABELS[days];
-  if (days <= 30) return `${days} ngày nữa`;
-  return null;
+
+
+function formatRemainingTime(days: number | undefined): string {
+  if (days === undefined) return "";
+  if (days === 0) return "hôm nay";
+  if (days === 1) return "ngày mai";
+  if (days > 31) {
+    return `${Math.ceil(days / 30)} tháng nữa`;
+  }
+  return `${days} ngày nữa`;
 }
 
 function EventCard({
@@ -151,17 +156,17 @@ function EventCard({
                 {event.type === "death_anniversary" ? (
                   <div className="text-stone-500">
                     <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
-                    <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày nữa)</span>
+                    <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {formatRemainingTime(event.lunarDaysUntil)})</span>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1">
                     <div className="text-stone-500">
                       <span className="inline text-stone-500">Dương: <span className="text-stone-600 font-medium">{event.solarDateLabel}</span></span>
-                      <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, còn {event.solarDaysUntil} ngày)</span>
+                      <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, còn {formatRemainingTime(event.solarDaysUntil)})</span>
                     </div>
                     <div className="text-stone-500">
                       <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
-                      <span className="text-stone-400 sm:text-stone-400 ml-1 font-normal inline">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)</span>
+                      <span className="text-stone-400 sm:text-stone-400 ml-1 font-normal inline">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {formatRemainingTime(event.lunarDaysUntil)})</span>
                     </div>
                   </div>
                 )}
@@ -183,20 +188,6 @@ function EventCard({
         </div>
       </div>
 
-      {/* Days badge */}
-      {daysUntilLabel(event.daysUntil) && (
-        <div
-          className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${isToday
-            ? "bg-amber-400 text-white"
-            : isSoon
-              ? "bg-red-100 text-red-600"
-              : "bg-stone-100 text-stone-500"
-            }`}
-        >
-          <Clock className="size-3" />
-          {daysUntilLabel(event.daysUntil)}
-        </div>
-      )}
     </motion.div>
   );
 }

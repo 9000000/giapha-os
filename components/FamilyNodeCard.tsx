@@ -104,9 +104,9 @@ export default function FamilyNodeCard({
                 src={person.avatar_url}
                 alt={person.full_name}
                 className="w-full h-full object-cover"
-                width={256}
-                height={256}
-                quality={95}
+                width={512}
+                height={512}
+                quality={100}
               />
             ) : (
               <DefaultAvatar gender={person.gender} />

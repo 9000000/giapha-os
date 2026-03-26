@@ -10,7 +10,7 @@ import {
   getZodiacSign,
   getZodiacAnimal,
 } from "@/utils/dateHelpers";
-import { motion, Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Baby,
   Briefcase,
@@ -72,40 +72,19 @@ export default function MemberDetailContent({
   const isDeceased =
     !!person.death_year || !!person.death_month || !!person.death_day;
 
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 },
-    },
-  };
 
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 15 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { type: "spring", stiffness: 300, damping: 24 },
-    },
-  };
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="bg-stone-50/50"
-    >
+    <div className="bg-stone-50/50">
       {/* Header / Cover */}
       <div className="h-28 sm:h-36 bg-linear-to-r from-stone-200 via-stone-100 to-stone-200 relative shrink-0">
         {/* Decorative blur in cover */}
         <div
-          className={`absolute right-0 -top-20 w-64 h-64 rounded-full blur-[60px] opacity-40 ${person.gender === "male" ? "bg-sky-300" : person.gender === "female" ? "bg-rose-300" : "bg-stone-300"}`}
+          className={`absolute right-0 -top-10 w-40 h-40 rounded-full blur-[30px] opacity-30 ${person.gender === "male" ? "bg-sky-300" : person.gender === "female" ? "bg-rose-300" : "bg-stone-300"}`}
         />
-        <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full blur-[60px] opacity-20 bg-amber-200" />
+        <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full blur-[30px] opacity-15 bg-amber-200" />
 
-        <motion.div
-          variants={itemVariants}
+        <div
           className="absolute -bottom-12 sm:-bottom-16 left-6 sm:left-8 z-10"
         >
           <div
@@ -147,12 +126,11 @@ export default function MemberDetailContent({
               <FemaleIcon className="size-4 sm:size-5" />
             ) : null}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <div className="pt-16 sm:pt-20 px-6 sm:px-8 pb-8 relative z-10">
-        <motion.div
-          variants={itemVariants}
+        <div
           className="flex flex-col sm:flex-row justify-between items-start sm:items-center"
         >
           <div>
@@ -204,9 +182,8 @@ export default function MemberDetailContent({
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {/* Birth Card */}
-              <motion.div
-                variants={itemVariants}
-                className="bg-white/80 backdrop-blur-[2px] rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 will-change-transform"
+              <div
+                className="bg-white rounded-2xl p-4 border border-stone-200/60 shadow-sm"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -251,13 +228,12 @@ export default function MemberDetailContent({
                     </p>
                   )}
                 </div>
-              </motion.div>
+              </div>
 
               {/* Death Card */}
               {isDeceased && (
-                <motion.div
-                  variants={itemVariants}
-                  className="bg-white/80 backdrop-blur-[2px] rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 will-change-transform"
+                <div
+                  className="bg-white rounded-2xl p-4 border border-stone-200/60 shadow-sm"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="size-2 rounded-full bg-stone-400 shadow-[0_0_8px_rgba(156,163,175,0.5)]"></span>
@@ -288,7 +264,7 @@ export default function MemberDetailContent({
                       </p>
                     )}
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {/* Age Card */}
@@ -299,9 +275,8 @@ export default function MemberDetailContent({
                 );
                 if (!ageData) return null;
                 return (
-                  <motion.div
-                    variants={itemVariants}
-                    className="bg-linear-to-br from-amber-50 to-orange-50/40 rounded-2xl p-4 border border-amber-200/50 shadow-sm transition-all hover:shadow-md flex flex-col justify-center relative overflow-hidden"
+                  <div
+                    className="bg-linear-to-br from-amber-50 to-orange-50/40 rounded-2xl p-4 border border-amber-200/50 shadow-sm flex flex-col justify-center relative overflow-hidden"
                   >
                     <Leaf className="absolute -bottom-4 -right-4 w-20 h-20 text-amber-500/10 rotate-12" />
                     <div className="flex items-center gap-2 mb-1.5 relative z-10">
@@ -324,7 +299,7 @@ export default function MemberDetailContent({
                         </span>
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })()}
 
@@ -335,9 +310,8 @@ export default function MemberDetailContent({
                   relStats.daughterInLaw > 0 ||
                   relStats.paternalGrandchildren > 0 ||
                   relStats.maternalGrandchildren > 0) && (
-                  <motion.div
-                    variants={itemVariants}
-                    className="bg-white/80 backdrop-blur-[2px] rounded-2xl p-3 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 sm:col-span-2 md:col-span-3 will-change-transform"
+                  <div
+                    className="bg-white rounded-2xl p-3 border border-stone-200/60 shadow-sm sm:col-span-2 md:col-span-3"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></span>
@@ -438,21 +412,21 @@ export default function MemberDetailContent({
                         </div>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main Info */}
           <div className="lg:col-span-2 space-y-8">
-            <motion.section variants={itemVariants}>
+            <section>
               <h2 className="text-base sm:text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
                 <Info className="size-5 text-amber-600" />
                 Ghi chú
               </h2>
-              <div className="bg-white/80 backdrop-blur-[2px] p-5 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative overflow-hidden will-change-transform">
+              <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative overflow-hidden">
                 {note ? (
                   <div className="flex flex-col">
                     <motion.div
@@ -501,14 +475,14 @@ export default function MemberDetailContent({
                   </p>
                 )}
               </div>
-            </motion.section>
+            </section>
 
-            <motion.section variants={itemVariants}>
+            <section>
               <h2 className="text-base sm:text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
                 <Users className="size-5 text-amber-600" />
                 Gia đình
               </h2>
-              <div className="bg-white/80 backdrop-blur-[2px] p-4 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative z-0 will-change-transform">
+              <div className="bg-white p-4 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative z-0">
                 <RelationshipManager
                   person={person}
                   isAdmin={isAdmin}
@@ -516,12 +490,12 @@ export default function MemberDetailContent({
                   onStatsLoaded={handleStatsLoaded}
                 />
               </div>
-            </motion.section>
+            </section>
           </div>
 
           {/* Sidebar / Private Info */}
           <div className="space-y-6">
-            <motion.div variants={itemVariants}>
+            <div>
               {isAdmin ? (
                 <div className="bg-stone-50 p-5 sm:p-6 rounded-2xl border border-stone-200/80 shadow-sm">
                   <h3 className="font-bold text-stone-900 mb-4 flex items-center gap-2 text-sm sm:text-base border-b border-stone-200/60 pb-3">
@@ -577,10 +551,10 @@ export default function MemberDetailContent({
                   </p>
                 </div>
               )}
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

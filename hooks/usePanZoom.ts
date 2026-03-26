@@ -36,19 +36,29 @@ export function usePanZoom(
   const clampScale = (s: number) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE);
 
   // Apply transform directly to DOM (no React re-render)
+  // Also enables GPU compositing during gesture for smooth 60fps
   const applyTransform = useCallback((t: PanZoomState) => {
     liveRef.current = t;
-    // Find the content element (first child of container)
     const el = contentElRef.current ?? containerRef.current?.firstElementChild as HTMLElement;
     if (el) {
       contentElRef.current = el;
+      // Enable GPU layer during active gesture
+      el.style.willChange = "transform";
       el.style.transform = `translate(${t.x}px, ${t.y}px) scale(${t.scale})`;
     }
   }, [containerRef]);
 
   // Sync live ref → React state (call on gesture end)
+  // Remove will-change so browser re-rasterizes at full quality (sharp images)
   const syncState = useCallback(() => {
     setState({ ...liveRef.current });
+    // Small delay to let the final transform apply before removing GPU hint
+    requestAnimationFrame(() => {
+      const el = contentElRef.current;
+      if (el) {
+        el.style.willChange = "auto";
+      }
+    });
   }, []);
 
   // Keep liveRef in sync when state changes from external sources (buttons, reset)

@@ -151,18 +151,18 @@ function EventCard({
               <div className="flex-1">
                 {event.type === "death_anniversary" ? (
                   <div className="text-stone-500">
-                    <span className="block sm:inline">Âm lịch: <span className="text-stone-600">{event.lunarDateLabel}</span></span>
-                    <span className="block sm:inline sm:ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày nữa)</span>
+                    <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
+                    <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày nữa)</span>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1">
                     <div className="text-stone-500">
-                      <span className="block sm:inline">Dương: <span className="text-stone-600">{event.solarDateLabel}</span></span>
-                      <span className="block sm:inline sm:ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, còn {event.solarDaysUntil} ngày)</span>
+                      <span className="inline text-stone-500">Dương: <span className="text-stone-600 font-medium">{event.solarDateLabel}</span></span>
+                      <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, còn {event.solarDaysUntil} ngày)</span>
                     </div>
                     <div className="text-stone-500">
-                      <span className="block sm:inline">Âm lịch: <span className="text-stone-600">{event.lunarDateLabel}</span></span>
-                      <span className="text-stone-400 sm:text-inherit sm:ml-1 font-normal block sm:inline">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)</span>
+                      <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
+                      <span className="text-stone-400 sm:text-stone-400 ml-1 font-normal inline">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)</span>
                     </div>
                   </div>
                 )}

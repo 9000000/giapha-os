@@ -172,8 +172,7 @@ export function getTodayLunar() {
 
   return {
     solarStr: now.toLocaleDateString("vi-VN", {
-      weekday: "long",
-      day: "2-digit",
+      day: "numeric",
       month: "long",
       year: "numeric",
     }),

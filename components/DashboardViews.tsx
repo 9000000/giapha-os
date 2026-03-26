@@ -199,7 +199,7 @@ export default function DashboardViews({
       >
         {persons.length > 0 && activeRootId && (
           <div 
-            className={`absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-50 pointer-events-none transition-all duration-500 ${
+            className={`absolute top-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-1 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 z-40 pointer-events-none transition-all duration-500 ${
               currentView === "list" || isToolbarVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
             }`}
             onMouseEnter={() => {
@@ -211,7 +211,7 @@ export default function DashboardViews({
             }}
           >
             {currentView !== "list" ? (
-              <div className={`flex flex-row items-center gap-3 w-full sm:w-auto relative z-40 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
+              <div className={`flex flex-row items-center gap-3 w-full sm:w-auto relative z-30 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
                 <div className="flex-1 min-w-0">
                   <RootSelector persons={persons} currentRootId={activeRootId} />
                 </div>
@@ -233,7 +233,7 @@ export default function DashboardViews({
             </div>
             <div
               id="tree-toolbar-portal"
-              className={`flex items-center gap-2 flex-wrap justify-center sm:ml-auto relative z-50 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}
+              className={`flex items-center gap-2 flex-wrap justify-center sm:ml-auto relative z-40 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}
             />
           </div>
         )}

@@ -158,9 +158,7 @@ function EventCard({
                     Dương: <span className="font-bold text-stone-700">{event.solarDateLabel}</span> ({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, còn {event.solarDaysUntil} ngày)
                   </>
                 )}
-                {event.originYear && (
-                  <span className="text-stone-400 ml-1">({event.originYear})</span>
-                )}
+
               </span>
             </div>
             {event.type !== "death_anniversary" && (

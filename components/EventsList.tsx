@@ -169,18 +169,24 @@ function EventCard({
               <div className="flex-1">
                 {event.type === "death_anniversary" ? (
                   <div className="text-stone-500">
-                    <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
-                    <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, <CountdownDisplay days={event.lunarDaysUntil} />)</span>
+                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-1">
+                      <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
+                      <span className="text-stone-400 font-normal text-xs sm:text-sm">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, <CountdownDisplay days={event.lunarDaysUntil} />)</span>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1">
                     <div className="text-stone-500">
-                      <span className="inline text-stone-500">Dương: <span className="text-stone-600 font-medium">{event.solarDateLabel}</span></span>
-                      <span className="inline ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, <CountdownDisplay days={event.solarDaysUntil} />)</span>
+                      <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-1">
+                        <span className="inline text-stone-500">Dương: <span className="text-stone-600 font-medium">{event.solarDateLabel}</span></span>
+                        <span className="text-stone-400 font-normal text-xs sm:text-sm">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, <CountdownDisplay days={event.solarDaysUntil} />)</span>
+                      </div>
                     </div>
                     <div className="text-stone-500">
-                      <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
-                      <span className="text-stone-400 sm:text-stone-400 ml-1 font-normal inline">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, <CountdownDisplay days={event.lunarDaysUntil} />)</span>
+                      <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-1">
+                        <span className="inline text-stone-500">Âm lịch: <span className="text-stone-600 font-medium">{event.lunarDateLabel}</span></span>
+                        <span className="text-stone-400 font-normal text-xs sm:text-sm">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, <CountdownDisplay days={event.lunarDaysUntil} />)</span>
+                      </div>
                     </div>
                   </div>
                 )}

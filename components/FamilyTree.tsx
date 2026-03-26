@@ -313,17 +313,17 @@ export default function FamilyTree({
           style={transformStyle}
         >
           {/* Tiêu đề Cuộn giấy */}
-          <div className="flex flex-col items-center justify-center -mb-16 sm:-mb-32 relative w-full pointer-events-none z-10 p-4">
+          <div className="flex flex-col items-center justify-center -mb-16 sm:-mb-32 relative w-full pointer-events-none z-0 p-4">
             {/* Bo khung theo width tối đa 1500px để banner được mở rộng hơn về phía hai bên */}
             <div className="relative inline-flex items-center justify-center text-center w-[1500px] max-w-[200vw]">
               <img 
-                src="/scroll-bg.png" 
+                src="/scroll-bg.webp" 
                 alt="Banner" 
                 className="w-full h-auto block drop-shadow-2xl" 
               />
             </div>
           </div>
-          <div className="css-tree relative z-0">
+          <div className="css-tree relative z-10">
             <ul>
               {treeNodes}
             </ul>

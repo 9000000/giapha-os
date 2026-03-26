@@ -249,7 +249,7 @@ export default function EventsList({
       const isLeap = lMonthRaw < 0;
       const lMonth = Math.abs(lMonthRaw).toString().padStart(2, "0");
       const lDay = lunar.getDay().toString().padStart(2, "0");
-      lunarStr = `${lDay}/${lMonth}${isLeap ? " nhuận" : ""} ÂL`;
+      lunarStr = `${lDay}/${lMonth}${isLeap ? " nhuận" : ""}`;
     } catch (e) {
       console.error(e);
     }

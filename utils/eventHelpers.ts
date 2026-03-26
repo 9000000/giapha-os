@@ -145,7 +145,7 @@ export function computeEvents(
           lunarDaysUntil = Math.round((nextLunarOccurrence.getTime() - today.getTime()) / 86400000);
           nextLunarYear = nextLunarOccResult.lunarYear;
         }
-        lunarDateLabel = `${(nextLunarOccResult?.lunarDay || lDay).toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""}/${lunarOriginYear} ÂL`;
+        lunarDateLabel = `${(nextLunarOccResult?.lunarDay || lDay).toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""}/${lunarOriginYear}`;
       } catch (e) {
         console.error(e);
       }
@@ -175,7 +175,7 @@ export function computeEvents(
         const originYear = p.death_year || today.getFullYear();
         const solarDeathDate = Solar.fromYmd(originYear, p.death_month, p.death_day);
         const lunarDeathDate = solarDeathDate.getLunar();
-        
+
         const lMonth = Math.abs(lunarDeathDate.getMonth());
         const lDay = lunarDeathDate.getDay();
 
@@ -197,7 +197,7 @@ export function computeEvents(
           nextOccurrence: next,
           daysUntil,
           solarDateLabel: `${next.getDate().toString().padStart(2, "0")}/${(next.getMonth() + 1).toString().padStart(2, "0")}/${p.death_year || next.getFullYear()}`,
-          lunarDateLabel: `${fallbackLunarDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")}/${p.death_year || lOccYear} ÂL`,
+          lunarDateLabel: `${fallbackLunarDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")}/${p.death_year || lOccYear}`,
           lunarDaysUntil: daysUntil,
           originYear: p.death_year,
           isDeceased: p.is_deceased,
@@ -247,7 +247,7 @@ export function computeEvents(
         const nextLunarOcc = nextLunarOccResult.date;
         lunarDaysUntil = Math.round((nextLunarOcc.getTime() - today.getTime()) / 86400000);
       }
-      lunarDateLabel = `${(nextLunarOccResult?.lunarDay || lDay).toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""}/${y} ÂL`;
+      lunarDateLabel = `${(nextLunarOccResult?.lunarDay || lDay).toString().padStart(2, "0")}/${lMonthStr}${isLMonthLeap ? " Nhuận" : ""}/${y}`;
     } catch (e) {
       console.error(e);
     }

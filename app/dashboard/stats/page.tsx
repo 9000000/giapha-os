@@ -9,10 +9,14 @@ export const metadata = {
 export default async function StatsPage() {
   const supabase = await getSupabase();
 
-  const { data: persons } = await supabase.from("persons").select("*");
-  const { data: relationships } = await supabase
-    .from("relationships")
-    .select("*");
+  const [{ data: persons }, { data: relationships }] = await Promise.all([
+    supabase
+      .from("persons")
+      .select("id, full_name, gender, birth_year, birth_month, birth_day, birth_order, generation, is_in_law, is_deceased"),
+    supabase
+      .from("relationships")
+      .select("type, person_a, person_b"),
+  ]);
 
   const allPersons = persons ?? [];
   const allRelationships = relationships ?? [];
@@ -43,7 +47,7 @@ export default async function StatsPage() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
         <FamilyStats
           persons={filteredPersons as any}
-          relationships={allRelationships}
+          relationships={allRelationships as any}
         />
       </main>
     </div>

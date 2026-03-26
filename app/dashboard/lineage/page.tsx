@@ -11,12 +11,15 @@ export default async function LineagePage() {
 
   const supabase = await getSupabase();
 
-  const { data: personsData } = await supabase
-    .from("persons")
-    .select("*")
-    .order("birth_year", { ascending: true, nullsFirst: false });
-
-  const { data: relsData } = await supabase.from("relationships").select("*");
+  const [{ data: personsData }, { data: relsData }] = await Promise.all([
+    supabase
+      .from("persons")
+      .select("id, full_name, gender, birth_year, birth_order, generation, is_in_law")
+      .order("birth_year", { ascending: true, nullsFirst: false }),
+    supabase
+      .from("relationships")
+      .select("type, person_a, person_b"),
+  ]);
 
   const persons = personsData || [];
   const relationships = relsData || [];
@@ -85,7 +88,7 @@ export default async function LineagePage() {
 
         {/* Manager */}
         <div className="bg-white/80 rounded-2xl border border-stone-200/60 shadow-sm p-5 sm:p-8">
-          <LineageManager persons={persons} relationships={relationships} />
+          <LineageManager persons={persons as any} relationships={relationships as any} />
         </div>
       </div>
     </main>

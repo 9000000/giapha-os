@@ -97,9 +97,9 @@ function EventCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.04 }}
+      transition={{ duration: 0.2 }}
       onClick={handleClick}
       className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all duration-200 cursor-pointer group ${isToday
         ? "bg-amber-50 border-amber-300 shadow-sm hover:shadow-md hover:border-amber-500 hover:ring-1 hover:ring-amber-500/40"

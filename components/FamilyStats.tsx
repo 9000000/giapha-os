@@ -43,9 +43,9 @@ function StatCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
+      transition={{ duration: 0.25 }}
       className="bg-white/80 border border-stone-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-amber-400 hover:ring-1 hover:ring-amber-400/30 transition-all group relative overflow-hidden"
     >
       {/* Background glow */}
@@ -70,7 +70,7 @@ function StatCard({
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.7, delay: delay + 0.2, ease: "easeOut" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className={`h-full rounded-full ${color}`}
         />
       </div>
@@ -100,7 +100,7 @@ function GenerationRow({
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.6, delay, ease: "easeOut" }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
           className="h-full bg-amber-400 rounded-full"
         />
       </div>
@@ -285,9 +285,9 @@ export default function FamilyStats({
       {/* Generation Breakdown */}
       {stats.generationBreakdown.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
+          transition={{ duration: 0.25 }}
           className="bg-white/80 border border-stone-200/60 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-amber-400 hover:ring-1 hover:ring-amber-400/30 transition-all"
         >
           <h2 className="text-base font-bold text-stone-700 mb-5 flex items-center gap-2">
@@ -313,9 +313,9 @@ export default function FamilyStats({
 
       {/* Gender ratio visual */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.65 }}
+        transition={{ duration: 0.25 }}
         className="bg-white/80 border border-stone-200/60 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-amber-400 hover:ring-1 hover:ring-amber-400/30 transition-all"
       >
         <h2 className="text-base font-bold text-stone-700 mb-5 flex items-center gap-2">
@@ -328,14 +328,14 @@ export default function FamilyStats({
               <motion.div
                 initial={{ flex: 0 }}
                 animate={{ flex: stats.male }}
-                transition={{ duration: 0.7, delay: 0.7 }}
+                transition={{ duration: 0.5 }}
                 className="bg-blue-400 flex items-center justify-center"
                 title={`Nam: ${stats.male}`}
               />
               <motion.div
                 initial={{ flex: 0 }}
                 animate={{ flex: stats.female }}
-                transition={{ duration: 0.7, delay: 0.7 }}
+                transition={{ duration: 0.5 }}
                 className="bg-pink-400 flex items-center justify-center"
                 title={`Nữ: ${stats.female}`}
               />
@@ -343,7 +343,7 @@ export default function FamilyStats({
                 <motion.div
                   initial={{ flex: 0 }}
                   animate={{ flex: stats.otherGender }}
-                  transition={{ duration: 0.7, delay: 0.7 }}
+                  transition={{ duration: 0.5 }}
                   className="bg-stone-400 flex items-center justify-center"
                   title={`Khác/Chưa rõ: ${stats.otherGender}`}
                 />
@@ -384,9 +384,9 @@ export default function FamilyStats({
         {/* Zodiac Breakdown */}
         {stats.zodiacBreakdown.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.8 }}
+            transition={{ duration: 0.25 }}
             className="bg-white/80 border border-stone-200/60 rounded-2xl p-6 shadow-sm"
           >
             <h2 className="text-base font-bold text-stone-700 mb-5 flex items-center gap-2">
@@ -406,8 +406,7 @@ export default function FamilyStats({
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
                         transition={{
-                          duration: 0.6,
-                          delay: 0.85 + i * 0.07,
+                          duration: 0.4,
                           ease: "easeOut",
                         }}
                         className="h-full bg-purple-400 rounded-full"
@@ -429,9 +428,9 @@ export default function FamilyStats({
         {/* Chinese Zodiac Breakdown */}
         {stats.chineseZodiacBreakdown.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.95 }}
+            transition={{ duration: 0.25 }}
             className="bg-white/80 border border-stone-200/60 rounded-2xl p-6 shadow-sm"
           >
             <h2 className="text-base font-bold text-stone-700 mb-5 flex items-center gap-2">
@@ -451,8 +450,7 @@ export default function FamilyStats({
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
                         transition={{
-                          duration: 0.6,
-                          delay: 1 + i * 0.07,
+                          duration: 0.4,
                           ease: "easeOut",
                         }}
                         className="h-full bg-orange-400 rounded-full"

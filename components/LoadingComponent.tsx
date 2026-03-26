@@ -1,18 +1,29 @@
-import { Loader2 } from "lucide-react";
-
 export default function LoadingComponent() {
   return (
-    <main className="max-w-5xl mx-auto flex-1 overflow-auto bg-stone-50/50 flex flex-col items-center justify-center p-4">
-      <div className="flex flex-col items-center justify-center space-y-4">
-        <div className="relative">
-          <div className="absolute inset-0 bg-amber-200/50 rounded-full blur-xl animate-pulse"></div>
-          <div className="relative bg-white p-4 rounded-2xl shadow-sm border border-stone-100">
-            <Loader2 className="size-8 text-amber-600 animate-spin" />
+    <main className="max-w-5xl mx-auto flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+      {/* Header skeleton */}
+      <div className="mb-8">
+        <div className="h-7 bg-stone-200/70 rounded-lg w-48 mb-3" />
+        <div className="h-4 bg-stone-100 rounded-md w-80 max-w-full" />
+      </div>
+
+      {/* Content cards skeleton */}
+      <div className="space-y-4">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="bg-white/60 rounded-2xl border border-stone-200/60 p-5 shadow-sm"
+          >
+            <div className="flex items-center gap-4">
+              <div className="size-11 rounded-xl bg-stone-100 shrink-0" />
+              <div className="flex-1 space-y-2.5">
+                <div className="h-4 bg-stone-200/70 rounded-md w-2/5" />
+                <div className="h-3 bg-stone-100 rounded-md w-3/4" />
+              </div>
+              <div className="h-8 w-20 bg-stone-100 rounded-lg shrink-0 hidden sm:block" />
+            </div>
           </div>
-        </div>
-        <p className="text-stone-500 font-medium animate-pulse">
-          Đang tải dữ liệu gia phả...
-        </p>
+        ))}
       </div>
     </main>
   );

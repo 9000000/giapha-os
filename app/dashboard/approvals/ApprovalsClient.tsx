@@ -8,6 +8,7 @@ export default function ApprovalsClient({ initialRequests }: { initialRequests: 
     const [requests, setRequests] = useState(initialRequests);
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+    const [showCount, setShowCount] = useState(20);
 
     const toggleExpand = (id: string) => {
         setExpandedIds(prev => {
@@ -121,8 +122,9 @@ export default function ApprovalsClient({ initialRequests }: { initialRequests: 
     }
 
     return (
+        <>
         <div className="space-y-4">
-            {requests.map((req) => {
+            {requests.slice(0, showCount).map((req) => {
                 const isExpanded = expandedIds.has(req.id);
                 return (
                     <div key={req.id} className="bg-white rounded-xl p-4 border border-stone-200 shadow-sm transition-all hover:shadow-md">
@@ -191,5 +193,15 @@ export default function ApprovalsClient({ initialRequests }: { initialRequests: 
                 )
             })}
         </div>
+
+            {requests.length > showCount && (
+                <button
+                    onClick={() => setShowCount((n) => n + 20)}
+                    className="w-full py-3 text-sm font-semibold text-stone-500 hover:text-amber-600 transition-colors"
+                >
+                    Xem thêm {requests.length - showCount} yêu cầu…
+                </button>
+            )}
+        </>
     );
 }

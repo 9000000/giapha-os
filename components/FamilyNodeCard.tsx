@@ -89,7 +89,7 @@ export default function FamilyNodeCard({
         <div className="relative z-10 mb-1 sm:mb-1.5">
           <div
             className={`
-              h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
+              h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white
               ${isDeceased ? "grayscale-[0.6] opacity-95" : ""}
               ${person.gender === "male"
                 ? "bg-linear-to-br from-sky-400 to-sky-700"

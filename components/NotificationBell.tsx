@@ -162,17 +162,24 @@ export default function NotificationBell() {
         setUnreadCount(items.filter((i) => !i.isRead).length);
     }, [user, isAdmin, supabase, loadReadKeys]);
 
-    // 3. Realtime Subscription (Watch for new persons and change_requests)
+    // Keep a ref to the latest fetchNotifications to avoid stale closures in subscriptions
+    const fetchRef = useRef(fetchNotifications);
+    useEffect(() => { fetchRef.current = fetchNotifications; }, [fetchNotifications]);
+
+    // 3. Realtime Subscription + Polling fallback
     useEffect(() => {
-        fetchNotifications();
+        fetchRef.current();
+
+        // Polling fallback every 30s in case realtime connection drops
+        const pollInterval = setInterval(() => { fetchRef.current(); }, 30_000);
 
         const personsChannel = supabase
             .channel("persons-notifications")
             .on(
                 "postgres_changes",
                 { event: "INSERT", schema: "public", table: "persons" },
-                (_payload) => {
-                    fetchNotifications();
+                () => {
+                    fetchRef.current();
                     router.refresh();
                 }
             )
@@ -186,8 +193,8 @@ export default function NotificationBell() {
                 .on(
                     "postgres_changes",
                     { event: "*", schema: "public", table: "change_requests" },
-                    (_payload) => {
-                        fetchNotifications();
+                    () => {
+                        fetchRef.current();
                         router.refresh();
                     }
                 )
@@ -198,8 +205,8 @@ export default function NotificationBell() {
                 .on(
                     "postgres_changes",
                     { event: "INSERT", schema: "public", table: "profiles" },
-                    (_payload) => {
-                        fetchNotifications();
+                    () => {
+                        fetchRef.current();
                         router.refresh();
                     }
                 )
@@ -207,6 +214,7 @@ export default function NotificationBell() {
         }
 
         return () => {
+            clearInterval(pollInterval);
             supabase.removeChannel(personsChannel);
             if (requestsChannel) {
                 supabase.removeChannel(requestsChannel);
@@ -215,7 +223,7 @@ export default function NotificationBell() {
                 supabase.removeChannel(profilesChannel);
             }
         };
-    }, [user?.id, isAdmin]);
+    }, [user?.id, isAdmin, supabase, router]);
 
     // 4. Handle Outside Click
     useEffect(() => {

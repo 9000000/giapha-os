@@ -55,7 +55,7 @@ export default function FamilyTree({
     if (!container || !content) return;
 
     const isMobile = window.innerWidth < 768;
-    const targetScale = isMobile ? 0.6 : 1;
+    const targetScale = isMobile ? 0.6 : 0.7;
 
       // Get the natural (unscaled) size of the content
       const contentWidth = content.scrollWidth;

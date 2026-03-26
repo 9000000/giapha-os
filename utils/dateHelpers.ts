@@ -183,3 +183,11 @@ export function getTodayLunar() {
     lunarDayStr: `${lunar.getDay()} tháng ${Math.abs(lunar.getMonth())}`,
   };
 }
+
+/**
+ * Trả về thứ trong tuần bằng tiếng Việt (viết thường).
+ * Ví dụ: "chủ nhật", "thứ hai", ...
+ */
+export function getVietnameseWeekday(date: Date): string {
+  return date.toLocaleDateString("vi-VN", { weekday: "long" }).toLowerCase();
+}

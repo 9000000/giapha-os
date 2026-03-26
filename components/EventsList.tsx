@@ -1,6 +1,6 @@
 "use client";
 
-import { getZodiacSign } from "@/utils/dateHelpers";
+import { getZodiacSign, getVietnameseWeekday } from "@/utils/dateHelpers";
 import {
   computeEvents,
   CustomEventRecord,
@@ -151,11 +151,11 @@ function EventCard({
               <span>
                 {event.type === "death_anniversary" ? (
                   <>
-                    Âm lịch (Ngày giỗ): <span className="font-bold text-stone-700">{event.lunarDateLabel}</span> (Còn {event.lunarDaysUntil} ngày)
+                    Âm lịch (Ngày giỗ): <span className="font-bold text-stone-700">{event.lunarDateLabel}</span> ({getVietnameseWeekday(event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)
                   </>
                 ) : (
                   <>
-                    Dương: <span className="font-bold text-stone-700">{event.solarDateLabel}</span> (Còn {event.solarDaysUntil} ngày)
+                    Dương: <span className="font-bold text-stone-700">{event.solarDateLabel}</span> ({getVietnameseWeekday(event.nextOccurrence)}, còn {event.solarDaysUntil} ngày)
                   </>
                 )}
                 {event.originYear && (
@@ -165,7 +165,7 @@ function EventCard({
             </div>
             {event.type !== "death_anniversary" && (
               <div className="pl-5">
-                Âm lịch: <span className="font-bold text-stone-700">{event.lunarDateLabel}</span> (Còn {event.lunarDaysUntil} ngày)
+                Âm lịch: <span className="font-bold text-stone-700">{event.lunarDateLabel}</span> ({getVietnameseWeekday(event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)
               </div>
             )}
           </div>

@@ -175,12 +175,21 @@ export default function MemberDetailModal() {
 
           {/* Modal Content */}
           <motion.div
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.6}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 150) closeModal();
+            }}
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            className="relative bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-stone-200"
+            className="relative bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-stone-200 will-change-transform"
           >
+            {/* Mobile Drag Handle */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-stone-200 rounded-full opacity-50 block sm:hidden z-30" />
+
             {/* Sticky Header Actions */}
             <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
               {isEditing ? (

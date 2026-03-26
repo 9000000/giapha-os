@@ -76,7 +76,7 @@ export default function MemberDetailContent({
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 },
+      transition: { staggerChildren: 0.05 },
     },
   };
 
@@ -206,7 +206,7 @@ export default function MemberDetailContent({
               {/* Birth Card */}
               <motion.div
                 variants={itemVariants}
-                className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60"
+                className="bg-white/80 backdrop-blur-[2px] rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 will-change-transform"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -257,7 +257,7 @@ export default function MemberDetailContent({
               {isDeceased && (
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60"
+                  className="bg-white/80 backdrop-blur-[2px] rounded-2xl p-4 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 will-change-transform"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="size-2 rounded-full bg-stone-400 shadow-[0_0_8px_rgba(156,163,175,0.5)]"></span>
@@ -337,7 +337,7 @@ export default function MemberDetailContent({
                   relStats.maternalGrandchildren > 0) && (
                   <motion.div
                     variants={itemVariants}
-                    className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 sm:col-span-2 md:col-span-3"
+                    className="bg-white/80 backdrop-blur-[2px] rounded-2xl p-3 border border-stone-200/60 shadow-sm transition-all hover:shadow-md hover:border-amber-200/60 sm:col-span-2 md:col-span-3 will-change-transform"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></span>
@@ -452,7 +452,7 @@ export default function MemberDetailContent({
                 <Info className="size-5 text-amber-600" />
                 Ghi chú
               </h2>
-              <div className="bg-white/80 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative overflow-hidden">
+              <div className="bg-white/80 backdrop-blur-[2px] p-5 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative overflow-hidden will-change-transform">
                 {note ? (
                   <div className="flex flex-col">
                     <motion.div
@@ -508,7 +508,7 @@ export default function MemberDetailContent({
                 <Users className="size-5 text-amber-600" />
                 Gia đình
               </h2>
-              <div className="bg-white/80 backdrop-blur-sm p-4 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative z-0">
+              <div className="bg-white/80 backdrop-blur-[2px] p-4 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative z-0 will-change-transform">
                 <RelationshipManager
                   person={person}
                   isAdmin={isAdmin}

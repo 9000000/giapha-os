@@ -723,7 +723,7 @@ export default function RelationshipManager({
               {title}
             </h4>
             {items.length > 0 ? (
-              <ul className="space-y-1">
+              <ul className="space-y-1 touch-pan-y">
                 {items.map((rel) => (
                   <li
                     key={rel.id}
@@ -945,7 +945,7 @@ export default function RelationshipManager({
                 (searchTerm.length === 0 &&
                   !selectedTargetId &&
                   recentMembers.length > 0)) && (
-                  <div className="mt-2 bg-white border border-stone-200 rounded-md shadow-lg max-h-[250px] overflow-y-auto">
+                  <div className="mt-2 bg-white border border-stone-200 rounded-md shadow-lg max-h-[250px] overflow-y-auto touch-pan-y">
                     <div className="px-3 py-1.5 bg-stone-100 text-[10px] font-bold text-stone-500 uppercase tracking-wide border-b border-stone-200 sticky top-0 z-10">
                       {searchResults.length > 0
                         ? "Kết quả tìm kiếm"

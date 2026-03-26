@@ -146,28 +146,28 @@ function EventCard({
         </div>
         <div className="flex flex-col gap-1 mt-1">
           <div className="text-sm text-stone-500 flex flex-col gap-0.5 leading-snug">
-            <div className="flex items-start gap-1.5">
+            <div className="flex items-start gap-1.5 line-clamp-none">
               <CalendarDays className="size-3.5 mt-1 shrink-0" />
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-1.5">
+              <div className="flex-1">
                 {event.type === "death_anniversary" ? (
-                  <>
-                    <span className="whitespace-nowrap">Âm lịch (Ngày giỗ): <span className="font-bold text-stone-700">{event.lunarDateLabel}</span></span>
-                    <span className="text-stone-400 sm:text-inherit">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)</span>
-                  </>
+                  <div className="text-stone-500">
+                    <span className="block sm:inline">Âm lịch: <span className="text-stone-600">{event.lunarDateLabel}</span></span>
+                    <span className="block sm:inline sm:ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày nữa)</span>
+                  </div>
                 ) : (
-                  <>
-                    <span className="whitespace-nowrap">Dương: <span className="font-bold text-stone-700">{event.solarDateLabel}</span></span>
-                    <span className="text-stone-400 sm:text-inherit">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, còn {event.solarDaysUntil} ngày)</span>
-                  </>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-stone-500">
+                      <span className="block sm:inline">Dương: <span className="text-stone-600">{event.solarDateLabel}</span></span>
+                      <span className="block sm:inline sm:ml-1 text-stone-400 font-normal">({getVietnameseWeekday(event.nextSolarOccurrence || event.nextOccurrence)}, còn {event.solarDaysUntil} ngày)</span>
+                    </div>
+                    <div className="text-stone-500">
+                      <span className="block sm:inline">Âm lịch: <span className="text-stone-600">{event.lunarDateLabel}</span></span>
+                      <span className="text-stone-400 sm:text-inherit sm:ml-1 font-normal block sm:inline">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)</span>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
-            {event.type !== "death_anniversary" && (
-              <div className="pl-5 flex flex-col sm:flex-row sm:items-center sm:gap-1.5">
-                <span className="whitespace-nowrap">Âm lịch: <span className="font-bold text-stone-700">{event.lunarDateLabel}</span></span>
-                <span className="text-stone-400 sm:text-inherit">({getVietnameseWeekday(event.nextLunarOccurrence || event.nextOccurrence)}, còn {event.lunarDaysUntil} ngày)</span>
-              </div>
-            )}
           </div>
           {event.location && (
             <p className="text-sm text-stone-500 flex items-center gap-1.5 leading-tight">

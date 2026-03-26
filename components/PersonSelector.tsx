@@ -155,7 +155,12 @@ export default function PersonSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute z-50 w-full mt-2 bg-white border border-stone-200 rounded-xl shadow-xl max-h-80 flex flex-col overflow-hidden ring-1 ring-black/5"
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            className="absolute z-60 w-full mt-2 bg-white border border-stone-200 rounded-xl shadow-xl max-h-80 flex flex-col overflow-hidden ring-1 ring-black/5"
           >
             <div className="p-2 border-b border-stone-100/80 bg-stone-50/50 backdrop-blur-sm sticky top-0 z-10">
               <div className="relative">

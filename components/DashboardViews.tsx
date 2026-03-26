@@ -34,7 +34,7 @@ export default function DashboardViews({
   relationships,
   canEdit = false,
 }: DashboardViewsProps) {
-  const { view: currentView, rootId, treeBackground, isToolbarVisible, setIsToolbarVisible } = useDashboard();
+  const { view: currentView, rootId, treeBackground, isToolbarVisible, setIsToolbarVisible, setPersonsCache } = useDashboard();
   const isHoveredRef = useRef(false);
   const lastYRef = useRef(0);
   const toolbarContainerRef = useRef<HTMLDivElement>(null);
@@ -184,6 +184,11 @@ export default function DashboardViews({
   }, [persons, relationships, rootId]);
 
   const activeRootId = rootId || defaultRootId;
+
+  // Sync persons cache to context for instant modal display
+  useEffect(() => {
+    setPersonsCache(personsMap);
+  }, [personsMap, setPersonsCache]);
 
   // Xử lý background động
   const getBackgroundClass = () => {

@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ViewMode } from "./ViewToggle";
+import { Person } from "@/types";
 
 export type BackgroundMode = "parchment" | "white" | "slate" | "lotus" | "tree" | "red";
 
@@ -21,6 +22,8 @@ interface DashboardState {
   setTreeBackground: (bg: BackgroundMode) => void;
   isToolbarVisible: boolean;
   setIsToolbarVisible: (visible: boolean) => void;
+  personsCache: Map<string, Person>;
+  setPersonsCache: (cache: Map<string, Person>) => void;
 }
 
 export const DashboardContext = createContext<DashboardState | undefined>(
@@ -36,6 +39,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [rootId, setRootIdState] = useState<string | null>(null);
   const [treeBackground, setTreeBackgroundState] = useState<BackgroundMode>("red");
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const [personsCache, setPersonsCache] = useState<Map<string, Person>>(new Map());
 
   // Initialize from URL once on mount (or when searchParams actually change from server init)
   // We use a ref or just simple effect
@@ -146,6 +150,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setTreeBackground,
         isToolbarVisible,
         setIsToolbarVisible,
+        personsCache,
+        setPersonsCache,
       }}
     >
       {children}
@@ -173,6 +179,8 @@ export function useDashboard(): DashboardState {
       setTreeBackground: () => { },
       isToolbarVisible: true,
       setIsToolbarVisible: () => { },
+      personsCache: new Map(),
+      setPersonsCache: () => { },
     };
   }
   return context;

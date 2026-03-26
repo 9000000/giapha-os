@@ -17,6 +17,7 @@ export default function MemberDetailModal() {
     setMemberModalId,
     showCreateMember,
     setShowCreateMember,
+    personsCache,
   } = useDashboard();
   const { isAdmin, isEditor: canEdit, supabase } = useUser();
   const router = useRouter();
@@ -41,15 +42,23 @@ export default function MemberDetailModal() {
 
   const fetchData = useCallback(
     async (id: string) => {
-      setLoading(true);
+      // Try instant display from cache first
+      const cached = personsCache.get(id);
+      if (cached) {
+        setPerson(cached);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       try {
-        // Fetch person public data + private data in parallel
-        const personQuery = supabase
-          .from("persons")
-          .select("*")
-          .eq("id", id)
-          .single();
+        // Build queries — skip person query if we have cache
+        const personQuery = cached
+          ? null
+          : supabase
+              .from("persons")
+              .select("*")
+              .eq("id", id)
+              .single();
 
         const privateQuery = isAdmin
           ? supabase
@@ -72,10 +81,12 @@ export default function MemberDetailModal() {
           pendingQuery,
         ]);
 
-        if (personResult.error || !personResult.data) {
+        // Update person from DB if we fetched it (or if cache was used, keep cached version)
+        if (personResult && !personResult.error && personResult.data) {
+          setPerson(personResult.data);
+        } else if (!cached && personResult?.error) {
           throw new Error("Không thể tải thông tin thành viên.");
         }
-        setPerson(personResult.data);
         setPrivateData(isAdmin ? (privateResult?.data || {}) : null);
         setPendingRequests(pendingResult.data || null);
       } catch (err) {
@@ -86,7 +97,7 @@ export default function MemberDetailModal() {
         setLoading(false);
       }
     },
-    [isAdmin, supabase],
+    [isAdmin, supabase, personsCache],
   );
 
   // Sync state with URL parameter or create mode

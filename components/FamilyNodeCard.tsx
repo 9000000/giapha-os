@@ -106,7 +106,7 @@ export default function FamilyNodeCard({
                 className="w-full h-full object-cover"
                 width={512}
                 height={512}
-                quality={100}
+                unoptimized
               />
             ) : (
               <DefaultAvatar gender={person.gender} />

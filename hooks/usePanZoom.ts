@@ -21,6 +21,13 @@ export function usePanZoom(
   const dragStartRef = useRef({ x: 0, y: 0 });
   const stateAtDragStartRef = useRef<PanZoomState>({ x: 0, y: 0, scale: 1 });
 
+  // Live transform ref — updated every frame WITHOUT triggering React re-render
+  const liveRef = useRef<PanZoomState>({ x: 0, y: 0, scale: 1 });
+  // RAF throttle ref
+  const rafRef = useRef<number | null>(null);
+  // Reference to the content element that receives the transform
+  const contentElRef = useRef<HTMLElement | null>(null);
+
   // Touch-specific refs
   const lastTouchDistRef = useRef(0);
   const lastTouchCenterRef = useRef({ x: 0, y: 0 });
@@ -28,19 +35,26 @@ export function usePanZoom(
 
   const clampScale = (s: number) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE);
 
-  // Zoom toward a specific point (cursor position relative to container)
-  const zoomAtPoint = useCallback(
-    (cursorX: number, cursorY: number, newScale: number) => {
-      setState((prev) => {
-        const clamped = clampScale(newScale);
-        const ratio = 1 - clamped / prev.scale;
-        const newX = prev.x + (cursorX - prev.x) * ratio;
-        const newY = prev.y + (cursorY - prev.y) * ratio;
-        return { x: newX, y: newY, scale: clamped };
-      });
-    },
-    [],
-  );
+  // Apply transform directly to DOM (no React re-render)
+  const applyTransform = useCallback((t: PanZoomState) => {
+    liveRef.current = t;
+    // Find the content element (first child of container)
+    const el = contentElRef.current ?? containerRef.current?.firstElementChild as HTMLElement;
+    if (el) {
+      contentElRef.current = el;
+      el.style.transform = `translate(${t.x}px, ${t.y}px) scale(${t.scale})`;
+    }
+  }, [containerRef]);
+
+  // Sync live ref → React state (call on gesture end)
+  const syncState = useCallback(() => {
+    setState({ ...liveRef.current });
+  }, []);
+
+  // Keep liveRef in sync when state changes from external sources (buttons, reset)
+  useEffect(() => {
+    liveRef.current = state;
+  }, [state]);
 
   const handleZoomIn = useCallback(() => {
     const el = containerRef.current;
@@ -87,15 +101,20 @@ export function usePanZoom(
       const cursorX = e.clientX - rect.left;
       const cursorY = e.clientY - rect.top;
 
-      setState((prev) => {
-        const zoomFactor = 1 - e.deltaY * ZOOM_SENSITIVITY;
-        const newScale = clampScale(prev.scale * zoomFactor);
-        const ratio = 1 - newScale / prev.scale;
-        return {
-          x: prev.x + (cursorX - prev.x) * ratio,
-          y: prev.y + (cursorY - prev.y) * ratio,
-          scale: newScale,
-        };
+      const prev = liveRef.current;
+      const zoomFactor = 1 - e.deltaY * ZOOM_SENSITIVITY;
+      const newScale = clampScale(prev.scale * zoomFactor);
+      const ratio = 1 - newScale / prev.scale;
+      const next = {
+        x: prev.x + (cursorX - prev.x) * ratio,
+        y: prev.y + (cursorY - prev.y) * ratio,
+        scale: newScale,
+      };
+      applyTransform(next);
+      // Debounce state sync for wheel
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        syncState();
       });
     };
 
@@ -103,7 +122,7 @@ export function usePanZoom(
     return () => {
       el.removeEventListener("wheel", handleNativeWheel);
     };
-  }, [containerRef, zoomAtPoint]);
+  }, [containerRef, applyTransform, syncState]);
 
   // ── Touch events for mobile (pan + pinch zoom) ──
   useEffect(() => {
@@ -130,11 +149,7 @@ export function usePanZoom(
           x: e.touches[0].clientX,
           y: e.touches[0].clientY,
         };
-        // Capture current state at start of gesture
-        setState((prev) => {
-          stateAtDragStartRef.current = { ...prev };
-          return prev;
-        });
+        stateAtDragStartRef.current = { ...liveRef.current };
       } else if (e.touches.length === 2) {
         // Two fingers: start pinch zoom
         e.preventDefault();
@@ -147,11 +162,7 @@ export function usePanZoom(
           e.touches[0],
           e.touches[1],
         );
-        // Capture current state at start of pinch
-        setState((prev) => {
-          stateAtDragStartRef.current = { ...prev };
-          return prev;
-        });
+        stateAtDragStartRef.current = { ...liveRef.current };
       }
     };
 
@@ -167,7 +178,8 @@ export function usePanZoom(
 
         if (hasDraggedRef.current) {
           e.preventDefault();
-          setState({
+          // Direct DOM update — no React re-render
+          applyTransform({
             ...stateAtDragStartRef.current,
             x: stateAtDragStartRef.current.x + dx,
             y: stateAtDragStartRef.current.y + dy,
@@ -180,26 +192,22 @@ export function usePanZoom(
         const newCenter = getTouchCenter(e.touches[0], e.touches[1]);
         const rect = el.getBoundingClientRect();
 
-        // Zoom based on pinch distance change
         const scaleFactor = newDist / lastTouchDistRef.current;
         const prevCenter = lastTouchCenterRef.current;
 
-        setState((prev) => {
-          const newScale = clampScale(prev.scale * scaleFactor);
-          // Zoom toward pinch center (relative to container)
-          const cx = newCenter.x - rect.left;
-          const cy = newCenter.y - rect.top;
-          const ratio = 1 - newScale / prev.scale;
+        const prev = liveRef.current;
+        const newScale = clampScale(prev.scale * scaleFactor);
+        const cx = newCenter.x - rect.left;
+        const cy = newCenter.y - rect.top;
+        const ratio = 1 - newScale / prev.scale;
+        const panDx = newCenter.x - prevCenter.x;
+        const panDy = newCenter.y - prevCenter.y;
 
-          // Also pan by the movement of the pinch center
-          const panDx = newCenter.x - prevCenter.x;
-          const panDy = newCenter.y - prevCenter.y;
-
-          return {
-            x: prev.x + (cx - prev.x) * ratio + panDx,
-            y: prev.y + (cy - prev.y) * ratio + panDy,
-            scale: newScale,
-          };
+        // Direct DOM update — no React re-render
+        applyTransform({
+          x: prev.x + (cx - prev.x) * ratio + panDx,
+          y: prev.y + (cy - prev.y) * ratio + panDy,
+          scale: newScale,
         });
 
         lastTouchDistRef.current = newDist;
@@ -210,7 +218,8 @@ export function usePanZoom(
     const handleTouchEnd = (e: TouchEvent) => {
       if (e.touches.length === 0) {
         isTouchPanRef.current = false;
-        // Small delay to prevent click after drag
+        // Sync React state on gesture end
+        syncState();
         if (hasDraggedRef.current) {
           setTimeout(() => {
             hasDraggedRef.current = false;
@@ -224,10 +233,7 @@ export function usePanZoom(
           x: e.touches[0].clientX,
           y: e.touches[0].clientY,
         };
-        setState((prev) => {
-          stateAtDragStartRef.current = { ...prev };
-          return prev;
-        });
+        stateAtDragStartRef.current = { ...liveRef.current };
       }
     };
 
@@ -242,14 +248,14 @@ export function usePanZoom(
       el.removeEventListener("touchend", handleTouchEnd);
       el.removeEventListener("touchcancel", handleTouchEnd);
     };
-  }, [containerRef]);
+  }, [containerRef, applyTransform, syncState]);
 
   // ── Mouse Pan (desktop) ──
   const handleMouseDown = (e: MouseEvent<HTMLElement>) => {
     setIsPressed(true);
     hasDraggedRef.current = false;
     dragStartRef.current = { x: e.clientX, y: e.clientY };
-    stateAtDragStartRef.current = { ...state };
+    stateAtDragStartRef.current = { ...liveRef.current };
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
@@ -265,7 +271,8 @@ export function usePanZoom(
 
     if (hasDraggedRef.current) {
       e.preventDefault();
-      setState({
+      // Direct DOM update — no React re-render during drag
+      applyTransform({
         ...stateAtDragStartRef.current,
         x: stateAtDragStartRef.current.x + dx,
         y: stateAtDragStartRef.current.y + dy,
@@ -274,6 +281,9 @@ export function usePanZoom(
   };
 
   const handleMouseUpOrLeave = () => {
+    if (isPressed) {
+      syncState(); // Sync React state on gesture end
+    }
     setIsPressed(false);
     setIsDragging(false);
   };
@@ -289,14 +299,15 @@ export function usePanZoom(
   // Allow external control of the transform state (e.g. auto-center on mobile)
   const setTransform = useCallback((newState: PanZoomState) => {
     setState(newState);
-  }, []);
+    applyTransform(newState);
+  }, [applyTransform]);
 
   return {
     scale: state.scale,
     transformStyle: {
       transform: `translate(${state.x}px, ${state.y}px) scale(${state.scale})`,
       transformOrigin: "0 0",
-      // Prevent iOS Safari rubber-banding on the transform element
+      willChange: "transform",
       touchAction: "none",
     } as React.CSSProperties,
     isPressed,

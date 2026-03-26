@@ -1093,58 +1093,62 @@ export default function RelationshipManager({
                       ✕
                     </button>
                   </div>
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="number"
-                      title="Thứ tự sinh"
-                      placeholder="#"
-                      value={child.birthOrder}
-                      min={1}
-                      onChange={(e) => {
-                        const newBulk = [...bulkChildren];
-                        newBulk[index].birthOrder = e.target.value;
-                        setBulkChildren(newBulk);
-                      }}
-                      className="w-14 bg-sky-50 text-sky-800 font-bold text-sm text-center rounded-md border-sky-200 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Họ và tên *"
-                      value={child.name}
-                      onChange={(e) => {
-                        const newBulk = [...bulkChildren];
-                        newBulk[index].name = e.target.value;
-                        setBulkChildren(newBulk);
-                      }}
-                      className="flex-1 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
-                    />
-                    <select
-                      value={child.gender}
-                      onChange={(e) => {
-                        const newBulk = [...bulkChildren];
-                        newBulk[index].gender = e.target.value as
-                          | "male"
-                          | "female"
-                          | "other";
-                        setBulkChildren(newBulk);
-                      }}
-                      className="bg-white text-stone-900 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
-                    >
-                      <option value="male">Nam</option>
-                      <option value="female">Nữ</option>
-                      <option value="other">Khác</option>
-                    </select>
-                    <input
-                      type="number"
-                      placeholder="Năm sinh"
-                      value={child.birthYear}
-                      onChange={(e) => {
-                        const newBulk = [...bulkChildren];
-                        newBulk[index].birthYear = e.target.value;
-                        setBulkChildren(newBulk);
-                      }}
-                      className="w-24 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
-                    />
+                  <div className="flex flex-wrap gap-2">
+                    <div className="flex gap-2 flex-1 min-w-[200px]">
+                      <input
+                        type="number"
+                        title="Thứ tự sinh"
+                        placeholder="#"
+                        value={child.birthOrder}
+                        min={1}
+                        onChange={(e) => {
+                          const newBulk = [...bulkChildren];
+                          newBulk[index].birthOrder = e.target.value;
+                          setBulkChildren(newBulk);
+                        }}
+                        className="w-12 sm:w-14 shrink-0 bg-sky-50 text-sky-800 font-bold text-sm text-center rounded-md border-sky-200 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Họ và tên *"
+                        value={child.name}
+                        onChange={(e) => {
+                          const newBulk = [...bulkChildren];
+                          newBulk[index].name = e.target.value;
+                          setBulkChildren(newBulk);
+                        }}
+                        className="flex-1 min-w-0 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                      />
+                    </div>
+                    <div className="flex gap-2 flex-1 sm:flex-none">
+                      <select
+                        value={child.gender}
+                        onChange={(e) => {
+                          const newBulk = [...bulkChildren];
+                          newBulk[index].gender = e.target.value as
+                            | "male"
+                            | "female"
+                            | "other";
+                          setBulkChildren(newBulk);
+                        }}
+                        className="flex-1 sm:flex-none bg-white text-stone-900 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                      >
+                        <option value="male">Nam</option>
+                        <option value="female">Nữ</option>
+                        <option value="other">Khác</option>
+                      </select>
+                      <input
+                        type="number"
+                        placeholder="Năm sinh"
+                        value={child.birthYear}
+                        onChange={(e) => {
+                          const newBulk = [...bulkChildren];
+                          newBulk[index].birthYear = e.target.value;
+                          setBulkChildren(newBulk);
+                        }}
+                        className="flex-1 sm:flex-none sm:w-24 min-w-[80px] bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}

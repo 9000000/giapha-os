@@ -362,9 +362,9 @@ export default function EventsList({
             <CalendarDays className="size-8" />
           </div>
           <div>
-            <p className="text-xl sm:text-2xl font-bold text-stone-800 tracking-tight">
-              {todayDate.solar}
-            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-stone-800 tracking-tight">
+              <span className="capitalize">{getVietnameseWeekday(new Date())}</span>, {todayDate.solar}
+            </h2>
             {todayDate.lunar && (
               <div className="mt-2.5 inline-flex flex-wrap items-center gap-2 px-3.5 py-1 rounded-full bg-stone-50 border border-stone-100">
                 <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">

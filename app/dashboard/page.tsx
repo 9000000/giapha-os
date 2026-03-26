@@ -1,4 +1,4 @@
-import { getTodayLunar } from "@/utils/dateHelpers";
+import { getTodayLunar, getVietnameseWeekday } from "@/utils/dateHelpers";
 import { computeEvents } from "@/utils/eventHelpers";
 import { getIsAdmin, getSupabase } from "@/utils/supabase/queries";
 import { getExcludedInLawIds } from "@/utils/treeHelpers";
@@ -172,7 +172,7 @@ export default async function DashboardLaunchpad() {
             </div>
             <div className="mt-1">
               <p className="text-xl sm:text-2xl font-bold text-stone-800 tracking-tight">
-                {lunar.solarStr}
+                <span className="capitalize">{getVietnameseWeekday(new Date())}</span>, {lunar.solarStr}
               </p>
               <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-stone-50 border border-stone-100">
                 <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">
@@ -238,15 +238,15 @@ export default async function DashboardLaunchpad() {
                           <div className="text-xs text-stone-500 font-medium pt-1 flex flex-col gap-0.5">
                             {evt.type === "death_anniversary" ? (
                               <span>
-                                Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> (Còn {evt.lunarDaysUntil} ngày nữa)
+                                Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày nữa)
                               </span>
                             ) : (
                               <>
                                 <span>
-                                  Dương: <span className="text-stone-600">{evt.solarDateLabel}</span> (Còn {evt.solarDaysUntil} ngày)
+                                  Dương: <span className="text-stone-600">{evt.solarDateLabel}</span> ({getVietnameseWeekday(evt.nextOccurrence)}, còn {evt.solarDaysUntil} ngày)
                                 </span>
                                 <span>
-                                  Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> (Còn {evt.lunarDaysUntil} ngày)
+                                  Âm lịch: <span className="text-stone-600">{evt.lunarDateLabel}</span> ({getVietnameseWeekday(evt.nextOccurrence)}, còn {evt.lunarDaysUntil} ngày)
                                 </span>
                               </>
                             )}

@@ -1,11 +1,21 @@
 -- ==========================================
--- GIAPHA-OS DATABASE SCHEMA
+-- GIAPHA-OS DATABASE — FULL SETUP (ALL-IN-ONE)
+-- Version: 2026-03-26
+-- ==========================================
+-- Hướng dẫn: Mở SQL Editor trên Supabase, dán TOÀN BỘ file này vào và chạy.
+-- File này chứa mọi thứ cần thiết để dựng database từ đầu.
+-- Đối với dữ liệu mẫu, chạy thêm file seed.sql riêng.
 -- ==========================================
 
--- EXTENSIONS
+-- ==========================================
+-- 1. EXTENSIONS
+-- ==========================================
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
--- ENUMS
+-- ==========================================
+-- 2. ENUMS
+-- ==========================================
+
 -- Gender types for family members
 DO $$ BEGIN
     CREATE TYPE public.gender_enum AS ENUM ('male', 'female', 'other');
@@ -27,8 +37,22 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
+-- Change request status
+DO $$ BEGIN
+    CREATE TYPE public.request_status_enum AS ENUM ('pending', 'approved', 'rejected');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Action type for change requests
+DO $$ BEGIN
+    CREATE TYPE public.action_type_enum AS ENUM ('insert', 'update', 'delete');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 -- ==========================================
--- UTILITY FUNCTIONS
+-- 3. UTILITY FUNCTIONS
 -- ==========================================
 
 -- Function to automatically update 'updated_at' timestamps
@@ -40,8 +64,37 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Helper: Check if current user is admin
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Helper: Check if current user is editor
+CREATE OR REPLACE FUNCTION public.is_editor()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'editor'
+  );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.is_editor() FROM public;
+GRANT EXECUTE ON FUNCTION public.is_editor() TO authenticated;
+
 -- ==========================================
--- TABLES (Data Preservation: No DROP TABLE commands)
+-- 4. TABLES
 -- ==========================================
 
 -- PROFILES (Application users linked to Auth)
@@ -99,10 +152,7 @@ CREATE TABLE IF NOT EXISTS public.relationships (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   
-  -- Prevent self-relationships
   CONSTRAINT no_self_relationship CHECK (person_a != person_b),
-  
-  -- Ensure unique relationships between pairs for a specific type
   UNIQUE(person_a, person_b, type)
 );
 
@@ -119,8 +169,36 @@ CREATE TABLE IF NOT EXISTS public.custom_events (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- CHANGE_REQUESTS (Pending modifications proposed by editors)
+CREATE TABLE IF NOT EXISTS public.change_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  action public.action_type_enum NOT NULL,
+  target_table TEXT NOT NULL,
+  target_record_id UUID,
+  old_data JSONB,
+  new_data JSONB,
+  status public.request_status_enum DEFAULT 'pending' NOT NULL,
+  requested_by UUID REFERENCES public.profiles(id) DEFAULT auth.uid() NOT NULL,
+  reviewed_by UUID REFERENCES public.profiles(id),
+  reviewed_at TIMESTAMPTZ,
+  reviewer_note TEXT,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+COMMENT ON TABLE public.change_requests IS 'Stores pending modifications (insert, update, delete) proposed by editors that require admin approval.';
+
+-- NOTIFICATION_READS (Persists read state per user)
+CREATE TABLE IF NOT EXISTS public.notification_reads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  notification_key TEXT NOT NULL,
+  read_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, notification_key)
+);
+
 -- ==========================================
--- INDEXES
+-- 5. INDEXES
 -- ==========================================
 
 -- Relationship lookups
@@ -143,25 +221,25 @@ CREATE INDEX IF NOT EXISTS idx_profiles_is_active ON public.profiles(is_active);
 CREATE INDEX IF NOT EXISTS idx_custom_events_date ON public.custom_events(event_date);
 CREATE INDEX IF NOT EXISTS idx_custom_events_created_by ON public.custom_events(created_by);
 
+-- Change requests lookups
+CREATE INDEX IF NOT EXISTS idx_change_requests_status ON public.change_requests(status);
+CREATE INDEX IF NOT EXISTS idx_change_requests_requested_by ON public.change_requests(requested_by);
+CREATE INDEX IF NOT EXISTS idx_change_requests_target_table ON public.change_requests(target_table);
+
+-- Notification reads lookups
+CREATE INDEX IF NOT EXISTS idx_notification_reads_user_id ON public.notification_reads(user_id);
+
 -- ==========================================
--- RLS POLICIES
+-- 6. ROW LEVEL SECURITY (RLS)
 -- ==========================================
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.persons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.person_details_private ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.relationships ENABLE ROW LEVEL SECURITY;
-
--- Helper function to check if user is admin
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+ALTER TABLE public.custom_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.change_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notification_reads ENABLE ROW LEVEL SECURITY;
 
 -- PROFILES POLICIES
 DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
@@ -170,7 +248,7 @@ CREATE POLICY "Users can view own profile" ON public.profiles FOR SELECT USING (
 DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (public.is_admin());
 
--- PERSONS POLICIES
+-- PERSONS POLICIES (Admin + Editor can manage)
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.persons;
 CREATE POLICY "Enable read access for authenticated users" ON public.persons FOR SELECT TO authenticated USING (true);
 
@@ -178,10 +256,13 @@ DROP POLICY IF EXISTS "Admins can manage persons" ON public.persons;
 DROP POLICY IF EXISTS "Admins can insert persons" ON public.persons;
 DROP POLICY IF EXISTS "Admins can update persons" ON public.persons;
 DROP POLICY IF EXISTS "Admins can delete persons" ON public.persons;
+DROP POLICY IF EXISTS "Admins and Editors can insert persons" ON public.persons;
+DROP POLICY IF EXISTS "Admins and Editors can update persons" ON public.persons;
+DROP POLICY IF EXISTS "Admins and Editors can delete persons" ON public.persons;
 
-CREATE POLICY "Admins can insert persons" ON public.persons FOR INSERT TO authenticated WITH CHECK (public.is_admin());
-CREATE POLICY "Admins can update persons" ON public.persons FOR UPDATE TO authenticated USING (public.is_admin());
-CREATE POLICY "Admins can delete persons" ON public.persons FOR DELETE TO authenticated USING (public.is_admin());
+CREATE POLICY "Admins and Editors can insert persons" ON public.persons FOR INSERT TO authenticated WITH CHECK (public.is_admin() OR public.is_editor());
+CREATE POLICY "Admins and Editors can update persons" ON public.persons FOR UPDATE TO authenticated USING (public.is_admin() OR public.is_editor()) WITH CHECK (public.is_admin() OR public.is_editor());
+CREATE POLICY "Admins and Editors can delete persons" ON public.persons FOR DELETE TO authenticated USING (public.is_admin() OR public.is_editor());
 
 -- PERSON_DETAILS_PRIVATE POLICIES
 DROP POLICY IF EXISTS "Admins can view private details" ON public.person_details_private;
@@ -190,7 +271,7 @@ CREATE POLICY "Admins can view private details" ON public.person_details_private
 DROP POLICY IF EXISTS "Admins can manage private details" ON public.person_details_private;
 CREATE POLICY "Admins can manage private details" ON public.person_details_private FOR ALL TO authenticated USING (public.is_admin());
 
--- RELATIONSHIPS POLICIES
+-- RELATIONSHIPS POLICIES (Admin + Editor can manage)
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.relationships;
 CREATE POLICY "Enable read access for authenticated users" ON public.relationships FOR SELECT TO authenticated USING (true);
 
@@ -198,14 +279,15 @@ DROP POLICY IF EXISTS "Admins can manage relationships" ON public.relationships;
 DROP POLICY IF EXISTS "Admins can insert relationships" ON public.relationships;
 DROP POLICY IF EXISTS "Admins can update relationships" ON public.relationships;
 DROP POLICY IF EXISTS "Admins can delete relationships" ON public.relationships;
+DROP POLICY IF EXISTS "Admins and Editors can insert relationships" ON public.relationships;
+DROP POLICY IF EXISTS "Admins and Editors can update relationships" ON public.relationships;
+DROP POLICY IF EXISTS "Admins and Editors can delete relationships" ON public.relationships;
 
-CREATE POLICY "Admins can insert relationships" ON public.relationships FOR INSERT TO authenticated WITH CHECK (public.is_admin());
-CREATE POLICY "Admins can update relationships" ON public.relationships FOR UPDATE TO authenticated USING (public.is_admin());
-CREATE POLICY "Admins can delete relationships" ON public.relationships FOR DELETE TO authenticated USING (public.is_admin());
+CREATE POLICY "Admins and Editors can insert relationships" ON public.relationships FOR INSERT TO authenticated WITH CHECK (public.is_admin() OR public.is_editor());
+CREATE POLICY "Admins and Editors can update relationships" ON public.relationships FOR UPDATE TO authenticated USING (public.is_admin() OR public.is_editor()) WITH CHECK (public.is_admin() OR public.is_editor());
+CREATE POLICY "Admins and Editors can delete relationships" ON public.relationships FOR DELETE TO authenticated USING (public.is_admin() OR public.is_editor());
 
 -- CUSTOM_EVENTS POLICIES
-ALTER TABLE public.custom_events ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.custom_events;
 CREATE POLICY "Enable read access for authenticated users" ON public.custom_events FOR SELECT TO authenticated USING (true);
 
@@ -218,11 +300,37 @@ CREATE POLICY "Users can update own custom events" ON public.custom_events FOR U
 DROP POLICY IF EXISTS "Users can delete own custom events" ON public.custom_events;
 CREATE POLICY "Users can delete own custom events" ON public.custom_events FOR DELETE TO authenticated USING (auth.uid() = created_by OR public.is_admin());
 
+-- CHANGE_REQUESTS POLICIES
+DROP POLICY IF EXISTS "Admins can manage change requests" ON public.change_requests;
+CREATE POLICY "Admins can manage change requests" ON public.change_requests FOR ALL TO authenticated USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Users can read own change requests" ON public.change_requests;
+CREATE POLICY "Users can read own change requests" ON public.change_requests FOR SELECT TO authenticated USING (auth.uid() = requested_by);
+
+DROP POLICY IF EXISTS "Editors can insert change requests" ON public.change_requests;
+CREATE POLICY "Editors can insert change requests" ON public.change_requests FOR INSERT TO authenticated WITH CHECK (public.is_editor() OR public.is_admin());
+
+DROP POLICY IF EXISTS "Users can update own pending change requests" ON public.change_requests;
+CREATE POLICY "Users can update own pending change requests" ON public.change_requests FOR UPDATE TO authenticated USING (auth.uid() = requested_by AND status = 'pending');
+
+DROP POLICY IF EXISTS "Users can delete own pending change requests" ON public.change_requests;
+CREATE POLICY "Users can delete own pending change requests" ON public.change_requests FOR DELETE TO authenticated USING (auth.uid() = requested_by AND status = 'pending');
+
+-- NOTIFICATION_READS POLICIES
+DROP POLICY IF EXISTS "Users can view own reads" ON public.notification_reads;
+CREATE POLICY "Users can view own reads" ON public.notification_reads FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own reads" ON public.notification_reads;
+CREATE POLICY "Users can insert own reads" ON public.notification_reads FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own reads" ON public.notification_reads;
+CREATE POLICY "Users can delete own reads" ON public.notification_reads FOR DELETE USING (auth.uid() = user_id);
+
 -- ==========================================
--- TRIGGERS
+-- 7. TRIGGERS
 -- ==========================================
 
--- 1. Updated At Triggers
+-- Updated At Triggers
 DROP TRIGGER IF EXISTS tr_profiles_updated_at ON public.profiles;
 CREATE TRIGGER tr_profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 
@@ -238,7 +346,10 @@ CREATE TRIGGER tr_relationships_updated_at BEFORE UPDATE ON public.relationships
 DROP TRIGGER IF EXISTS tr_custom_events_updated_at ON public.custom_events;
 CREATE TRIGGER tr_custom_events_updated_at BEFORE UPDATE ON public.custom_events FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 
--- 2. Handle new user signup (Profile creation)
+DROP TRIGGER IF EXISTS tr_change_requests_updated_at ON public.change_requests;
+CREATE TRIGGER tr_change_requests_updated_at BEFORE UPDATE ON public.change_requests FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
+
+-- Handle new user signup (auto-create profile, first user = admin)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger 
 LANGUAGE plpgsql
@@ -247,7 +358,6 @@ AS $$
 DECLARE
   is_first_user boolean;
 BEGIN
-  -- Check if this is the first user (count will be 1 as this is AFTER INSERT)
   SELECT count(*) = 1 FROM auth.users INTO is_first_user;
 
   INSERT INTO public.profiles (id, role, is_active)
@@ -267,14 +377,13 @@ BEGIN
 END;
 $$;
 
--- 3. Auto-confirm first user (Email verification)
+-- Auto-confirm first user (skip email verification)
 CREATE OR REPLACE FUNCTION public.handle_first_user_confirmation()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = auth
 AS $$
 BEGIN
-  -- If no users exist yet, auto-confirm this first one
   IF NOT EXISTS (SELECT 1 FROM auth.users) THEN
     NEW.email_confirmed_at := NOW();
     NEW.last_sign_in_at := NOW();
@@ -283,23 +392,20 @@ BEGIN
 END;
 $$;
 
--- Trigger for profile creation
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- Trigger for auto-confirmation
 DROP TRIGGER IF EXISTS on_auth_user_created_confirm ON auth.users;
 CREATE TRIGGER on_auth_user_created_confirm
   BEFORE INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_first_user_confirmation();
 
 -- ==========================================
--- STORAGE POLICIES
+-- 8. STORAGE POLICIES
 -- ==========================================
 
--- Initialize 'avatars' bucket
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('avatars', 'avatars', true) 
 ON CONFLICT (id) DO UPDATE SET public = true;
@@ -317,7 +423,7 @@ DROP POLICY IF EXISTS "Users can delete avatars." ON storage.objects;
 CREATE POLICY "Users can delete avatars." ON storage.objects FOR DELETE USING ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );
 
 -- ==========================================
--- ADMIN RPC FUNCTIONS
+-- 9. ADMIN RPC FUNCTIONS (with Hierarchy Protection)
 -- ==========================================
 
 -- Custom type for get_admin_users
@@ -330,7 +436,7 @@ CREATE TYPE public.admin_user_data AS (
     is_active boolean
 );
 
--- 1. Get List of Users for Admin
+-- Get List of Users for Admin
 CREATE OR REPLACE FUNCTION public.get_admin_users()
 RETURNS SETOF public.admin_user_data
 LANGUAGE plpgsql
@@ -350,7 +456,7 @@ BEGIN
 END;
 $$;
 
--- 2. Update User Role
+-- Update User Role (with hierarchy check)
 CREATE OR REPLACE FUNCTION public.set_user_role(target_user_id uuid, new_role text)
 RETURNS void
 LANGUAGE plpgsql
@@ -381,7 +487,7 @@ BEGIN
 END;
 $$;
 
--- 3. Delete User Account
+-- Delete User Account (with hierarchy check)
 CREATE OR REPLACE FUNCTION public.delete_user(target_user_id uuid)
 RETURNS void
 LANGUAGE plpgsql
@@ -414,10 +520,9 @@ BEGIN
 END;
 $$;
 
--- 4. Admin Create New User
--- IMPORTANT: All token/string columns MUST be set to '' (empty string), NOT NULL.
+-- Admin Create New User
+-- IMPORTANT: All token/string columns MUST be '' (empty string), NOT NULL.
 -- Supabase Auth's Go scanner crashes with "converting NULL to string is unsupported"
--- if any of these fields are NULL.
 CREATE OR REPLACE FUNCTION public.admin_create_user(
   new_email text, 
   new_password text, 
@@ -440,15 +545,11 @@ BEGIN
 
     INSERT INTO auth.users (
         id, instance_id, aud, role, email, encrypted_password, 
-        email_confirmed_at,         -- Auto-verify: skip email confirmation
-        confirmation_token,         -- Must be '' not NULL (Supabase Auth Go scanner)
-        recovery_token,             -- Must be '' not NULL
-        email_change_token_new,     -- Must be '' not NULL
-        email_change_token_current, -- Must be '' not NULL
-        reauthentication_token,     -- Must be '' not NULL
-        email_change,               -- Must be '' not NULL
-        phone_change,               -- Must be '' not NULL
-        phone_change_token,         -- Must be '' not NULL
+        email_confirmed_at,
+        confirmation_token, recovery_token,
+        email_change_token_new, email_change_token_current,
+        reauthentication_token,
+        email_change, phone_change, phone_change_token,
         raw_app_meta_data, raw_user_meta_data, created_at, updated_at
     )
     VALUES (
@@ -467,7 +568,7 @@ BEGIN
 END;
 $function$;
 
--- 5. Set User Active Status (Approve/Block)
+-- Set User Active Status (Approve/Block, with hierarchy check)
 CREATE OR REPLACE FUNCTION public.set_user_active_status(target_user_id uuid, new_status boolean)
 RETURNS void
 LANGUAGE plpgsql
@@ -496,7 +597,6 @@ BEGIN
     SET is_active = new_status
     WHERE id = target_user_id;
     
-    -- Tự động confirm email nếu người quản trị nhấn Duyệt và chưa confirm
     IF new_status = true THEN
         UPDATE auth.users 
         SET email_confirmed_at = NOW() 
@@ -504,108 +604,14 @@ BEGIN
     END IF;
 END;
 $$;
+
 -- ==========================================
--- ADD CHANGE REQUESTS TABLE
+-- 10. SCHEDULED JOBS (pg_cron)
 -- ==========================================
+-- NOTE: Requires pg_cron extension enabled in Supabase Dashboard -> Database -> Extensions
 
--- Enum for request status
-DO $$ BEGIN
-    CREATE TYPE public.request_status_enum AS ENUM ('pending', 'approved', 'rejected');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
--- Enum for action type
-DO $$ BEGIN
-    CREATE TYPE public.action_type_enum AS ENUM ('insert', 'update', 'delete');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
--- CHANGE REQUESTS TABLE
-CREATE TABLE IF NOT EXISTS public.change_requests (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  action public.action_type_enum NOT NULL,
-  target_table TEXT NOT NULL, -- e.g., 'persons', 'relationships', 'custom_events'
-  target_record_id UUID,     -- Can be null for 'insert' if ID is generated later, but usually we generate UUID in advance
-  old_data JSONB,            -- State before change (useful for update/delete, or for admin review)
-  new_data JSONB,            -- New state to apply (for insert/update)
-  status public.request_status_enum DEFAULT 'pending' NOT NULL,
-  requested_by UUID REFERENCES public.profiles(id) DEFAULT auth.uid() NOT NULL,
-  reviewed_by UUID REFERENCES public.profiles(id),
-  reviewed_at TIMESTAMPTZ,
-  reviewer_note TEXT,
-  
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- INDEXES
-CREATE INDEX IF NOT EXISTS idx_change_requests_status ON public.change_requests(status);
-CREATE INDEX IF NOT EXISTS idx_change_requests_requested_by ON public.change_requests(requested_by);
-CREATE INDEX IF NOT EXISTS idx_change_requests_target_table ON public.change_requests(target_table);
-
--- RLS
-ALTER TABLE public.change_requests ENABLE ROW LEVEL SECURITY;
-
--- Helper function to check if user is admin (assuming exists in schema)
--- Create or replace just in case it's not defined or we need it here
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Helper function to check if user is editor
-CREATE OR REPLACE FUNCTION public.is_editor()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'editor'
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Admin can do everything
-DROP POLICY IF EXISTS "Admins can manage change requests" ON public.change_requests;
-CREATE POLICY "Admins can manage change requests" ON public.change_requests 
-  FOR ALL TO authenticated USING (public.is_admin());
-
--- Editor/Member can read their own requests
-DROP POLICY IF EXISTS "Users can read own change requests" ON public.change_requests;
-CREATE POLICY "Users can read own change requests" ON public.change_requests 
-  FOR SELECT TO authenticated USING (auth.uid() = requested_by);
-
--- Editor can insert requests
-DROP POLICY IF EXISTS "Editors can insert change requests" ON public.change_requests;
-CREATE POLICY "Editors can insert change requests" ON public.change_requests 
-  FOR INSERT TO authenticated WITH CHECK (public.is_editor() OR public.is_admin());
-
--- Users can update their own PENDING requests (optional, e.g., to cancel or edit before review)
-DROP POLICY IF EXISTS "Users can update own pending change requests" ON public.change_requests;
-CREATE POLICY "Users can update own pending change requests" ON public.change_requests 
-  FOR UPDATE TO authenticated USING (auth.uid() = requested_by AND status = 'pending');
-
--- Users can delete their own PENDING requests (cancel request)
-DROP POLICY IF EXISTS "Users can delete own pending change requests" ON public.change_requests;
-CREATE POLICY "Users can delete own pending change requests" ON public.change_requests 
-  FOR DELETE TO authenticated USING (auth.uid() = requested_by AND status = 'pending');
-
--- Trigger for updated_at
-DROP TRIGGER IF EXISTS tr_change_requests_updated_at ON public.change_requests;
-CREATE TRIGGER tr_change_requests_updated_at BEFORE UPDATE ON public.change_requests FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
-
--- Add a comment explaining usage
-COMMENT ON TABLE public.change_requests IS 'Stores pending modifications (insert, update, delete) proposed by editors that require admin approval.';
--- Kích hoạt extension pg_cron (Yêu cầu bật extension này trong mục Database -> Extensions của Supabase trước tiên)
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
--- Lên lịch xóa các yêu cầu đã phê duyệt/từ chối cũ hơn 30 ngày (Job chay lúc 00:00 hằng ngày)
 SELECT cron.schedule(
     'delete-old-change-requests',
     '0 0 * * *',
@@ -615,133 +621,15 @@ SELECT cron.schedule(
           AND status IN ('approved', 'rejected');
     $$
 );
+
 -- ==========================================
--- GIAPHA-OS DATABASE UPDATE
--- TÍNH NĂNG: Phân cấp Admin (Admin mới không được xoá/sửa Admin cũ)
+-- 11. REALTIME
 -- ==========================================
--- Hướng dẫn: Mở SQL Editor trên Supabase, dán toàn bộ đoạn code này vào và chạy (Run).
 
--- 1. Cập nhật hàm Xoá (delete_user)
-CREATE OR REPLACE FUNCTION public.delete_user(target_user_id uuid)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public, auth
-AS $$
-DECLARE
-    caller_role text;
-    caller_created_at timestamptz;
-    target_role text;
-    target_created_at timestamptz;
-BEGIN
-    -- Lấy thông tin người thao tác (caller)
-    SELECT role, created_at INTO caller_role, caller_created_at FROM public.profiles WHERE id = auth.uid();
-
-    IF caller_role IS NULL OR caller_role != 'admin' THEN
-        RAISE EXCEPTION 'Access denied. Bạn không có quyền Admin.';
-    END IF;
-    
-    IF auth.uid() = target_user_id THEN
-        RAISE EXCEPTION 'Cannot delete yourself. Bạn không thể tự xoá chính mình.';
-    END IF;
-
-    -- Lấy thông tin người bị thao tác (target)
-    SELECT role, created_at INTO target_role, target_created_at FROM public.profiles WHERE id = target_user_id;
-
-    -- Kiểm tra luật thâm niên: Nếu target CŨNG LÀ ADMIN, nhưng sinh ra TRƯỚC (hoặc cùng lúc) caller, thì cấm xoá.
-    IF target_role = 'admin' AND target_created_at <= caller_created_at THEN
-        RAISE EXCEPTION 'Hierarchy violation: Bạn không có quyền xoá người quản trị được tạo trước bạn.';
-    END IF;
-
-    -- Xoá User
-    DELETE FROM auth.users WHERE id = target_user_id;
-END;
-$$;
-
--- 2. Cập nhật hàm Đổi Vai trò (set_user_role)
-CREATE OR REPLACE FUNCTION public.set_user_role(target_user_id uuid, new_role text)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public, auth
-AS $$
-DECLARE
-    caller_role text;
-    caller_created_at timestamptz;
-    target_role text;
-    target_created_at timestamptz;
-BEGIN
-    SELECT role, created_at INTO caller_role, caller_created_at FROM public.profiles WHERE id = auth.uid();
-
-    IF caller_role IS NULL OR caller_role != 'admin' THEN
-        RAISE EXCEPTION 'Access denied. Bạn không có quyền Admin.';
-    END IF;
-
-    SELECT role, created_at INTO target_role, target_created_at FROM public.profiles WHERE id = target_user_id;
-
-    -- Kiểm tra luật thâm niên: Chặn không cho đổi quyền của Admin "tiền bối"
-    IF target_role = 'admin' AND target_created_at <= caller_created_at THEN
-        RAISE EXCEPTION 'Hierarchy violation: Bạn không có quyền thay đổi vai trò của người quản trị được tạo trước bạn.';
-    END IF;
-
-    -- Thực hiện update
-    UPDATE public.profiles
-    SET role = new_role::public.user_role_enum
-    WHERE id = target_user_id;
-END;
-$$;
-
--- 3. Cập nhật hàm Đổi Trạng thái Khoá/Duyệt (set_user_active_status)
-CREATE OR REPLACE FUNCTION public.set_user_active_status(target_user_id uuid, new_status boolean)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public, auth
-AS $$
-DECLARE
-    caller_role text;
-    caller_created_at timestamptz;
-    target_role text;
-    target_created_at timestamptz;
-BEGIN
-    SELECT role, created_at INTO caller_role, caller_created_at FROM public.profiles WHERE id = auth.uid();
-
-    IF caller_role IS NULL OR caller_role != 'admin' THEN
-        RAISE EXCEPTION 'Access denied. Bạn không có quyền Admin.';
-    END IF;
-
-    SELECT role, created_at INTO target_role, target_created_at FROM public.profiles WHERE id = target_user_id;
-
-    -- Kiểm tra luật thâm niên: Tương tự, cấm khoá/mở khoá Admin sinh trước caller.
-    IF target_role = 'admin' AND target_created_at <= caller_created_at THEN
-        RAISE EXCEPTION 'Hierarchy violation: Bạn không có quyền thay đổi trạng thái của người quản trị được tạo trước bạn.';
-    END IF;
-
-    UPDATE public.profiles
-    SET is_active = new_status
-    WHERE id = target_user_id;
-    
-    -- Tự động confirm email nếu người quản trị nhấn Duyệt và chưa confirm
-    IF new_status = true THEN
-        UPDATE auth.users 
-        SET email_confirmed_at = NOW() 
-        WHERE id = target_user_id AND email_confirmed_at IS NULL;
-    END IF;
-END;
-$$;
--- ==========================================
--- GIAPHA-OS DATABASE UPDATE
--- TÍNH NĂNG: BẬT TỰ ĐỘNG PHÁT THÔNG BÁO (REALTIME)
--- ==========================================
--- Hướng dẫn: Mở SQL Editor trên Supabase, dán toàn bộ đoạn code này vào và chạy (Run).
-
--- 1. Bật tính năng Realtime (Cập nhật thời gian thực) cho các bảng
--- Điều này cho phép ứng dụng nhận tín hiệu khi có người Cập nhật / Thêm mới
 ALTER PUBLICATION supabase_realtime ADD TABLE public.persons;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.change_requests;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
 
--- 2. Cấp quyền Replica Identity để gửi kèm dữ liệu cũ khi Update/Delete (Nâng cao)
 ALTER TABLE public.persons REPLICA IDENTITY FULL;
 ALTER TABLE public.change_requests REPLICA IDENTITY FULL;
 ALTER TABLE public.profiles REPLICA IDENTITY FULL;

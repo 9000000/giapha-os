@@ -8,6 +8,7 @@ import {
   Cake,
   CalendarDays,
   Database,
+  FileText,
   Flower2,
   GitMerge,
   Network,
@@ -108,6 +109,15 @@ export default async function DashboardLaunchpad() {
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200/60",
       hoverColor: "hover:border-purple-500 hover:shadow-md hover:ring-1 hover:ring-purple-500/30",
+    },
+    {
+      title: "Bài viết & Tài liệu",
+      description: "Câu chuyện, kỷ niệm và kiến thức dòng họ",
+      icon: <FileText className="size-8 text-emerald-600" />,
+      href: "/dashboard/members?view=posts",
+      bgColor: "bg-emerald-50",
+      borderColor: "border-emerald-200/60",
+      hoverColor: "hover:border-emerald-500 hover:shadow-md hover:ring-1 hover:ring-emerald-500/30",
     },
     // {
     //   title: "Giới thiệu & Liên hệ",

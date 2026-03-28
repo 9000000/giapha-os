@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { List, ListTree, Network } from "lucide-react";
+import { FileText, List, ListTree, Network } from "lucide-react";
 import { useDashboard } from "./DashboardContext";
 
-export type ViewMode = "list" | "tree" | "mindmap";
+export type ViewMode = "list" | "tree" | "mindmap" | "posts";
 
 export default function ViewToggle() {
   const { view: currentView, setView, isToolbarVisible, setIsToolbarVisible } = useDashboard();
@@ -24,6 +24,11 @@ export default function ViewToggle() {
       id: "mindmap",
       label: "Mindmap",
       icon: <ListTree className="size-6 sm:size-4" />,
+    },
+    {
+      id: "posts",
+      label: "Bài viết",
+      icon: <FileText className="size-6 sm:size-4" />,
     },
   ] as const;
 

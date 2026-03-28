@@ -24,6 +24,13 @@ interface DashboardState {
   setIsToolbarVisible: (visible: boolean) => void;
   personsCache: Map<string, Person>;
   setPersonsCache: (cache: Map<string, Person>) => void;
+  // Post-related state
+  selectedPostId: string | null;
+  setSelectedPostId: (id: string | null) => void;
+  isCreatingPost: boolean;
+  setIsCreatingPost: (isCreating: boolean) => void;
+  editingPostId: string | null;
+  setEditingPostId: (id: string | null) => void;
 }
 
 export const DashboardContext = createContext<DashboardState | undefined>(
@@ -40,6 +47,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [treeBackground, setTreeBackgroundState] = useState<BackgroundMode>("red");
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
   const [personsCache, setPersonsCache] = useState<Map<string, Person>>(new Map());
+
+  // Post states
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [isCreatingPost, setIsCreatingPost] = useState<boolean>(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
 
   // Initialize from URL once on mount (or when searchParams actually change from server init)
   // We use a ref or just simple effect
@@ -100,9 +112,16 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const setView = (v: ViewMode) => {
     setViewState(v);
+    // Clear post selection states when switching views
+    setSelectedPostId(null);
+    setIsCreatingPost(false);
+    setEditingPostId(null);
     if (typeof window !== "undefined") {
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.set("view", v);
+      if (v !== "posts") {
+        newUrl.searchParams.delete("postId");
+      }
       window.history.replaceState(null, "", newUrl.toString());
     }
   };
@@ -133,6 +152,19 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateSelectedPost = (id: string | null) => {
+    setSelectedPostId(id);
+    if (typeof window !== "undefined") {
+      const newUrl = new URL(window.location.href);
+      if (id) {
+        newUrl.searchParams.set("postId", id);
+      } else {
+        newUrl.searchParams.delete("postId");
+      }
+      window.history.replaceState(null, "", newUrl.toString());
+    }
+  };
+
   return (
     <DashboardContext.Provider
       value={{
@@ -152,6 +184,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setIsToolbarVisible,
         personsCache,
         setPersonsCache,
+        selectedPostId,
+        setSelectedPostId: updateSelectedPost,
+        isCreatingPost,
+        setIsCreatingPost,
+        editingPostId,
+        setEditingPostId,
       }}
     >
       {children}
@@ -162,7 +200,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 export function useDashboard(): DashboardState {
   const context = useContext(DashboardContext);
   // Return a safe no-op fallback when used outside DashboardProvider
-  // (e.g., on the /dashboard/members/[id] standalone page)
   if (context === undefined) {
     return {
       memberModalId: null,
@@ -181,6 +218,12 @@ export function useDashboard(): DashboardState {
       setIsToolbarVisible: () => { },
       personsCache: new Map(),
       setPersonsCache: () => { },
+      selectedPostId: null,
+      setSelectedPostId: () => { },
+      isCreatingPost: false,
+      setIsCreatingPost: () => { },
+      editingPostId: null,
+      setEditingPostId: () => { },
     };
   }
   return context;

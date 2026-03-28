@@ -1,6 +1,6 @@
 -- ==========================================
 -- GIAPHA-OS DATABASE — FULL SETUP (ALL-IN-ONE)
--- Version: 2026-03-26
+-- Version: 2026-03-28
 -- ==========================================
 -- Hướng dẫn: Mở SQL Editor trên Supabase, dán TOÀN BỘ file này vào và chạy.
 -- File này chứa mọi thứ cần thiết để dựng database từ đầu.
@@ -197,6 +197,22 @@ CREATE TABLE IF NOT EXISTS public.notification_reads (
   UNIQUE(user_id, notification_key)
 );
 
+-- POSTS (Blog posts and family documentation)
+CREATE TABLE IF NOT EXISTS public.posts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  content TEXT,
+  excerpt TEXT,
+  featured_image TEXT,
+  author_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published', 'draft')),
+  published_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+COMMENT ON TABLE public.posts IS 'Blog posts and family documentation articles.';
+
 -- ==========================================
 -- 5. INDEXES
 -- ==========================================
@@ -229,6 +245,13 @@ CREATE INDEX IF NOT EXISTS idx_change_requests_target_table ON public.change_req
 -- Notification reads lookups
 CREATE INDEX IF NOT EXISTS idx_notification_reads_user_id ON public.notification_reads(user_id);
 
+-- Posts lookups
+CREATE INDEX IF NOT EXISTS idx_posts_status ON public.posts(status);
+CREATE INDEX IF NOT EXISTS idx_posts_slug ON public.posts(slug);
+CREATE INDEX IF NOT EXISTS idx_posts_published_at ON public.posts(published_at DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_posts_author_id ON public.posts(author_id);
+CREATE INDEX IF NOT EXISTS idx_posts_updated_at ON public.posts(updated_at DESC NULLS LAST);
+
 -- ==========================================
 -- 6. ROW LEVEL SECURITY (RLS)
 -- ==========================================
@@ -240,6 +263,7 @@ ALTER TABLE public.relationships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.custom_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.change_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notification_reads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
 
 -- PROFILES POLICIES
 DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
@@ -326,6 +350,22 @@ CREATE POLICY "Users can insert own reads" ON public.notification_reads FOR INSE
 DROP POLICY IF EXISTS "Users can delete own reads" ON public.notification_reads;
 CREATE POLICY "Users can delete own reads" ON public.notification_reads FOR DELETE USING (auth.uid() = user_id);
 
+-- POSTS POLICIES
+DROP POLICY IF EXISTS "Anyone can read published posts" ON public.posts;
+CREATE POLICY "Anyone can read published posts" ON public.posts FOR SELECT USING (status = 'published');
+
+DROP POLICY IF EXISTS "Authenticated users can read all posts" ON public.posts;
+CREATE POLICY "Authenticated users can read all posts" ON public.posts FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Admins and Editors can insert posts" ON public.posts;
+CREATE POLICY "Admins and Editors can insert posts" ON public.posts FOR INSERT TO authenticated WITH CHECK (public.is_admin() OR public.is_editor());
+
+DROP POLICY IF EXISTS "Admins and Editors can update posts" ON public.posts;
+CREATE POLICY "Admins and Editors can update posts" ON public.posts FOR UPDATE TO authenticated USING (public.is_admin() OR public.is_editor()) WITH CHECK (public.is_admin() OR public.is_editor());
+
+DROP POLICY IF EXISTS "Admins and Editors can delete posts" ON public.posts;
+CREATE POLICY "Admins and Editors can delete posts" ON public.posts FOR DELETE TO authenticated USING (public.is_admin() OR public.is_editor());
+
 -- ==========================================
 -- 7. TRIGGERS
 -- ==========================================
@@ -348,6 +388,9 @@ CREATE TRIGGER tr_custom_events_updated_at BEFORE UPDATE ON public.custom_events
 
 DROP TRIGGER IF EXISTS tr_change_requests_updated_at ON public.change_requests;
 CREATE TRIGGER tr_change_requests_updated_at BEFORE UPDATE ON public.change_requests FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS tr_posts_updated_at ON public.posts;
+CREATE TRIGGER tr_posts_updated_at BEFORE UPDATE ON public.posts FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 
 -- Handle new user signup (auto-create profile, first user = admin)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -421,6 +464,23 @@ CREATE POLICY "Users can update avatars." ON storage.objects FOR UPDATE USING ( 
 
 DROP POLICY IF EXISTS "Users can delete avatars." ON storage.objects;
 CREATE POLICY "Users can delete avatars." ON storage.objects FOR DELETE USING ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );
+
+-- Posts storage bucket
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('posts', 'posts', true) 
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Post images are publicly accessible." ON storage.objects;
+CREATE POLICY "Post images are publicly accessible." ON storage.objects FOR SELECT USING ( bucket_id = 'posts' );
+
+DROP POLICY IF EXISTS "Authenticated users can upload post images." ON storage.objects;
+CREATE POLICY "Authenticated users can upload post images." ON storage.objects FOR INSERT WITH CHECK ( bucket_id = 'posts' AND auth.role() = 'authenticated' );
+
+DROP POLICY IF EXISTS "Authenticated users can update post images." ON storage.objects;
+CREATE POLICY "Authenticated users can update post images." ON storage.objects FOR UPDATE USING ( bucket_id = 'posts' AND auth.role() = 'authenticated' );
+
+DROP POLICY IF EXISTS "Authenticated users can delete post images." ON storage.objects;
+CREATE POLICY "Authenticated users can delete post images." ON storage.objects FOR DELETE USING ( bucket_id = 'posts' AND auth.role() = 'authenticated' );
 
 -- ==========================================
 -- 9. ADMIN RPC FUNCTIONS (with Hierarchy Protection)

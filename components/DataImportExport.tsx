@@ -159,6 +159,9 @@ export default function DataImportExport() {
       const result = await importData({
         persons: payload.persons,
         relationships: payload.relationships,
+        person_details_private: payload.person_details_private,
+        custom_events: payload.custom_events,
+        posts: payload.posts,
       });
 
       if ("error" in result) {
@@ -174,7 +177,7 @@ export default function DataImportExport() {
 
       setImportStatus({
         type: "success",
-        message: `Phục hồi thành công! Đã nhập ${result.imported?.persons} thành viên và ${result.imported?.relationships} quan hệ.`,
+        message: `Phục hồi thành công! Đã nhập ${result.imported?.persons} thành viên, ${result.imported?.relationships} quan hệ và ${result.imported?.posts ?? 0} bài viết.`,
       });
       setShowConfirm(false);
       setSelectedFile(null);

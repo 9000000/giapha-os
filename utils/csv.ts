@@ -21,11 +21,26 @@ interface CustomEventRow {
   created_by: string | null;
 }
 
+interface PostRow {
+  id: string;
+  title: string;
+  slug: string;
+  content: string | null;
+  excerpt: string | null;
+  featured_image: string | null;
+  author_id: string | null;
+  status: string;
+  published_at: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export async function exportToCsvZip(data: {
   persons: Partial<Person>[];
   relationships: Partial<Relationship>[];
   person_details_private?: PersonDetailsPrivateRow[];
   custom_events?: CustomEventRow[];
+  posts?: PostRow[];
 }): Promise<Blob> {
   const personsCsv = UTF8_BOM + Papa.unparse(data.persons);
   const relationshipsCsv = UTF8_BOM + Papa.unparse(data.relationships);
@@ -45,6 +60,10 @@ export async function exportToCsvZip(data: {
     zip.file("custom_events.csv", UTF8_BOM + Papa.unparse(data.custom_events));
   }
 
+  if (data.posts && data.posts.length > 0) {
+    zip.file("posts.csv", UTF8_BOM + Papa.unparse(data.posts));
+  }
+
   const zipBlob = await zip.generateAsync({ type: "blob" });
   return zipBlob;
 }
@@ -54,6 +73,7 @@ export async function parseCsvZip(zipBlob: Blob): Promise<{
   relationships: Partial<Relationship>[];
   person_details_private?: PersonDetailsPrivateRow[];
   custom_events?: CustomEventRow[];
+  posts?: PostRow[];
 }> {
   const zip = new JSZip();
   const loadedZip = await zip.loadAsync(zipBlob);
@@ -105,6 +125,7 @@ export async function parseCsvZip(zipBlob: Blob): Promise<{
     relationships: Partial<Relationship>[];
     person_details_private?: PersonDetailsPrivateRow[];
     custom_events?: CustomEventRow[];
+    posts?: PostRow[];
   } = {
     persons: personsParsed.data,
     relationships: relationshipsParsed.data,
@@ -143,6 +164,22 @@ export async function parseCsvZip(zipBlob: Blob): Promise<{
       console.error("Lỗi parse custom_events.csv:", eventsParsed.errors);
     }
     result.custom_events = eventsParsed.data;
+  }
+
+  // Parse posts.csv (optional, backward compat)
+  const postsFile = loadedZip.file("posts.csv");
+  if (postsFile) {
+    const raw = await postsFile.async("text");
+    const postsCsvStr = raw.startsWith(UTF8_BOM) ? raw.slice(1) : raw;
+    const postsParsed = Papa.parse<PostRow>(postsCsvStr, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+    });
+    if (postsParsed.errors.length > 0) {
+      console.error("Lỗi parse posts.csv:", postsParsed.errors);
+    }
+    result.posts = postsParsed.data;
   }
 
   return result;

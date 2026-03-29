@@ -65,6 +65,20 @@ interface CustomEventExport {
   created_by: string | null;
 }
 
+interface PostExport {
+  id: string;
+  title: string;
+  slug: string;
+  content: string | null;
+  excerpt: string | null;
+  featured_image: string | null;
+  author_id: string | null;
+  status: string;
+  published_at: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 interface BackupPayload {
   version: number;
   timestamp: string;
@@ -72,6 +86,7 @@ interface BackupPayload {
   relationships: RelationshipExport[];
   person_details_private?: PersonDetailsPrivateExport[];
   custom_events?: CustomEventExport[];
+  posts?: PostExport[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -126,6 +141,21 @@ function sanitizeCustomEvent(
     content: e.content ?? null,
     event_date: e.event_date,
     location: e.location ?? null,
+  };
+}
+
+function sanitizePost(
+  p: PostExport,
+): Omit<PostExport, "author_id" | "created_at" | "updated_at"> {
+  return {
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    content: p.content ?? null,
+    excerpt: p.excerpt ?? null,
+    featured_image: p.featured_image ?? null,
+    status: p.status ?? "published",
+    published_at: p.published_at ?? null,
   };
 }
 
@@ -184,11 +214,22 @@ export async function exportData(
       error: "Lỗi tải dữ liệu custom_events: " + customEventsError.message,
     };
 
+  const { data: allPosts, error: postsError } = await supabase
+    .from("posts")
+    .select("id, title, slug, content, excerpt, featured_image, author_id, status, published_at, created_at, updated_at")
+    .order("created_at", { ascending: true });
+
+  if (postsError)
+    return {
+      error: "Lỗi tải dữ liệu posts: " + postsError.message,
+    };
+
   let exportPersons = (allPersons ?? []) as PersonExport[];
   let exportRels = (allRels ?? []) as RelationshipExport[];
   let exportPrivateDetails = (allPrivateDetails ??
     []) as PersonDetailsPrivateExport[];
   const exportCustomEvents = (allCustomEvents ?? []) as CustomEventExport[];
+  const exportPosts = (allPosts ?? []) as PostExport[];
 
   // If a root person is selected, filter the export to only their subtree
   if (exportRootId && exportPersons.some((p) => p.id === exportRootId)) {
@@ -239,12 +280,13 @@ export async function exportData(
   }
 
   return {
-    version: 3, // v3: adds death_lunar_*, person_details_private, relationship note, custom_events
+    version: 4, // v4: adds posts
     timestamp: new Date().toISOString(),
     persons: exportPersons,
     relationships: exportRels,
     person_details_private: exportPrivateDetails,
     custom_events: exportCustomEvents,
+    posts: exportPosts,
   };
 }
 
@@ -258,6 +300,7 @@ export async function importData(
         relationships: Relationship[];
         person_details_private?: PersonDetailsPrivateExport[];
         custom_events?: CustomEventExport[];
+        posts?: PostExport[];
       },
 ) {
   const isAdmin = await getIsAdmin();
@@ -276,6 +319,17 @@ export async function importData(
       error: "File backup trống — không có thành viên nào để phục hồi.",
     };
   }
+
+  // 0. Xoá posts
+  const { error: delPostsError } = await supabase
+    .from("posts")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000");
+
+  if (delPostsError)
+    return {
+      error: "Lỗi khi xoá posts cũ: " + delPostsError.message,
+    };
 
   // 1. Xoá custom_events
   const { error: delEventsError } = await supabase
@@ -398,6 +452,22 @@ export async function importData(
     customEventsCount = customEvents.length;
   }
 
+  // 9. Insert posts (if present in payload, strip author_id)
+  let postsCount = 0;
+  const posts = (importPayload.posts ?? []).map(sanitizePost);
+  if (posts.length > 0) {
+    for (let i = 0; i < posts.length; i += CHUNK) {
+      const chunk = posts.slice(i, i + CHUNK);
+      const { error } = await supabase.from("posts").insert(chunk);
+      if (error)
+        return {
+          error: `Lỗi khi import posts (chunk ${i / CHUNK + 1}): ${error.message}`,
+        };
+    }
+    postsCount = posts.length;
+  }
+
+  revalidatePath("/");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/members");
   revalidatePath("/dashboard/data");
@@ -409,6 +479,7 @@ export async function importData(
       relationships: relationships.length,
       person_details_private: privateDetailsCount,
       custom_events: customEventsCount,
+      posts: postsCount,
     },
   };
 }

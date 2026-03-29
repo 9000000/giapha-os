@@ -138,8 +138,9 @@ export async function approveChangeRequest(requestId: string) {
         .eq("id", requestId);
 
     // 5. Revalidation
+    revalidatePath("/", "layout");
     revalidatePath("/dashboard/approvals");
-    revalidatePath("/dashboard");
+    revalidatePath("/dashboard", "layout");
     revalidatePath("/dashboard/members");
     revalidatePath("/dashboard/posts");
 

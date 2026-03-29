@@ -35,6 +35,8 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [statusText, setStatusText] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const [title, setTitle] = useState(initialData?.title || "");
@@ -96,6 +98,15 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
 
       // Handle Image Upload if a new file is selected
       if (imageFile) {
+        setStatusText("Đang tải ảnh lên...");
+        // Simulated progress since Supabase SDK doesn't support progress callback on basic upload
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => {
+            if (prev >= 90) return prev;
+            return prev + 5;
+          });
+        }, 200);
+
         const fileExt = imageFile.name.split(".").pop();
         const fileName = `post_${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
         const filePath = `thumbnails/${fileName}`;
@@ -104,11 +115,20 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
           .from("posts")
           .upload(filePath, imageFile);
 
+        clearInterval(progressInterval);
+        setUploadProgress(100);
+
         if (uploadError) throw new Error("Lỗi khi tải ảnh lên: " + uploadError.message);
 
         const { data: { publicUrl } } = supabase.storage.from("posts").getPublicUrl(filePath);
         finalImageUrl = publicUrl;
+        
+        // Brief pause to show 100%
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
+
+      setStatusText(isEditing ? "Đang cập nhật bài viết..." : "Đang tạo bài viết...");
+      setUploadProgress(0); // Reset for form submission phase or just hide
 
       const formData = {
         title,
@@ -145,6 +165,8 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
       setError(message);
     } finally {
       setLoading(false);
+      setUploadProgress(0);
+      setStatusText("");
     }
   };
 
@@ -280,6 +302,24 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
                   <Trash2 className="size-3.5" /> Gỡ ảnh
                 </button>
               )}
+
+              {/* Upload Progress Bar */}
+              {loading && uploadProgress > 0 && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                    <span>{statusText}</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-amber-500"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${uploadProgress}%` }}
+                      transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Slug Settings */}
@@ -325,8 +365,17 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
                 disabled={loading}
                 className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-xl font-bold hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 active:scale-95 disabled:opacity-50"
               >
-                {loading ? <Loader2 className="size-5 animate-spin" /> : <Save className="size-5" />}
-                {isEditing ? "Cập nhật bài viết" : "Đăng bài viết"}
+                {loading ? (
+                  <>
+                    <Loader2 className="size-5 animate-spin" />
+                    <span>{statusText || "Đang xử lý..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="size-5" />
+                    <span>{isEditing ? "Cập nhật bài viết" : "Đăng bài viết"}</span>
+                  </>
+                )}
               </button>
               <button
                 type="button"

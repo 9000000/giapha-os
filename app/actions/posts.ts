@@ -134,7 +134,8 @@ export async function createPost(formData: Partial<Post>) {
     );
   }
 
-  revalidatePath("/dashboard");
+  revalidatePath("/", "layout"); // Cập nhật toàn bộ layout để bài mới hiện ở trang chủ
+  revalidatePath("/dashboard", "layout");
   revalidatePath("/dashboard/posts");
   return { data: data as Post, error: null, pending: !isAdmin };
 }
@@ -182,7 +183,8 @@ export async function updatePost(id: string, formData: Partial<Post>) {
     return { success: true, pending: true, message: "Yêu cầu thay đổi đã được gửi chờ Admin duyệt." };
   }
 
-  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
+  revalidatePath("/dashboard", "layout");
   revalidatePath("/dashboard/posts");
   return { error: null, success: true };
 }
@@ -217,7 +219,8 @@ export async function deletePost(id: string) {
     return { success: true, pending: true, message: "Yêu cầu xoá bài đã được gửi chờ Admin duyệt." };
   }
 
-  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
+  revalidatePath("/dashboard", "layout");
   revalidatePath("/dashboard/posts");
   return { error: null, success: true };
 }

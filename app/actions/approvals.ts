@@ -83,15 +83,37 @@ export async function approveChangeRequest(requestId: string) {
     let applyError = null;
 
     if (request.action === "insert") {
-        // If we have a target_record_id, try to use it for insert (if UUID is generated frontend side)
-        const dataToInsert = request.target_record_id
-            ? { ...request.new_data, id: request.target_record_id }
-            : request.new_data;
+        // Check if the record already exists (e.g., Editor created a post with 'pending' status)
+        const recordId = request.target_record_id || request.new_data?.id;
+        let recordExists = false;
 
-        const { error } = await supabase
-            .from(request.target_table)
-            .insert(dataToInsert);
-        applyError = error;
+        if (recordId) {
+            const { data: existing } = await supabase
+                .from(request.target_table)
+                .select("id")
+                .eq("id", recordId)
+                .maybeSingle();
+            recordExists = !!existing;
+        }
+
+        if (recordExists) {
+            // Record already exists — update it instead of inserting again
+            const { error } = await supabase
+                .from(request.target_table)
+                .update(request.new_data)
+                .eq("id", recordId);
+            applyError = error;
+        } else {
+            // Normal insert for records that don't exist yet
+            const dataToInsert = request.target_record_id
+                ? { ...request.new_data, id: request.target_record_id }
+                : request.new_data;
+
+            const { error } = await supabase
+                .from(request.target_table)
+                .insert(dataToInsert);
+            applyError = error;
+        }
     } else if (request.action === "update") {
         if (!request.target_record_id) {
             return { error: "Thiếu ID bản ghi cần cập nhật." };

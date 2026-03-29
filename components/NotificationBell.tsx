@@ -28,9 +28,12 @@ export default function NotificationBell() {
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    // Store read notification keys loaded from the database
-    const readKeysRef = useRef<Set<string>>(new Set());
+    // Store read notification keys with their read_at timestamps
+    const readKeysRef = useRef<Map<string, string>>(new Map());
     const readKeysLoadedRef = useRef(false);
+
+    // 24 hours in milliseconds
+    const HIDE_AFTER_MS = 24 * 60 * 60 * 1000;
 
     const menuRef = useRef<HTMLDivElement>(null);
     const { supabase } = useUser();
@@ -42,15 +45,17 @@ export default function NotificationBell() {
         try {
             const { data } = await supabase
                 .from("notification_reads")
-                .select("notification_key")
+                .select("notification_key, read_at")
                 .eq("user_id", user.id);
 
             if (data) {
-                readKeysRef.current = new Set(data.map((r: any) => r.notification_key));
+                const map = new Map<string, string>();
+                data.forEach((r: any) => map.set(r.notification_key, r.read_at));
+                readKeysRef.current = map;
             }
         } catch {
-            // Fallback: empty set if table doesn't exist yet
-            readKeysRef.current = new Set();
+            // Fallback: empty map if table doesn't exist yet
+            readKeysRef.current = new Map();
         }
         readKeysLoadedRef.current = true;
     }, [user?.id, supabase]);
@@ -152,11 +157,21 @@ export default function NotificationBell() {
         // Keep only top 10 newest
         items = items.slice(0, 10);
 
-        // Determine isRead by checking if this notification's key is in our read set
+        // Determine isRead by checking if this notification's key is in our read map
         items = items.map(item => ({
             ...item,
             isRead: readKeysRef.current.has(notifKey(item)),
         }));
+
+        // Filter out notifications that have been read for more than 24 hours
+        const now = Date.now();
+        items = items.filter(item => {
+            if (!item.isRead) return true; // Always show unread
+            const readAt = readKeysRef.current.get(notifKey(item));
+            if (!readAt) return true; // No read_at timestamp, keep it
+            const readTime = new Date(readAt).getTime();
+            return (now - readTime) < HIDE_AFTER_MS;
+        });
 
         setNotifications(items);
         setUnreadCount(items.filter((i) => !i.isRead).length);
@@ -245,13 +260,14 @@ export default function NotificationBell() {
     const handleNotificationClick = async (notif: NotificationItem) => {
         const key = notifKey(notif);
         if (!readKeysRef.current.has(key) && user?.id) {
-            readKeysRef.current.add(key);
+            const nowISO = new Date().toISOString();
+            readKeysRef.current.set(key, nowISO);
 
             // Persist to database (upsert to avoid duplicates)
             supabase
                 .from("notification_reads")
                 .upsert(
-                    { user_id: user.id, notification_key: key },
+                    { user_id: user.id, notification_key: key, read_at: nowISO },
                     { onConflict: "user_id,notification_key" }
                 )
                 .then(); // fire-and-forget, no need to await
@@ -273,15 +289,17 @@ export default function NotificationBell() {
 
         const unreadNotifs = notifications.filter(n => !n.isRead);
         const newKeys = unreadNotifs.map(n => notifKey(n));
+        const nowISO = new Date().toISOString();
 
-        // Add to local set
-        newKeys.forEach(key => readKeysRef.current.add(key));
+        // Add to local map with current timestamp
+        newKeys.forEach(key => readKeysRef.current.set(key, nowISO));
 
         // Batch insert to database
         if (newKeys.length > 0) {
             const rows = newKeys.map(key => ({
                 user_id: user.id,
                 notification_key: key,
+                read_at: nowISO,
             }));
 
             supabase

@@ -1,6 +1,6 @@
 "use server";
 
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Khởi tạo S3 Client cho Cloudflare R2
@@ -69,6 +69,64 @@ export async function deleteR2File(filePath: string) {
     return { success: true };
   } catch (error: any) {
     console.error("Lỗi xóa file R2:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+const MAX_STORAGE_BYTES = 10 * 1024 * 1024 * 1024; // 10 GB (R2 free tier)
+
+export async function getStorageUsage() {
+  try {
+    if (!process.env.R2_BUCKET_NAME) {
+      return { success: false, error: "Chưa cấu hình R2_BUCKET_NAME" };
+    }
+
+    let totalSize = 0;
+    let totalFiles = 0;
+    let continuationToken: string | undefined = undefined;
+
+    // Paginate through all objects in the bucket
+    do {
+      const listCommand = new ListObjectsV2Command({
+        Bucket: process.env.R2_BUCKET_NAME,
+        ContinuationToken: continuationToken,
+      });
+
+      const listResponse = await S3.send(listCommand) as {
+        Contents?: { Size?: number }[];
+        IsTruncated?: boolean;
+        NextContinuationToken?: string;
+      };
+
+      if (listResponse.Contents) {
+        for (const obj of listResponse.Contents) {
+          totalSize += obj.Size || 0;
+          totalFiles++;
+        }
+      }
+
+      continuationToken = listResponse.IsTruncated
+        ? listResponse.NextContinuationToken
+        : undefined;
+    } while (continuationToken);
+
+    const usedMB = Math.round((totalSize / (1024 * 1024)) * 100) / 100;
+    const maxMB = Math.round(MAX_STORAGE_BYTES / (1024 * 1024));
+    const percentage = Math.min(
+      Math.round((totalSize / MAX_STORAGE_BYTES) * 10000) / 100,
+      100
+    );
+
+    return {
+      success: true,
+      usedBytes: totalSize,
+      usedMB,
+      maxMB,
+      percentage,
+      totalFiles,
+    };
+  } catch (error: any) {
+    console.error("Lỗi lấy dung lượng R2:", error);
     return { success: false, error: error.message };
   }
 }

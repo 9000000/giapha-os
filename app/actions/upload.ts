@@ -13,6 +13,8 @@ const S3 = new S3Client({
   },
 });
 
+const UPLOAD_LIMIT_BYTES = 9.7 * 1024 * 1024 * 1024; // 9.7 GB - ngưỡng tắt upload
+
 export async function getPresignedUploadUrl(
   fileName: string, 
   contentType: string, 
@@ -21,6 +23,16 @@ export async function getPresignedUploadUrl(
   try {
     if (!process.env.R2_BUCKET_NAME || !process.env.R2_PUBLIC_URL) {
       throw new Error("Chưa cấu hình Cloudflare R2 trong biến môi trường.");
+    }
+
+    // Kiểm tra dung lượng trước khi cho phép upload
+    const usage = await getStorageUsage();
+    if (usage.success && usage.usedBytes !== undefined && usage.usedBytes >= UPLOAD_LIMIT_BYTES) {
+      return {
+        success: false,
+        error: `Bộ nhớ đã đạt giới hạn (${((usage.usedBytes || 0) / (1024 * 1024 * 1024)).toFixed(2)} GB / 10 GB). Không thể tải thêm ảnh. Vui lòng xóa bớt ảnh cũ hoặc nâng cấp gói lưu trữ.`,
+        storageFull: true,
+      };
     }
 
     const uniqueId = Math.random().toString(36).substring(2, 11);

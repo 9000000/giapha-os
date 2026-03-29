@@ -78,11 +78,6 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        // Limit size to 5MB
-        if (file.size > 5 * 1024 * 1024) {
-          errorMessages.push(`Bỏ qua '${file.name}': Vượt quá 5MB`);
-          continue;
-        }
 
         const fileExt = file.name.split(".").pop();
         const fileName = `content_${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;

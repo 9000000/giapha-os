@@ -16,6 +16,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Pencil,
+  X,
 } from "lucide-react";
 
 interface DashboardPostsViewProps {
@@ -36,6 +37,8 @@ export default function DashboardPostsView({
 
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [isFullZoom, setIsFullZoom] = useState(false);
 
   // Use the optimized posts hook with caching
   const {
@@ -63,6 +66,9 @@ export default function DashboardPostsView({
       setSelectedPost(null);
     }
   }, [selectedPostId, getPostDetail]);
+
+  // Attach click listeners to images for zooming
+  // Handled via React onClick on the container directly below.
 
   // Load editing post detail
   useEffect(() => {
@@ -146,6 +152,42 @@ export default function DashboardPostsView({
 
     return (
       <div className="max-w-4xl mx-auto px-4 py-8 w-full">
+        {/* Fullscreen Image Zoom Overlay */}
+        {zoomedImage && (
+          <div 
+            className={`fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex p-4 sm:p-8 duration-200 transition-all ${isFullZoom ? 'overflow-auto cursor-zoom-out items-start justify-center' : 'items-center justify-center cursor-zoom-in'}`}
+            onClick={() => {
+              if (isFullZoom) {
+                setIsFullZoom(false);
+              } else {
+                setZoomedImage(null);
+              }
+            }}
+          >
+            <button 
+              className="fixed top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-colors z-50 shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                setZoomedImage(null);
+                setIsFullZoom(false);
+              }}
+              title="Đóng"
+            >
+              <X className="size-6" />
+            </button>
+            <img 
+              src={zoomedImage} 
+              alt="Phóng to" 
+              className={`transition-all duration-300 ${isFullZoom ? 'max-w-none w-auto' : 'max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95'}`} 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsFullZoom(!isFullZoom);
+              }}
+              title={isFullZoom ? "Nhấp để thu nhỏ vừa màn hình" : "Nhấp để xem kích thước gốc"}
+            />
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           {/* Back button */}
           <button
@@ -197,8 +239,15 @@ export default function DashboardPostsView({
           </header>
 
           <div
-            className="rendered-html-content prose prose-stone max-w-none text-stone-600 leading-relaxed text-lg"
+            className="rendered-html-content prose prose-stone max-w-none text-stone-600 leading-relaxed text-lg [&_img]:cursor-zoom-in [&_img]:transition-transform hover:[&_img]:brightness-95"
             dangerouslySetInnerHTML={{ __html: selectedPost.content || "" }}
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              if (target.tagName.toLowerCase() === 'img') {
+                setZoomedImage((target as HTMLImageElement).src);
+                setIsFullZoom(false);
+              }
+            }}
           />
         </article>
 

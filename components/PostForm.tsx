@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { createPost, updatePost, Post } from "@/app/actions/posts";
-import { createClient } from "@/utils/supabase/client";
+import { getPresignedUploadUrl } from "@/app/actions/upload";
 
 interface PostFormProps {
   initialData?: Post;
@@ -31,7 +31,6 @@ interface PostFormProps {
 
 export default function PostForm({ initialData, isEditing = false, onSuccess, onCancel }: PostFormProps) {
   const router = useRouter();
-  const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [loading, setLoading] = useState(false);
@@ -107,21 +106,33 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
           });
         }, 200);
 
-        const fileExt = imageFile.name.split(".").pop();
-        const fileName = `post_${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
-        const filePath = `thumbnails/${fileName}`;
+        const { success, presignedUrl, publicUrl, error: r2Error } = await getPresignedUploadUrl(
+          imageFile.name,
+          imageFile.type || "image/jpeg",
+          "thumbnails"
+        );
 
-        const { error: uploadError } = await supabase.storage
-          .from("posts")
-          .upload(filePath, imageFile);
+        if (!success || !presignedUrl) {
+           clearInterval(progressInterval);
+           throw new Error("Lỗi kết nối bộ nhớ R2: " + r2Error);
+        }
+
+        const response = await fetch(presignedUrl, {
+          method: "PUT",
+          body: imageFile,
+          headers: {
+            "Content-Type": imageFile.type || "image/jpeg",
+          },
+        });
 
         clearInterval(progressInterval);
         setUploadProgress(100);
 
-        if (uploadError) throw new Error("Lỗi khi tải ảnh lên: " + uploadError.message);
+        if (!response.ok) {
+          throw new Error(`Lỗi khi tải ảnh lên R2 (Mã lỗi: ${response.status})`);
+        }
 
-        const { data: { publicUrl } } = supabase.storage.from("posts").getPublicUrl(filePath);
-        finalImageUrl = publicUrl;
+        finalImageUrl = publicUrl as string;
         
         // Brief pause to show 100%
         await new Promise(resolve => setTimeout(resolve, 500));

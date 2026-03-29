@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createChangeRequest } from "@/app/actions/approvals";
 import ImageCropper from "./ImageCropper";
+import { getPresignedUploadUrl } from "@/app/actions/upload";
 
 interface MemberFormProps {
   initialData?: Person;
@@ -306,21 +307,29 @@ export default function MemberForm({
         const uploadId = currentPersonId || Math.random().toString(36).substring(2, 15);
         if (avatarFile) {
           const fileExt = avatarFile.name.split(".").pop() || "jpg";
-          const slugName = slugify(fullName);
-          const fileName = `${uploadId}_${slugName}_${Date.now()}.${fileExt}`;
-          const filePath = `${fileName}`;
+          const { success, presignedUrl, publicUrl, error: r2Error } = await getPresignedUploadUrl(
+            `temp_${uploadId}_${fileExt}`,
+            avatarFile.type || "image/jpeg",
+            "avatars"
+          );
 
-          const { error: uploadError } = await supabase.storage
-            .from("avatars")
-            .upload(filePath, avatarFile, { upsert: true });
+          if (!success || !presignedUrl) {
+            throw new Error("Lỗi kết nối R2: " + r2Error);
+          }
 
-          if (uploadError) throw uploadError;
+          const response = await fetch(presignedUrl, {
+            method: "PUT",
+            body: avatarFile,
+            headers: {
+              "Content-Type": avatarFile.type || "image/jpeg",
+            },
+          });
 
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from("avatars").getPublicUrl(filePath);
+          if (!response.ok) {
+            throw new Error(`Lỗi tải ảnh lên R2 (Mã lỗi: ${response.status})`);
+          }
 
-          currentAvatarUrl = publicUrl;
+          currentAvatarUrl = publicUrl as string;
         }
 
         const personData = getPersonData(currentAvatarUrl || null);
@@ -365,21 +374,29 @@ export default function MemberForm({
 
       if (avatarFile && currentPersonId) {
         const fileExt = avatarFile.name.split(".").pop() || "jpg";
-        const slugName = slugify(fullName);
-        const fileName = `${currentPersonId}_${slugName}_${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const { success, presignedUrl, publicUrl, error: r2Error } = await getPresignedUploadUrl(
+          `${currentPersonId}_${fileExt}`,
+          avatarFile.type || "image/jpeg",
+          "avatars"
+        );
 
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, avatarFile, { upsert: true });
+        if (!success || !presignedUrl) {
+          throw new Error("Lỗi kết nối R2: " + r2Error);
+        }
 
-        if (uploadError) throw uploadError;
+        const response = await fetch(presignedUrl, {
+          method: "PUT",
+          body: avatarFile,
+          headers: {
+            "Content-Type": avatarFile.type || "image/jpeg",
+          },
+        });
 
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        if (!response.ok) {
+          throw new Error(`Lỗi tải ảnh avatar lên R2 (Mã lỗi: ${response.status})`);
+        }
 
-        const newAvatarUrl = publicUrl;
+        const newAvatarUrl = publicUrl as string;
 
         const { error: updateAvatarError } = await supabase
           .from("persons")

@@ -23,7 +23,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { Paragraph } from "@tiptap/extension-paragraph";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { Iframe, VideoHtml, Source, Track } from "./extensions/MediaExtensions";
-import { 
+import {
   Bold, 
   Italic, 
   Underline as UnderlineIcon, 
@@ -50,7 +50,7 @@ import {
   Redo,
   Loader2
 } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import { getPresignedUploadUrl } from "@/app/actions/upload";
 
 export interface TipTapEditorProps {
   value: string;
@@ -63,7 +63,6 @@ export interface TipTapEditorProps {
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const supabase = createClient();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editor) return;
@@ -79,24 +78,40 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        const fileExt = file.name.split(".").pop();
-        const fileName = `content_${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
-        const filePath = `content/${fileName}`;
+        // Xin link tạo sẵn từ Server
+        const { success, presignedUrl, publicUrl, error } = await getPresignedUploadUrl(
+          file.name,
+          file.type,
+          "posts"
+        );
 
-        const { error: uploadError } = await supabase.storage
-          .from("posts")
-          .upload(filePath, file);
-
-        if (uploadError) {
-          errorMessages.push(`Lỗi tải '${file.name}': ${uploadError.message}`);
+        if (!success || !presignedUrl) {
+          // Báo lỗi do server R2 chưa config hoặc sai
+          if (error && error.includes("Chưa cấu hình")) {
+             errorMessages.push("Chưa điền thông tin Cloudflare R2 trong mã nguồn (Biến môi trường)!");
+             break; // Không cần thử tiếp các file khác
+          }
+          errorMessages.push(`Lỗi kết nối R2 cho '${file.name}': ${error}`);
           continue;
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from("posts")
-          .getPublicUrl(filePath);
+        // Tải ảnh trực tiếp lên R2 thông qua presigned link (Không tốn băng thông Vercel)
+        const response = await fetch(presignedUrl, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+          },
+        });
 
-        uploadedUrls.push(publicUrl);
+        if (!response.ok) {
+          errorMessages.push(`Tải ảnh '${file.name}' lên R2 thất bại (Mã lỗi: ${response.status})`);
+          continue;
+        }
+
+        if (publicUrl) {
+          uploadedUrls.push(publicUrl);
+        }
       }
 
       if (uploadedUrls.length > 0) {

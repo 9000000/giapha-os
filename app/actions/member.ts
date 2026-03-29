@@ -53,6 +53,13 @@ export async function deleteMemberProfile(memberId: string) {
     return { success: true, pending: true, message: "Yêu cầu xoá đã được gửi chờ Admin duyệt." };
   }
 
+  // Fetch the person to get the avatar URL before deleting
+  const { data: personToDel } = await supabase
+    .from("persons")
+    .select("avatar_url")
+    .eq("id", memberId)
+    .single();
+
   // Admin -> Delete the member directly
   const { error: deleteError } = await supabase
     .from("persons")
@@ -62,6 +69,18 @@ export async function deleteMemberProfile(memberId: string) {
   if (deleteError) {
     console.error("Error deleting person:", deleteError);
     return { error: "Đã xảy ra lỗi khi xoá hồ sơ." };
+  }
+
+  // Delete portrait from storage bucket if it exists
+  if (personToDel?.avatar_url) {
+    try {
+      const fileName = personToDel.avatar_url.split("/").pop();
+      if (fileName) {
+        await supabase.storage.from("avatars").remove([fileName]);
+      }
+    } catch (e) {
+      console.error("Cleanup error for deleted member avatar:", e);
+    }
   }
 
   // 4. Revalidate and redirect

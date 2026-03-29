@@ -81,6 +81,25 @@ export async function approveChangeRequest(requestId: string) {
 
     // 3. Apply changes to the target table
     let applyError = null;
+    let oldAvatarUrl: string | null = null;
+    let newAvatarUrl: string | null = null;
+
+    if (request.target_table === "persons") {
+        newAvatarUrl = request.new_data?.avatar_url || null;
+        if (request.action === "update" && request.old_data?.avatar_url) {
+            oldAvatarUrl = request.old_data.avatar_url;
+        } else if (request.action === "delete") {
+            // Fetch before delete
+            if (request.target_record_id) {
+                const { data: recordData } = await supabase
+                    .from("persons")
+                    .select("avatar_url")
+                    .eq("id", request.target_record_id)
+                    .single();
+                oldAvatarUrl = recordData?.avatar_url || null;
+            }
+        }
+    }
 
     if (request.action === "insert") {
         // Check if the record already exists (e.g., Editor created a post with 'pending' status)
@@ -141,6 +160,25 @@ export async function approveChangeRequest(requestId: string) {
         return { error: "Xảy ra lỗi khi áp dụng dữ liệu vào hệ thống chính." };
     }
 
+    // Storage cleanup logic on approval
+    if (request.target_table === "persons") {
+        if (request.action === "update" && oldAvatarUrl && oldAvatarUrl !== newAvatarUrl) {
+            try {
+                const fName = oldAvatarUrl.split("/").pop();
+                if (fName) await supabase.storage.from("avatars").remove([fName]);
+            } catch (e) {
+                console.error("Failed to delete replaced avatar:", e);
+            }
+        } else if (request.action === "delete" && oldAvatarUrl) {
+            try {
+                const fName = oldAvatarUrl.split("/").pop();
+                if (fName) await supabase.storage.from("avatars").remove([fName]);
+            } catch (e) {
+                console.error("Failed to delete avatar string member delete:", e);
+            }
+        }
+    }
+
     // Special handling for posts: ensure status is 'published' on approval
     if (request.target_table === 'posts' && (request.action === 'insert' || request.action === 'update')) {
         await supabase
@@ -187,6 +225,30 @@ export async function rejectChangeRequest(requestId: string, note?: string) {
 
     if (profile?.role !== "admin") {
         return { error: "Từ chối truy cập. Chỉ Admin mới có quyền." };
+    }
+
+    const { data: request, error: reqError } = await supabase
+        .from("change_requests")
+        .select("*")
+        .eq("id", requestId)
+        .single();
+    
+    if (reqError || !request) {
+        return { error: "Không tìm thấy yêu cầu." };
+    }
+
+    // Check if there is an avatar uploaded that needs to be deleted since it's rejected
+    if (request.target_table === "persons" && request.new_data?.avatar_url) {
+        const newAvatarUrl = request.new_data.avatar_url;
+        const oldAvatarUrl = request.old_data?.avatar_url;
+        if (newAvatarUrl !== oldAvatarUrl) {
+            try {
+                const fName = newAvatarUrl.split("/").pop();
+                if (fName) await supabase.storage.from("avatars").remove([fName]);
+            } catch (e) {
+                console.error("Failed to delete rejected avatar upload", e);
+            }
+        }
     }
 
     // Reject the request

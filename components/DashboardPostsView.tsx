@@ -235,13 +235,13 @@ export default function DashboardPostsView({
   // LIST VIEW
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 w-full space-y-8">
-      <div className="flex items-center justify-between bg-white/80 backdrop-blur-md p-6 sm:p-8 rounded-[2.5rem] border border-white/40 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-6 sm:p-8 rounded-[2.5rem] border border-white/40 shadow-sm">
         <div>
-          <h2 className="text-2xl font-serif font-bold text-stone-900 flex items-center gap-2">
-            <FileText className="size-6 text-amber-600" />
+          <h2 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 flex items-center gap-2">
+            <FileText className="size-5 sm:size-6 text-amber-600 shrink-0" />
             Bài viết & Tài liệu
           </h2>
-          <p className="text-stone-600 text-sm mt-1 font-medium">
+          <p className="text-stone-600 text-xs sm:text-sm mt-1.5 sm:mt-1 font-medium">
             Các câu chuyện, kỷ niệm và kiến thức dòng họ.
           </p>
         </div>
@@ -249,7 +249,7 @@ export default function DashboardPostsView({
         {isAdmin && (
           <button
             onClick={() => setIsCreatingPost(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white rounded-full font-bold text-sm hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 active:scale-95"
+            className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-amber-600 text-white rounded-full font-bold text-sm hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20 active:scale-95"
           >
             <Plus className="size-4" />
             Tạo bài viết

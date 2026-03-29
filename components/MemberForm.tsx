@@ -21,6 +21,7 @@ import { Solar, Lunar } from "lunar-javascript";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createChangeRequest } from "@/app/actions/approvals";
+import ImageCropper from "./ImageCropper";
 
 interface MemberFormProps {
   initialData?: Person;
@@ -210,6 +211,7 @@ export default function MemberForm({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     initialData?.avatar_url || null,
   );
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
 
   const [note, setNote] = useState(initialData?.note || "");
 
@@ -303,7 +305,7 @@ export default function MemberForm({
         // Editor workflow -> create change request
         const uploadId = currentPersonId || Math.random().toString(36).substring(2, 15);
         if (avatarFile) {
-          const fileExt = avatarFile.name.split(".").pop();
+          const fileExt = avatarFile.name.split(".").pop() || "jpg";
           const slugName = slugify(fullName);
           const fileName = `${uploadId}_${slugName}_${Date.now()}.${fileExt}`;
           const filePath = `${fileName}`;
@@ -362,9 +364,9 @@ export default function MemberForm({
       }
 
       if (avatarFile && currentPersonId) {
-        const fileExt = avatarFile.name.split(".").pop();
+        const fileExt = avatarFile.name.split(".").pop() || "jpg";
         const slugName = slugify(fullName);
-        const fileName = `${currentPersonId}_${slugName}.${fileExt}`;
+        const fileName = `${currentPersonId}_${slugName}_${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -377,13 +379,27 @@ export default function MemberForm({
           data: { publicUrl },
         } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
-        currentAvatarUrl = publicUrl;
+        const newAvatarUrl = publicUrl;
 
         const { error: updateAvatarError } = await supabase
           .from("persons")
-          .update({ avatar_url: currentAvatarUrl })
+          .update({ avatar_url: newAvatarUrl })
           .eq("id", currentPersonId);
         if (updateAvatarError) throw updateAvatarError;
+
+        // Delete the old avatar from storage if it exists and is different
+        if (initialData?.avatar_url && initialData.avatar_url !== newAvatarUrl) {
+          try {
+            const oldFileName = initialData.avatar_url.split("/").pop();
+            if (oldFileName) {
+              await supabase.storage.from("avatars").remove([oldFileName]);
+            }
+          } catch (e) {
+            console.error("Failed to delete old avatar:", e);
+          }
+        }
+        
+        currentAvatarUrl = newAvatarUrl;
       }
 
       // 2. Upsert private data (only if admin and currentPersonId exists)
@@ -661,8 +677,8 @@ export default function MemberForm({
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          setAvatarFile(file);
-                          setAvatarPreview(URL.createObjectURL(file));
+                          setCropImageSrc(URL.createObjectURL(file));
+                          e.target.value = ''; // Reset input so same file can be chosen again
                         }
                       }}
                       className="absolute inset-0 w-full h-full opacity-0"
@@ -1047,6 +1063,18 @@ export default function MemberForm({
               : "Thêm thành viên"}
         </button>
       </motion.div>
+
+      {cropImageSrc && (
+        <ImageCropper
+          imageSrc={cropImageSrc}
+          onCancel={() => setCropImageSrc(null)}
+          onCropComplete={(croppedFile) => {
+            setAvatarFile(croppedFile);
+            setAvatarPreview(URL.createObjectURL(croppedFile));
+            setCropImageSrc(null);
+          }}
+        />
+      )}
     </form>
   );
 }

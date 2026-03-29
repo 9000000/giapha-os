@@ -333,8 +333,8 @@ export default function MemberForm({
         // After a successful change request, refresh to show the pending banner.
         // - Modal: onSuccess re-fetches data (including pending requests)
         // - Edit page (Server Component): router.refresh() re-renders the page
-        if (onSuccess && currentPersonId) {
-          onSuccess(currentPersonId);
+        if (onSuccess) {
+          onSuccess(currentPersonId || "pending_create");
         } else {
           router.refresh();
         }

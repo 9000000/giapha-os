@@ -23,6 +23,7 @@ export default function MemberDetailModal() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isPendingCreate, setIsPendingCreate] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +39,7 @@ export default function MemberDetailModal() {
     setMemberModalId(null);
     setShowCreateMember(false);
     setIsEditing(false);
+    setIsPendingCreate(false);
   };
 
   const fetchData = useCallback(
@@ -55,10 +57,10 @@ export default function MemberDetailModal() {
         const personQuery = cached
           ? null
           : supabase
-              .from("persons")
-              .select("*")
-              .eq("id", id)
-              .single();
+            .from("persons")
+            .select("*")
+            .eq("id", id)
+            .single();
 
         const privateQuery = isAdmin
           ? supabase
@@ -105,14 +107,16 @@ export default function MemberDetailModal() {
     if (memberId) {
       setIsOpen(true);
       setIsEditing(false); // always start on detail view when opening
+      setIsPendingCreate(false);
       fetchData(memberId);
     } else if (showCreateMember) {
       setIsOpen(true);
       setIsEditing(false);
+      setIsPendingCreate(false);
       setPerson(null);
       setPrivateData(null);
       setError(null);
-    } else {
+    } else if (!isPendingCreate) {
       setIsOpen(false);
       setTimeout(() => {
         setPerson(null);
@@ -121,7 +125,7 @@ export default function MemberDetailModal() {
         setIsEditing(false);
       }, 300);
     }
-  }, [memberId, showCreateMember, fetchData]);
+  }, [memberId, showCreateMember, isPendingCreate, fetchData]);
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -148,6 +152,11 @@ export default function MemberDetailModal() {
 
   // Called by MemberForm after a successful CREATE
   const handleCreateSuccess = (savedPersonId: string) => {
+    if (savedPersonId === 'pending_create') {
+      setIsPendingCreate(true);
+      setShowCreateMember(false);
+      return;
+    }
     setShowCreateMember(false);
     // Open the detail modal for the new member
     setMemberModalId(savedPersonId);
@@ -298,6 +307,27 @@ export default function MemberDetailModal() {
                   onCancel={() => setIsEditing(false)}
                 />
               </div>
+            ) : isPendingCreate ? (
+              <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-8 pt-16 pb-8">
+                <div className="mb-6 bg-amber-50/80 backdrop-blur-sm border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-xs">
+                  <div className="p-2 bg-amber-100/80 text-amber-600 rounded-lg shrink-0 mt-0.5">
+                    <Info className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wide">
+                      HỒ SƠ ĐANG CHỜ PHÊ DUYỆT
+                    </h3>
+                    <p className="text-sm font-medium text-amber-700/80 mt-1">
+                      Yêu cầu thêm thành viên mới đã được gửi. Thông tin người này đang chờ Quản trị viên duyệt và áp dụng vào gia phả.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-center mt-8">
+                  <button onClick={closeModal} className="px-6 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-full transition-colors">
+                    Đóng
+                  </button>
+                </div>
+              </div>
             ) : showCreateMember ? (
               /* ── CREATE MODE ── */
               <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-8 pt-16 pb-8">
@@ -325,7 +355,7 @@ export default function MemberDetailModal() {
                       <p className="text-sm font-medium text-amber-700/80 mt-1">
                         {isPendingDelete
                           ? "Người dùng này đang có yêu cầu XOÁ chờ Quản trị viên phê duyệt."
-                          : "Có thông tin cập nhật mới cho người này đang chờ Quản trị viên duyệt và áp dụng."}
+                          : "Thông tin cập nhật mới đang chờ Quản trị viên duyệt và áp dụng."}
                       </p>
                     </div>
                   </div>

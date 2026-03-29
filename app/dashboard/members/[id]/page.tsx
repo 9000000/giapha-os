@@ -95,7 +95,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
               <p className="text-sm font-medium text-amber-700/80 mt-1">
                 {isPendingDelete
                   ? "Người dùng này đang có yêu cầu XOÁ chờ Quản trị viên phê duyệt."
-                  : "Có thông tin cập nhật mới cho người này đang chờ Quản trị viên duyệt và áp dụng."}
+                  : "Thông tin cập nhật mới đang chờ Quản trị viên duyệt và áp dụng."}
               </p>
             </div>
           </div>

@@ -25,7 +25,7 @@ import { createClient } from "@/utils/supabase/client";
 interface PostFormProps {
   initialData?: Post;
   isEditing?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<void>;
   onCancel?: () => void;
 }
 
@@ -155,7 +155,7 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
       }
       
       if (onSuccess) {
-        onSuccess();
+        await onSuccess();
       } else {
         router.push("/dashboard?view=posts");
         router.refresh();

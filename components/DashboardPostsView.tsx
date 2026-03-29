@@ -46,6 +46,7 @@ export default function DashboardPostsView({
     setPage,
     refresh,
     getPostDetail,
+    clearCache,
   } = usePosts({
     page: 1,
     limit: 10,
@@ -91,9 +92,11 @@ export default function DashboardPostsView({
     return (
       <div className="max-w-5xl mx-auto px-4 py-8 w-full">
         <PostForm
-          onSuccess={() => {
+          onSuccess={async () => {
+            clearCache();
+            if (page !== 1) setPage(1);
+            await refresh();
             handleBack();
-            refresh();
           }}
           onCancel={handleBack}
         />
@@ -114,9 +117,10 @@ export default function DashboardPostsView({
         <PostForm
           initialData={editingPost}
           isEditing={true}
-          onSuccess={() => {
+          onSuccess={async () => {
+            clearCache();
+            await refresh();
             handleBack();
-            refresh();
           }}
           onCancel={handleBack}
         />

@@ -14,6 +14,8 @@ import {
   Settings2,
   Trash2,
   User,
+  CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import { Solar, Lunar } from "lunar-javascript";
 import { useRouter } from "next/navigation";
@@ -41,6 +43,7 @@ export default function MemberForm({
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Form states
   const [fullName, setFullName] = useState(initialData?.full_name || "");
@@ -336,6 +339,7 @@ export default function MemberForm({
         if (onSuccess) {
           onSuccess(currentPersonId || "pending_create");
         } else {
+          setShowSuccess(true);
           router.refresh();
         }
         return;
@@ -418,8 +422,12 @@ export default function MemberForm({
       if (onSuccess) {
         onSuccess(currentPersonId);
       } else {
-        router.push("/dashboard/members/" + currentPersonId);
-        router.refresh();
+        setShowSuccess(true);
+        // Let the user see the success message for a bit before redirecting
+        setTimeout(() => {
+          router.push("/dashboard/members/" + currentPersonId);
+          router.refresh();
+        }, 2000);
       }
     } catch (err) {
       console.error("Error saving member:", err);
@@ -440,6 +448,53 @@ export default function MemberForm({
 
   const inputClasses =
     "bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300 shadow-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!";
+
+  if (showSuccess) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white p-8 sm:p-12 rounded-3xl shadow-xl border border-stone-200 text-center flex flex-col items-center gap-6 max-w-2xl mx-auto"
+      >
+        <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center shadow-inner mb-2">
+          <CheckCircle2 className="size-12" />
+        </div>
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 mb-3">
+            {isAdmin ? "Lưu thành công!" : "Yêu cầu đã được gửi!"}
+          </h2>
+          <p className="text-stone-600 text-lg leading-relaxed">
+            {isAdmin
+              ? "Thông tin thành viên đã được cập nhật thành công vào hệ thống gia phả."
+              : "Yêu cầu thêm thành viên mới đã được gửi thành công. Thông tin đang chờ Quản trị viên duyệt và áp dụng."}
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
+          {!isEditing && (
+            <button
+              onClick={() => window.location.reload()}
+              className="btn-primary flex items-center justify-center gap-2 px-8 py-3"
+            >
+              <User className="size-5" />
+              Thêm thành viên khác
+            </button>
+          )}
+          <button
+            onClick={() => router.push("/dashboard/members")}
+            className="btn flex items-center justify-center gap-2 px-8 py-3 border-2"
+          >
+            Quay lại danh sách
+            <ArrowRight className="size-5" />
+          </button>
+        </div>
+        {isAdmin && !isEditing && (
+          <p className="text-stone-400 text-sm italic mt-2 animate-pulse">
+            Đang tự động chuyển hướng đến hồ sơ mới...
+          </p>
+        )}
+      </motion.div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">

@@ -226,8 +226,8 @@ export default function DashboardViews({
             }}
           >
             {currentView !== "list" ? (
-              <div className={`flex flex-row items-center gap-3 w-full sm:w-auto relative z-50 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
-                <div className="flex-1 min-w-0">
+              <div className={`flex flex-row items-center gap-3 w-full sm:w-auto relative z-50 transition-colors flex-1 ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
+                <div className="flex-1 min-w-0 sm:flex-none">
                   <RootSelector persons={persons} currentRootId={activeRootId} />
                 </div>
                 <Link
@@ -240,15 +240,16 @@ export default function DashboardViews({
                 </Link>
               </div>
             ) : (
-              <div className="hidden sm:block w-full sm:w-auto" />
+              <div className="hidden sm:block w-full sm:w-auto flex-1" />
             )}
 
-            <div className={`w-full sm:w-auto flex justify-center order-last sm:order-none relative z-30 transition-colors ${currentView === "list" || isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
+            <div className={`w-full sm:w-auto flex justify-end relative z-30 transition-colors sm:ml-auto ${currentView === "list" || isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
               <ViewToggle />
             </div>
+
             <div
               id="tree-toolbar-portal"
-              className={`flex items-center gap-2 flex-wrap justify-center sm:ml-auto relative z-40 transition-colors ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}
+              className={`w-full flex items-center gap-2 flex-wrap justify-center sm:justify-end relative z-40 transition-colors order-last ${isToolbarVisible ? "pointer-events-auto" : "pointer-events-none"}`}
             />
           </div>
         )}

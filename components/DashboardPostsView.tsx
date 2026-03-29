@@ -15,6 +15,7 @@ import {
   Loader2,
   AlertCircle,
   ArrowLeft,
+  Pencil,
 } from "lucide-react";
 
 interface DashboardPostsViewProps {
@@ -120,9 +121,18 @@ export default function DashboardPostsView({
           onSuccess={async () => {
             clearCache();
             await refresh();
-            handleBack();
+            
+            // Re-fetch the updated post to update the detail view cache
+            const updatedPost = await getPostDetail(editingPost.id);
+            setSelectedPost(updatedPost);
+            
+            setEditingPostId(null);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          onCancel={handleBack}
+          onCancel={() => {
+            setEditingPostId(null);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
       </div>
     );
@@ -136,14 +146,29 @@ export default function DashboardPostsView({
 
     return (
       <div className="max-w-4xl mx-auto px-4 py-8 w-full">
-        {/* Back button */}
-        <button
-          onClick={handleBack}
-          className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-sm font-bold text-stone-600 hover:text-amber-700 hover:bg-white shadow-sm border border-stone-200/50 transition-all active:scale-95"
-        >
-          <ChevronLeft className="size-4" />
-          Quay lại danh sách
-        </button>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          {/* Back button */}
+          <button
+            onClick={handleBack}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-sm font-bold text-stone-600 hover:text-amber-700 hover:bg-white shadow-sm border border-stone-200/50 transition-all active:scale-95"
+          >
+            <ChevronLeft className="size-4" />
+            Quay lại danh sách
+          </button>
+
+          {isAdmin && (
+            <button
+               onClick={() => {
+                 setEditingPostId(selectedPost.id);
+                 window.scrollTo({ top: 0, behavior: 'smooth' });
+               }}
+               className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100/50 backdrop-blur-sm rounded-full text-sm font-bold text-amber-800 hover:bg-amber-200 hover:text-amber-900 shadow-sm border border-amber-200 transition-all active:scale-95"
+            >
+              <Pencil className="size-4" />
+              Chỉnh sửa bài viết
+            </button>
+          )}
+        </div>
 
         <article className="space-y-8 pb-12 bg-white rounded-2xl p-8 shadow-sm border border-stone-200">
           <header className="space-y-6 text-center">

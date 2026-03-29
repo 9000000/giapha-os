@@ -67,32 +67,44 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editor) return;
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Limit size to 5MB
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Dung lượng ảnh không được vượt quá 5MB");
-      return;
-    }
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
+    let errorMessages: string[] = [];
+
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `content_${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
-      const filePath = `content/${fileName}`;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Limit size to 5MB
+        if (file.size > 5 * 1024 * 1024) {
+          errorMessages.push(`Bỏ qua '${file.name}': Vượt quá 5MB`);
+          continue;
+        }
 
-      const { error: uploadError } = await supabase.storage
-        .from("posts")
-        .upload(filePath, file);
+        const fileExt = file.name.split(".").pop();
+        const fileName = `content_${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
+        const filePath = `content/${fileName}`;
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from("posts")
+          .upload(filePath, file);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("posts")
-        .getPublicUrl(filePath);
+        if (uploadError) {
+          errorMessages.push(`Lỗi tải '${file.name}': ${uploadError.message}`);
+          continue;
+        }
 
-      editor.chain().focus().setImage({ src: publicUrl }).run();
+        const { data: { publicUrl } } = supabase.storage
+          .from("posts")
+          .getPublicUrl(filePath);
+
+        editor.chain().focus().setImage({ src: publicUrl }).run();
+      }
+
+      if (errorMessages.length > 0) {
+        alert("Một số ảnh bị lỗi:\n" + errorMessages.join("\n"));
+      }
     } catch (err: any) {
       console.error("Error uploading image:", err);
       alert("Lỗi khi tải ảnh lên: " + err.message);
@@ -104,13 +116,33 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
   const addImageUrl = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt("Nhập URL hình ảnh (ví dụ: https://example.com/image.jpg):");
-    if (url) {
-      try {
-        new URL(url);
-        editor.chain().focus().setImage({ src: url }).run();
-      } catch (e) {
-        alert("URL không hợp lệ.");
+    const urlInput = window.prompt("Nhập URL hình ảnh (Nếu nhiều ảnh, hãy cách nhau bằng dấu phẩy hoặc dấu cách):");
+    
+    if (urlInput !== null) {
+      // Split by spaces, commas, or newlines, and filter out empty strings
+      const urls = urlInput.split(/[\s,]+/).filter(u => u.trim() !== "");
+      if (urls.length === 0) return;
+      
+      let failCount = 0;
+
+      for (const url of urls) {
+        try {
+          // Validate URL format (will throw error if invalid)
+          const parsedUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
+          
+          // Execute TipTap command to insert image
+          const success = editor.chain().focus().setImage({ src: parsedUrl.href }).run();
+          
+          if (!success) {
+            failCount++;
+          }
+        } catch (e) {
+          failCount++;
+        }
+      }
+
+      if (failCount > 0) {
+        alert(`Đã chèn thành công ${urls.length - failCount} ảnh. Có ${failCount} URL không hợp lệ hoặc không thể chèn.`);
       }
     }
   }, [editor]);
@@ -153,6 +185,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
     <div className="flex flex-wrap gap-1 p-1">
       <input 
         type="file" 
+        multiple
         ref={fileInputRef} 
         onChange={handleFileUpload} 
         accept="image/*" 

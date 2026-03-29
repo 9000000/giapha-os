@@ -141,7 +141,7 @@ export default function DashboardPostsView({
           Quay lại danh sách
         </button>
 
-        <article className="space-y-8 pb-12 border-b border-stone-200">
+        <article className="space-y-8 pb-12 bg-white rounded-2xl p-8 shadow-sm border border-stone-200">
           <header className="space-y-6 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider">
               {selectedPost.status === "draft"

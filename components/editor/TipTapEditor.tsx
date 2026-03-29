@@ -40,9 +40,15 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   }
 
   const addImage = useCallback(() => {
-    const url = window.prompt("Nhập URL hình ảnh:");
+    const url = window.prompt("Nhập URL hình ảnh (ví dụ: https://example.com/image.jpg):");
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      // Validate URL
+      try {
+        new URL(url);
+        editor.chain().focus().setImage({ src: url }).run();
+      } catch (e) {
+        alert("URL không hợp lệ. Vui lòng nhập URL có http:// hoặc https://");
+      }
     }
   }, [editor]);
 
@@ -239,8 +245,11 @@ export function TipTapEditor({
       TableHeader,
       TableCell,
       Image.configure({
+        allowBase64: true,
         HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg",
+          class: "max-w-full h-auto rounded-lg block my-4",
+          style: "max-width: 100%; height: auto;",
+          loading: "lazy",
         },
       }),
       Link.configure({

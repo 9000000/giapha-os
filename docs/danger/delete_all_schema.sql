@@ -2,8 +2,12 @@
 -- 🚨 DANGER ZONE: DROP GIAPHA-OS DATABASE SCHEMA 🚨
 -- ==========================================
 -- WARNING: DO NOT RUN THIS SCRIPT UNLESS YOU KNOW EXACTLY WHAT YOU ARE DOING.
--- This script PERMANENTLY removes all tables, functions, triggers, and types.
+-- This script PERMANENTLY removes all tables, functions, triggers, types,
+-- storage, cron jobs, and auth users.
 -- All data will be LOST irreversibly.
+-- ==========================================
+-- After running this, re-run giapha_full_setup_all_in_one.sql to rebuild.
+-- The first user to register will automatically become Admin.
 -- ==========================================
 
 -- 1. DROP TRIGGERS ON EXTERNAL SCHEMAS (auth.users)
@@ -11,6 +15,7 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users CASCADE;
 DROP TRIGGER IF EXISTS on_auth_user_created_confirm ON auth.users CASCADE;
 
 -- 2. DROP TABLES (CASCADE drops triggers, indexes, RLS policies)
+DROP TABLE IF EXISTS public.posts CASCADE;
 DROP TABLE IF EXISTS public.notification_reads CASCADE;
 DROP TABLE IF EXISTS public.change_requests CASCADE;
 DROP TABLE IF EXISTS public.custom_events CASCADE;
@@ -41,9 +46,17 @@ DROP TYPE IF EXISTS public.user_role_enum CASCADE;
 DROP TYPE IF EXISTS public.relationship_type_enum CASCADE;
 DROP TYPE IF EXISTS public.gender_enum CASCADE;
 
--- 6. UNSCHEDULE CRON JOBS (if pg_cron is available)
--- SELECT cron.unschedule('delete-old-change-requests');
+-- 6. UNSCHEDULE CRON JOBS (requires pg_cron extension)
+SELECT cron.unschedule('delete-old-change-requests');
 
--- 7. RESET STORAGE (Optional)
--- DELETE FROM storage.objects WHERE bucket_id = 'avatars';
--- DELETE FROM storage.buckets WHERE id = 'avatars';
+-- 7. REMOVE REALTIME PUBLICATIONS
+ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.persons;
+ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.change_requests;
+ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.profiles;
+
+-- 8. DELETE ALL AUTH USERS (creates clean slate for new Admin)
+DELETE FROM auth.users;
+
+-- 9. CLEAN STORAGE (remove all uploaded files and buckets)
+DELETE FROM storage.objects WHERE bucket_id IN ('avatars', 'posts');
+DELETE FROM storage.buckets WHERE id IN ('avatars', 'posts');

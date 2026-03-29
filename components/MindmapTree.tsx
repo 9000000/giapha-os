@@ -1,7 +1,7 @@
 "use client";
 
 import { Person, Relationship } from "@/types";
-import { Share2 } from "lucide-react";
+import { Share2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useDashboard } from "./DashboardContext";
 import { MindmapContextData, MindmapNode } from "./MindmapNode";
@@ -22,7 +22,7 @@ export default function MindmapTree({
   roots,
   canEdit,
 }: MindmapTreeProps) {
-  const { showAvatar, setMemberModalId } = useDashboard();
+  const { showAvatar, setMemberModalId, setShowCreateMember } = useDashboard();
   const [hideSpouses, setHideSpouses] = useState(false);
   const [hideMales, setHideMales] = useState(false);
   const [hideFemales, setHideFemales] = useState(false);
@@ -58,13 +58,22 @@ export default function MindmapTree({
 
   if (roots.length === 0) {
     return (
-      <div className="p-12 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-stone-100 mb-4">
+      <div className="w-full h-full min-h-[50vh] flex flex-col items-center justify-center p-12 text-center gap-2">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-stone-100 mb-2">
           <Share2 className="size-8 text-stone-300" />
         </div>
         <p className="text-stone-500 font-medium tracking-wide">
           Gia phả trống
         </p>
+        {canEdit && (
+          <button
+            onClick={() => setShowCreateMember(true)}
+            className="flex items-center gap-2 px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-full transition-colors shadow-sm mt-4"
+          >
+            <Plus className="size-5" />
+            <span>Thêm người đầu tiên</span>
+          </button>
+        )}
       </div>
     );
   }

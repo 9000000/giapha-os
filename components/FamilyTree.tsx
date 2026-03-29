@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 
 import { usePanZoom } from "@/hooks/usePanZoom";
 import { Person, Relationship } from "@/types";
@@ -28,7 +28,7 @@ export default function FamilyTree({
   const [hideFemales, setHideFemales] = useState(false);
   const [expandedInLawNodes, setExpandedInLawNodes] = useState<Set<string>>(new Set());
 
-  const { showAvatar } = useDashboard();
+  const { showAvatar, setShowCreateMember } = useDashboard();
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -269,8 +269,17 @@ export default function FamilyTree({
 
   if (roots.length === 0)
     return (
-      <div className="text-center p-10 text-stone-500">
-        Không tìm thấy dữ liệu.
+      <div className="w-full h-full flex flex-col items-center justify-center p-10 text-stone-500 gap-4">
+        <p>Không tìm thấy dữ liệu.</p>
+        {canEdit && (
+          <button
+            onClick={() => setShowCreateMember(true)}
+            className="flex items-center gap-2 px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-full transition-colors shadow-sm"
+          >
+            <Plus className="size-5" />
+            <span>Thêm người đầu tiên</span>
+          </button>
+        )}
       </div>
     );
 

@@ -104,7 +104,10 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           type: 'image',
           attrs: { src: url }
         }));
-        editor.commands.insertContent(content);
+        editor.chain().focus()
+          .setTextSelection(editor.state.selection.to)
+          .insertContent(content)
+          .run();
       }
 
       if (errorMessages.length > 0) {
@@ -146,7 +149,10 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           type: 'image',
           attrs: { src: url }
         }));
-        editor.commands.insertContent(content);
+        editor.chain().focus()
+          .setTextSelection(editor.state.selection.to)
+          .insertContent(content)
+          .run();
       }
 
       if (failCount > 0) {

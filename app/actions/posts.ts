@@ -26,7 +26,7 @@ export async function getPosts(page: number = 1, limit: number = 10, status: str
   // Optimize: exclude heavy 'content' column for list view
   let query = supabase
     .from("posts")
-    .select("id, title, slug, excerpt, featured_image, author_id, status, published_at, created_at, updated_at", { count: "estimated" });
+    .select("id, title, slug, excerpt, featured_image, author_id, status, published_at, created_at, updated_at", { count: "exact" });
 
   if (status !== 'all') {
     query = query

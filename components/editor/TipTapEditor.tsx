@@ -65,11 +65,8 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
 
-  if (!editor) {
-    return null;
-  }
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!editor) return;
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -106,6 +103,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   };
 
   const addImageUrl = useCallback(() => {
+    if (!editor) return;
     const url = window.prompt("Nhập URL hình ảnh (ví dụ: https://example.com/image.jpg):");
     if (url) {
       try {
@@ -118,6 +116,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   }, [editor]);
 
   const setLink = useCallback(() => {
+    if (!editor) return;
     const previousUrl = editor.getAttributes("link").href;
     const url = window.prompt("Nhập URL:", previousUrl);
 
@@ -132,11 +131,16 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   }, [editor]);
 
   const insertEmbedCode = useCallback(() => {
+    if (!editor) return;
     const embedCode = window.prompt("Nhập mã nhúng (Embed HTML) của Iframe hoặc Video:");
     if (embedCode) {
       editor.commands.insertContent(embedCode);
     }
   }, [editor]);
+
+  if (!editor) {
+    return null;
+  }
 
   const btnClass = (isActive: boolean) =>
     `p-2 rounded text-sm font-medium transition-all ${

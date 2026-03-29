@@ -104,6 +104,7 @@ export function usePosts(options: UsePostsOptions = {}): UsePostsReturn {
   }, []);
 
   const refresh = useCallback(async () => {
+    postsCache.clear(); // Clear all pages cache because a new post affects pagination
     await loadPosts(true);
   }, [loadPosts]);
 

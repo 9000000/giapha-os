@@ -26,7 +26,7 @@ export default function PostCard({ post, index, isAdmin, layout = "list", onSele
         month: "2-digit",
         year: "numeric",
       })
-    : "Mới";
+    : post.status === 'pending' ? "Đang chờ duyệt" : "Mới";
 
   const handleDelete = async () => {
     if (!confirm("Bạn có chắc chắn muốn xóa bài viết này không?")) return;
@@ -35,6 +35,11 @@ export default function PostCard({ post, index, isAdmin, layout = "list", onSele
     try {
       const result = await deletePost(post.id);
       if (result.error) throw new Error(result.error);
+      
+      if (result.pending) {
+        alert("Yêu cầu xoá đã được gửi và đang chờ Admin phê duyệt.");
+      }
+      
       onDeleted?.();
       router.refresh();
     } catch (err) {
@@ -82,6 +87,11 @@ export default function PostCard({ post, index, isAdmin, layout = "list", onSele
             Bản nháp
           </div>
         )}
+        {post.status === 'pending' && (
+          <div className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-sm">
+            Chờ duyệt
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       </div>
@@ -121,28 +131,26 @@ export default function PostCard({ post, index, isAdmin, layout = "list", onSele
         )}
 
         <div className="mt-auto flex items-center justify-end gap-4">
-          {isAdmin && (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onEdit) onEdit(post.id);
-                }}
-                className="p-2 text-stone-400 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all"
-                title="Chỉnh sửa"
-              >
-                <Edit3 className="size-4" />
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                title="Xóa bài"
-              >
-                {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onEdit) onEdit(post.id);
+              }}
+              className="p-2 text-stone-400 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all"
+              title="Chỉnh sửa"
+            >
+              <Edit3 className="size-4" />
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+              title="Xóa bài"
+            >
+              {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>

@@ -123,9 +123,15 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
       if (isEditing && initialData) {
         const result = await updatePost(initialData.id, formData);
         if (result.error) throw new Error(result.error);
+        if (result.pending) {
+          alert("Thay đổi của bạn đã được gửi và đang chờ Admin phê duyệt.");
+        }
       } else {
         const result = await createPost(formData);
         if (result.error) throw new Error(result.error);
+        if (result.pending) {
+          alert("Bài viết đã được tạo và đang chờ Admin phê duyệt trước khi công khai.");
+        }
       }
       
       if (onSuccess) {

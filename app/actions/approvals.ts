@@ -119,6 +119,14 @@ export async function approveChangeRequest(requestId: string) {
         return { error: "Xảy ra lỗi khi áp dụng dữ liệu vào hệ thống chính." };
     }
 
+    // Special handling for posts: ensure status is 'published' on approval
+    if (request.target_table === 'posts' && (request.action === 'insert' || request.action === 'update')) {
+        await supabase
+            .from('posts')
+            .update({ status: 'published', published_at: new Date().toISOString() })
+            .eq('id', request.target_record_id || request.new_data.id);
+    }
+
     // 4. Update request status to 'approved'
     await supabase
         .from("change_requests")
@@ -133,9 +141,7 @@ export async function approveChangeRequest(requestId: string) {
     revalidatePath("/dashboard/approvals");
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/members");
-
-    // Specific revalidation based on table could explicitly revalidate specific paths
-    // but for safety we revalidate main tree views
+    revalidatePath("/dashboard/posts");
 
     return { success: true };
 }

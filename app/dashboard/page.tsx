@@ -300,24 +300,26 @@ export default async function DashboardLaunchpad() {
             <span className="w-8 h-px bg-stone-300 rounded-full"></span>
             Chức năng chung
           </h3> */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
             {publicFeatures.map((feat) => (
               <Link
                 key={feat.href}
                 href={feat.href}
-                className={`group flex flex-col p-6 rounded-2xl bg-white border ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1 shadow-sm`}
+                className={`group flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-white border ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-0.5 shadow-sm`}
               >
                 <div
-                  className={`size-14 rounded-xl flex items-center justify-center mb-5 ${feat.bgColor} transition-colors duration-300 group-hover:bg-white border border-transparent group-hover:${feat.borderColor}`}
+                  className={`size-10 sm:size-11 rounded-xl flex items-center justify-center shrink-0 ${feat.bgColor} transition-colors duration-300`}
                 >
-                  {feat.icon}
+                  <div className="[&>svg]:!size-5 sm:[&>svg]:!size-6">{feat.icon}</div>
                 </div>
-                <h4 className="text-lg font-bold text-stone-800 mb-2 group-hover:text-amber-700 transition-colors">
-                  {feat.title}
-                </h4>
-                <p className="text-sm text-stone-500 line-clamp-2">
-                  {feat.description}
-                </p>
+                <div className="min-w-0">
+                  <h4 className="text-base sm:text-lg font-bold text-stone-800 group-hover:text-amber-700 transition-colors truncate">
+                    {feat.title}
+                  </h4>
+                  <p className="text-xs text-stone-400 line-clamp-1 hidden sm:block">
+                    {feat.description}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
@@ -325,28 +327,30 @@ export default async function DashboardLaunchpad() {
 
         {isAdmin && (
           <section>
-            <h3 className="text-xl font-serif font-bold text-rose-800 mb-6 flex items-center gap-2">
-              <span className="w-8 h-px bg-rose-200 rounded-full"></span>
+            <h3 className="text-base font-serif font-bold text-rose-800 mb-4 flex items-center gap-2">
+              <span className="w-6 h-px bg-rose-200 rounded-full"></span>
               Quản trị viên
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
               {adminFeatures.map((feat) => (
                 <Link
                   key={feat.href}
                   href={feat.href}
-                  className={`group flex flex-col p-6 rounded-2xl bg-white border ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1 shadow-sm`}
+                  className={`group flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-white border ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-0.5 shadow-sm`}
                 >
                   <div
-                    className={`size-14 rounded-xl flex items-center justify-center mb-5 ${feat.bgColor} transition-colors duration-300 group-hover:bg-white border border-transparent group-hover:${feat.borderColor}`}
+                    className={`size-10 sm:size-11 rounded-xl flex items-center justify-center shrink-0 ${feat.bgColor} transition-colors duration-300`}
                   >
-                    {feat.icon}
+                    <div className="[&>svg]:!size-5 sm:[&>svg]:!size-6">{feat.icon}</div>
                   </div>
-                  <h4 className="text-lg font-bold text-stone-800 mb-2 group-hover:text-rose-700 transition-colors">
-                    {feat.title}
-                  </h4>
-                  <p className="text-sm text-stone-500 line-clamp-2">
-                    {feat.description}
-                  </p>
+                  <div className="min-w-0">
+                    <h4 className="text-base sm:text-lg font-bold text-stone-800 group-hover:text-rose-700 transition-colors truncate">
+                      {feat.title}
+                    </h4>
+                    <p className="text-xs text-stone-400 line-clamp-1 hidden sm:block">
+                      {feat.description}
+                    </p>
+                  </div>
                 </Link>
               ))}
             </div>

@@ -74,6 +74,8 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
     let errorMessages: string[] = [];
 
     try {
+      let uploadedUrls: string[] = [];
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         // Limit size to 5MB
@@ -99,7 +101,15 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           .from("posts")
           .getPublicUrl(filePath);
 
-        editor.chain().focus().setImage({ src: publicUrl }).run();
+        uploadedUrls.push(publicUrl);
+      }
+
+      if (uploadedUrls.length > 0) {
+        const content = uploadedUrls.map(url => ({
+          type: 'image',
+          attrs: { src: url }
+        }));
+        editor.commands.insertContent(content);
       }
 
       if (errorMessages.length > 0) {
@@ -124,25 +134,28 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       if (urls.length === 0) return;
       
       let failCount = 0;
+      let validUrls: string[] = [];
 
       for (const url of urls) {
         try {
           // Validate URL format (will throw error if invalid)
           const parsedUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
-          
-          // Execute TipTap command to insert image
-          const success = editor.chain().focus().setImage({ src: parsedUrl.href }).run();
-          
-          if (!success) {
-            failCount++;
-          }
+          validUrls.push(parsedUrl.href);
         } catch (e) {
           failCount++;
         }
       }
 
+      if (validUrls.length > 0) {
+        const content = validUrls.map(url => ({
+          type: 'image',
+          attrs: { src: url }
+        }));
+        editor.commands.insertContent(content);
+      }
+
       if (failCount > 0) {
-        alert(`Đã chèn thành công ${urls.length - failCount} ảnh. Có ${failCount} URL không hợp lệ hoặc không thể chèn.`);
+        alert(`Đã chèn thành công ${validUrls.length} ảnh. Có ${failCount} URL không hợp lệ.`);
       }
     }
   }, [editor]);

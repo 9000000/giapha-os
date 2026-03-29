@@ -78,11 +78,11 @@ export default function PostCard({ post, index, isAdmin, layout = "list", onSele
           </div>
         )}
         {post.status === 'draft' && (
-          <div className="absolute top-2 left-2 bg-stone-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest backdrop-blur-sm">
+          <div className="absolute top-2 left-2 bg-stone-900/95 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest backdrop-blur-sm">
             Bản nháp
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       </div>
 

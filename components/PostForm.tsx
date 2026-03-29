@@ -142,7 +142,7 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
     }
   };
 
-  const inputClasses = "w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all";
+  const inputClasses = "w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none transition-all";
 
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8">
@@ -152,7 +152,7 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-6 rounded-3xl border border-stone-200/60 shadow-sm space-y-6"
+            className="bg-white p-6 rounded-3xl border border-stone-300/90 shadow-sm space-y-6"
           >
             <div>
               <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
@@ -205,7 +205,7 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white p-6 rounded-3xl border border-stone-200/60 shadow-sm space-y-6 sticky top-24"
+            className="bg-white p-6 rounded-3xl border border-stone-300/90 shadow-sm space-y-6 sticky top-24"
           >
             {/* Publish Settings */}
             <div>
@@ -233,13 +233,13 @@ export default function PostForm({ initialData, isEditing = false, onSuccess, on
               <div 
                 onClick={() => fileInputRef.current?.click()}
                 className={`group relative aspect-video rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center gap-2
-                  ${imagePreview ? 'border-amber-200 bg-amber-50/20' : 'border-stone-200 bg-stone-50 hover:border-amber-300 hover:bg-amber-50/30'}`}
+                  ${imagePreview ? 'border-amber-200 bg-amber-50/60' : 'border-stone-200 bg-stone-50 hover:border-amber-300 hover:bg-amber-50/50'}`}
               >
                 {imagePreview ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <p className="text-white text-xs font-bold flex items-center gap-1">
                         <Upload className="size-4" /> Thay đổi ảnh
                       </p>

@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
   excerpt TEXT,
   featured_image TEXT,
   author_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published', 'draft')),
+  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published', 'draft', 'pending')),
   published_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
 import { getProfile } from "@/utils/supabase/queries";
 import { createChangeRequest } from "./approvals";
@@ -21,6 +22,7 @@ export interface Post {
 }
 
 export async function getPosts(page: number = 1, limit: number = 10, status: string = 'published') {
+  noStore();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
   const offset = (page - 1) * limit;
@@ -60,6 +62,7 @@ export async function getPosts(page: number = 1, limit: number = 10, status: str
 }
 
 export async function getPostBySlug(slug: string) {
+  noStore();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
   const { data, error } = await supabase
@@ -77,6 +80,7 @@ export async function getPostBySlug(slug: string) {
 }
 
 export async function getPostById(id: string) {
+  noStore();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
   

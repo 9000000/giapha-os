@@ -25,7 +25,7 @@ interface UsePostsReturn {
 // Global caches
 const postsCache: Map<string, { data: Post[]; count: number; timestamp: number }> = new Map();
 const postDetailCache: Map<string, { data: Post; timestamp: number }> = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 30 * 1000; // 30 seconds - short cache to avoid stale data on Vercel
 
 function isCacheValid(timestamp: number): boolean {
   return Date.now() - timestamp < CACHE_DURATION;

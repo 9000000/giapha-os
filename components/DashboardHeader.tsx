@@ -12,13 +12,13 @@ export default function DashboardHeader() {
             href="/dashboard"
             className="group flex items-center gap-2 sm:gap-3"
           >
-            <div className="relative size-8 rounded-xl overflow-hidden shrink-0 border border-border transition-all">
+            <div className="relative size-10 rounded-xl overflow-hidden shrink-0 transition-all">
               <Image
                 src="/icon.png"
                 alt="Logo"
                 fill
                 className="object-contain"
-                sizes="32px"
+                sizes="40px"
               />
             </div>
             <h1 className="text-xl sm:text-2xl font-serif font-bold text-stone-800 group-hover:text-amber-700 transition-colors">

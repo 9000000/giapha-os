@@ -229,6 +229,8 @@ export default function UploadModal({
                         unoptimized
                         src={preview}
                         alt="Preview"
+                        width={800}
+                        height={600}
                         className="max-h-64 object-contain mx-auto rounded-lg shadow-sm"
                       />
                       <button

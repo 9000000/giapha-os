@@ -2,8 +2,8 @@
 
 import { GalleryItem } from "@/types";
 import dayjs from "dayjs";
-import { CalendarDays, Maximize2, X } from "lucide-react";
-import { useState } from "react";
+import { CalendarDays, Maximize2, X, Clock } from "lucide-react";
+import { useState, useMemo } from "react";
 
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import Image from "next/image";
 interface GalleryGridProps {
   items: GalleryItem[];
   isAdmin?: boolean;
+  viewMode?: "grid" | "timeline";
   onEdit?: (item: GalleryItem) => void;
   onDeleteSuccess?: (id: string) => void;
 }
@@ -18,11 +19,63 @@ interface GalleryGridProps {
 export default function GalleryGrid({
   items,
   isAdmin,
+  viewMode = "grid",
   onEdit,
   onDeleteSuccess,
 }: GalleryGridProps) {
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Group items by year/month for timeline mode
+  const timelineGroups = useMemo(() => {
+    if (viewMode !== "timeline") return [];
+
+    const datedItems: { item: GalleryItem; year: number; month: number }[] = [];
+    const undatedItems: GalleryItem[] = [];
+
+    items.forEach((item) => {
+      if (item.event_date) {
+        const d = dayjs(item.event_date);
+        datedItems.push({
+          item,
+          year: d.year(),
+          month: d.month() + 1,
+        });
+      } else {
+        undatedItems.push(item);
+      }
+    });
+
+    // Sort dated items descending
+    datedItems.sort((a, b) => {
+      const timeA = dayjs(a.item.event_date).valueOf();
+      const timeB = dayjs(b.item.event_date).valueOf();
+      return timeB - timeA;
+    });
+
+    // Group by Year
+    const groupsMap = new Map<number, GalleryItem[]>();
+    datedItems.forEach(({ item, year }) => {
+      if (!groupsMap.has(year)) {
+        groupsMap.set(year, []);
+      }
+      groupsMap.get(year)!.push(item);
+    });
+
+    const groups = Array.from(groupsMap.entries()).map(([year, groupItems]) => ({
+      year: String(year),
+      items: groupItems,
+    }));
+
+    if (undatedItems.length > 0) {
+      groups.push({
+        year: "Kỷ niệm khác",
+        items: undatedItems,
+      });
+    }
+
+    return groups;
+  }, [items, viewMode]);
 
   const handleDelete = async (item: GalleryItem) => {
     if (!confirm("Bạn có chắc chắn muốn xóa hình ảnh này?")) return;
@@ -72,46 +125,112 @@ export default function GalleryGrid({
 
   return (
     <>
-      <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="break-inside-avoid relative group rounded-2xl overflow-hidden bg-stone-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-500"
-            onClick={() => setSelectedItem(item)}
-          >
-            {/* Image */}
-            <Image
-              unoptimized
-              src={item.image_url}
-              alt={item.title}
-              className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
-            />
+      {viewMode === "grid" ? (
+        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="break-inside-avoid relative group rounded-2xl overflow-hidden bg-stone-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-500"
+              onClick={() => setSelectedItem(item)}
+            >
+              {/* Image */}
+              <Image
+                unoptimized
+                src={item.image_url}
+                alt={item.title}
+                width={800}
+                height={600}
+                className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-linear-to-t from-stone-900/80 via-stone-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
-              <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                <h3 className="text-white font-bold text-lg leading-tight mb-1 line-clamp-2">
-                  {item.title}
-                </h3>
-                {item.event_date && (
-                  <p className="text-stone-300 text-sm flex items-center gap-1.5 font-medium">
-                    <CalendarDays className="size-3.5" />
-                    {dayjs(item.event_date).format("DD/MM/YYYY")}
-                  </p>
-                )}
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-linear-to-t from-stone-900/80 via-stone-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  <h3 className="text-white font-bold text-lg leading-tight mb-1 line-clamp-2">
+                    {item.title}
+                  </h3>
+                  {item.event_date && (
+                    <p className="text-stone-300 text-sm flex items-center gap-1.5 font-medium">
+                      <CalendarDays className="size-3.5" />
+                      {dayjs(item.event_date).format("DD/MM/YYYY")}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Top Right Icon */}
+              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                <div className="p-2 bg-white/20 backdrop-blur-md rounded-full text-white">
+                  <Maximize2 className="size-4" />
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+      ) : (
+        /* Timeline View */
+        <div className="relative pl-4 sm:pl-8 space-y-12 before:absolute before:left-3 sm:before:left-7 before:top-3 before:bottom-3 before:w-0.5 before:bg-linear-to-b before:from-amber-500 before:via-stone-300 before:to-stone-200">
+          {timelineGroups.map((group) => (
+            <div key={group.year} className="relative">
+              {/* Timeline Header Badge */}
+              <div className="flex items-center gap-3 mb-6 relative">
+                <div className="absolute -left-7 sm:-left-11 size-6 sm:size-7 rounded-full bg-amber-600 border-4 border-stone-50 flex items-center justify-center shadow-md z-10">
+                  <Clock className="size-3 text-white" />
+                </div>
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 bg-stone-50/90 backdrop-blur-xs pr-4 inline-block">
+                  {group.year}
+                </h2>
+              </div>
 
-            {/* Top Right Icon */}
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-              <div className="p-2 bg-white/20 backdrop-blur-md rounded-full text-white">
-                <Maximize2 className="size-4" />
+              {/* Items under this year */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {group.items.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => setSelectedItem(item)}
+                    className="group bg-white/80 backdrop-blur-xl border border-stone-200/80 rounded-2xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="relative aspect-16/10 rounded-xl overflow-hidden mb-4 bg-stone-100">
+                        <Image
+                          unoptimized
+                          src={item.image_url}
+                          alt={item.title}
+                          width={600}
+                          height={400}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Maximize2 className="size-3.5" />
+                        </div>
+                      </div>
+
+                      {item.event_date && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-semibold mb-2">
+                          <CalendarDays className="size-3" />
+                          {dayjs(item.event_date).format("DD/MM/YYYY")}
+                        </span>
+                      )}
+
+                      <h3 className="font-bold text-stone-900 text-lg leading-snug group-hover:text-amber-700 transition-colors line-clamp-2">
+                        {item.title}
+                      </h3>
+
+                      {item.description && (
+                        <p className="text-stone-500 text-sm mt-1.5 line-clamp-2 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Lightbox Modal */}
       {selectedItem && (
@@ -130,6 +249,8 @@ export default function GalleryGrid({
                 unoptimized
                 src={selectedItem.image_url}
                 alt={selectedItem.title}
+                width={1200}
+                height={800}
                 className="max-w-full max-h-[80vh] object-contain rounded-lg"
               />
             </div>
@@ -197,3 +318,4 @@ export default function GalleryGrid({
     </>
   );
 }
+

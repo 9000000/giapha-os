@@ -6,6 +6,7 @@ import { CalendarDays, Maximize2, X } from "lucide-react";
 import { useState } from "react";
 
 import { createClient } from "@/utils/supabase/client";
+import Image from "next/image";
 
 interface GalleryGridProps {
   items: GalleryItem[];
@@ -79,7 +80,8 @@ export default function GalleryGrid({
             onClick={() => setSelectedItem(item)}
           >
             {/* Image */}
-            <img
+            <Image
+              unoptimized
               src={item.image_url}
               alt={item.title}
               className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -124,7 +126,8 @@ export default function GalleryGrid({
           <div className="flex flex-col lg:flex-row w-full max-w-6xl max-h-[90vh] bg-stone-950 rounded-2xl overflow-hidden shadow-2xl">
             {/* Image Section */}
             <div className="flex-1 relative flex items-center justify-center bg-black/50 p-4 min-h-[50vh] lg:min-h-0">
-              <img
+              <Image
+                unoptimized
                 src={selectedItem.image_url}
                 alt={selectedItem.title}
                 className="max-w-full max-h-[80vh] object-contain rounded-lg"

@@ -1,12 +1,13 @@
 "use client";
 
-import { uploadGalleryImage } from "@/utils/supabase/storage";
 import { createClient } from "@/utils/supabase/client";
-import { X, UploadCloud, Loader2 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { uploadGalleryImage } from "@/utils/supabase/storage";
 import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, UploadCloud, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { GalleryItem } from "@/types";
+import Image from "next/image";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -224,7 +225,8 @@ export default function UploadModal({
                 >
                   {preview ? (
                     <div className="relative inline-block w-full">
-                      <img
+                      <Image
+                        unoptimized
                         src={preview}
                         alt="Preview"
                         className="max-h-64 object-contain mx-auto rounded-lg shadow-sm"

@@ -136,8 +136,12 @@ export async function exportData(
   const supabase = await getSupabase();
 
   // Fetch ALL rows using pagination to avoid the 1000-row Supabase limit.
-  const fetchAll = async (table: string, selectCols: string, orderBy: string) => {
-    let allData: any[] = [];
+  const fetchAll = async <T>(
+    table: string,
+    selectCols: string,
+    orderBy: string,
+  ): Promise<T[]> => {
+    let allData: T[] = [];
     let from = 0;
     const step = 1000;
     while (true) {
@@ -148,46 +152,49 @@ export async function exportData(
         .range(from, from + step - 1);
       if (error) throw error;
       if (!data || data.length === 0) break;
-      allData = allData.concat(data);
+      allData = allData.concat(data as T[]);
       if (data.length < step) break;
       from += step;
     }
     return allData;
   };
 
-  let allPersons, allRels, allPrivateDetails, allCustomEvents;
+  let allPersons: PersonExport[] = [];
+  let allRels: RelationshipExport[] = [];
+  let allPrivateDetails: PersonDetailsPrivateExport[] = [];
+  let allCustomEvents: CustomEventExport[] = [];
 
   try {
-    allPersons = await fetchAll(
+    allPersons = await fetchAll<PersonExport>(
       "persons",
       "id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, birth_order, generation, other_names, avatar_url, note, created_at, updated_at",
-      "created_at"
+      "created_at",
     );
-    allRels = await fetchAll(
+    allRels = await fetchAll<RelationshipExport>(
       "relationships",
       "id, type, person_a, person_b, note, created_at, updated_at",
-      "created_at"
+      "created_at",
     );
     // person_details_private might not have created_at, order by person_id
-    allPrivateDetails = await fetchAll(
+    allPrivateDetails = await fetchAll<PersonDetailsPrivateExport>(
       "person_details_private",
       "person_id, phone_number, occupation, current_residence",
-      "person_id"
+      "person_id",
     );
-    allCustomEvents = await fetchAll(
+    allCustomEvents = await fetchAll<CustomEventExport>(
       "custom_events",
       "id, name, content, event_date, location, created_by",
-      "event_date"
+      "event_date",
     );
-  } catch (error: any) {
-    return { error: "Lỗi tải dữ liệu: " + error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { error: "Lỗi tải dữ liệu: " + message };
   }
 
-  let exportPersons = (allPersons ?? []) as PersonExport[];
-  let exportRels = (allRels ?? []) as RelationshipExport[];
-  let exportPrivateDetails = (allPrivateDetails ??
-    []) as PersonDetailsPrivateExport[];
-  const exportCustomEvents = (allCustomEvents ?? []) as CustomEventExport[];
+  let exportPersons = allPersons;
+  let exportRels = allRels;
+  let exportPrivateDetails = allPrivateDetails;
+  const exportCustomEvents = allCustomEvents;
 
   // If a root person is selected, filter the export to only their subtree
   if (exportRootId && exportPersons.some((p) => p.id === exportRootId)) {

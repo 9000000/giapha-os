@@ -247,7 +247,7 @@ export const MindmapNode = memo(
                                 )}
                               </div>
                             )}
-                            <span className="text-[10px] font-bold text-stone-600 truncate max-w-[50px] text-center">
+                            <span className="text-[10px] font-bold text-stone-600 truncate max-w-12.5 text-center">
                               {spouseData.person.full_name.split(" ").pop()}
                             </span>
                           </button>
@@ -269,7 +269,7 @@ export const MindmapNode = memo(
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="origin-top relative z-0 mt-[-16px] pt-[16px] overflow-hidden"
+              className="origin-top relative z-0 -mt-4 pt-4 overflow-hidden"
             >
               <div className="pb-1">
                 {data.children.map((child, index) => (

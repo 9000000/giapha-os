@@ -1,15 +1,15 @@
 "use client";
 
-import MemberDetailContent from "@/context/MemberDetailContent";
 import MemberForm from "@/components/MemberForm";
+import { useUser } from "@/components/UserProvider";
+import MemberDetailContent from "@/context/MemberDetailContent";
+import { useMemberListView } from "@/context/MemberListContext";
 import { Person } from "@/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowLeft, Edit2, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { useMemberListView } from "@/context/MemberListContext";
-import { useUser } from "@/components/UserProvider";
 
 export default function MemberDetailModal() {
   const {
@@ -225,7 +225,7 @@ export default function MemberDetailModal() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="flex-1 min-h-[500px] flex items-center justify-center flex-col gap-4"
+                  className="flex-1 min-h-125 flex items-center justify-center flex-col gap-4"
                 >
                   <div className="size-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
                   <p className="text-stone-500 font-medium">Đang tải...</p>
@@ -237,7 +237,7 @@ export default function MemberDetailModal() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="flex-1 min-h-[400px] flex items-center justify-center flex-col gap-4 p-8 text-center"
+                  className="flex-1 min-h-100 flex items-center justify-center flex-col gap-4 p-8 text-center"
                 >
                   <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-2 shadow-inner">
                     <AlertCircle className="size-8" />

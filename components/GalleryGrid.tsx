@@ -1,9 +1,9 @@
 "use client";
 
 import { GalleryItem } from "@/types";
-import { useState } from "react";
-import { X, CalendarDays, Maximize2 } from "lucide-react";
 import dayjs from "dayjs";
+import { CalendarDays, Maximize2, X } from "lucide-react";
+import { useState } from "react";
 
 import { createClient } from "@/utils/supabase/client";
 
@@ -87,7 +87,7 @@ export default function GalleryGrid({
             />
 
             {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-stone-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+            <div className="absolute inset-0 bg-linear-to-t from-stone-900/80 via-stone-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
               <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                 <h3 className="text-white font-bold text-lg leading-tight mb-1 line-clamp-2">
                   {item.title}
@@ -113,7 +113,7 @@ export default function GalleryGrid({
 
       {/* Lightbox Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
           <button
             onClick={() => setSelectedItem(null)}
             className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors z-10"

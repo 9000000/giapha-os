@@ -27,18 +27,18 @@ export default function DataImportExport() {
       try {
         const { createClient } = await import("@/utils/supabase/client");
         const supabase = createClient();
-        
+
         let allFetched: Person[] = [];
         let from = 0;
         const step = 1000;
-        
+
         while (true) {
           const { data } = await supabase
             .from("persons")
             .select("id, full_name, birth_year, gender, avatar_url, generation")
             .order("birth_year", { ascending: true, nullsFirst: false })
             .range(from, from + step - 1);
-            
+
           if (!data || data.length === 0) break;
           allFetched = allFetched.concat(data as Person[]);
           if (data.length < step) break;
@@ -371,8 +371,11 @@ export default function DataImportExport() {
                   </h3>
                   <p className="text-sm text-stone-600 mt-2 leading-relaxed">
                     Hệ thống sẽ xoá{" "}
-                    <b>toàn bộ dữ liệu thành viên, mối quan hệ, thông tin riêng tư và sự kiện hiện tại</b> để
-                    thay thế bằng dữ liệu từ file{" "}
+                    <b>
+                      toàn bộ dữ liệu thành viên, mối quan hệ, thông tin riêng
+                      tư và sự kiện hiện tại
+                    </b>{" "}
+                    để thay thế bằng dữ liệu từ file{" "}
                     <span className="font-mono text-xs bg-stone-100 px-1 rounded">
                       {selectedFile?.name}
                     </span>

@@ -43,7 +43,8 @@ export function MemberListProvider({
     () => initialShowAvatar ?? searchParams.get("avatar") !== "hide",
   );
   const [view, setViewState] = useState<ViewMode>(
-    () => initialView ?? (searchParams.get("view") as ViewMode | null) ?? "list",
+    () =>
+      initialView ?? (searchParams.get("view") as ViewMode | null) ?? "list",
   );
   const [rootId, setRootIdState] = useState<string | null>(
     () => initialRootId ?? searchParams.get("rootId") ?? null,
@@ -148,15 +149,15 @@ export function useMemberListView(): MemberListViewState {
   if (context === undefined) {
     return {
       memberModalId: null,
-      setMemberModalId: () => { },
+      setMemberModalId: () => {},
       showCreateMember: false,
-      setShowCreateMember: () => { },
+      setShowCreateMember: () => {},
       showAvatar: true,
-      setShowAvatar: () => { },
+      setShowAvatar: () => {},
       view: "list",
-      setView: () => { },
+      setView: () => {},
       rootId: null,
-      setRootId: () => { },
+      setRootId: () => {},
     };
   }
   return context;

@@ -83,10 +83,11 @@ function PersonSelector({
       </p>
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl border text-left transition-all ${selected
-          ? "bg-amber-50 border-amber-300 text-stone-800"
-          : "bg-white/80 border-stone-200 text-stone-400 hover:border-amber-200"
-          }`}
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl border text-left transition-all ${
+          selected
+            ? "bg-amber-50 border-amber-300 text-stone-800"
+            : "bg-white/80 border-stone-200 text-stone-400 hover:border-amber-200"
+        }`}
       >
         <div className="relative shrink-0">
           <div
@@ -489,11 +490,11 @@ export default function KinshipFinder({ persons, relationships }: Props) {
             {/* Disclaimer for ambiguous terms */}
             {(result.aCallsB.includes("/") ||
               result.aCallsB.includes("họ hàng")) && (
-                <p className="text-xs text-stone-400 italic px-1">
-                  * Danh xưng chính xác dựa trên giới tính, thứ tự sinh của các
-                  nhánh và vế Nội/Ngoại.
-                </p>
-              )}
+              <p className="text-xs text-stone-400 italic px-1">
+                * Danh xưng chính xác dựa trên giới tính, thứ tự sinh của các
+                nhánh và vế Nội/Ngoại.
+              </p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -671,7 +672,8 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className="bg-white/80 border border-stone-200/60 rounded-2xl overflow-hidden">
                   <div className="px-5 py-3 border-b border-stone-100 bg-stone-50/50">
                     <p className="text-sm font-bold text-stone-600">
-                      Danh xưng các khu vực ở Việt Nam vô cùng phong phú và đa dạng, dưới đây là một số ví dụ:
+                      Danh xưng các khu vực ở Việt Nam vô cùng phong phú và đa
+                      dạng, dưới đây là một số ví dụ:
                     </p>
                   </div>
                   <div className="overflow-x-auto">

@@ -40,10 +40,11 @@ export default function ViewToggle() {
           <button
             key={tab.id}
             onClick={() => setView(tab.id as ViewMode)}
-            className={`relative px-4 sm:px-6 py-1.5 sm:py-2.5 text-sm font-semibold rounded-full transition-colors duration-300 ease-in-out z-10 flex items-center gap-2 ${isActive
-              ? "text-stone-900"
-              : "text-stone-500 hover:text-stone-800"
-              }`}
+            className={`relative px-4 sm:px-6 py-1.5 sm:py-2.5 text-sm font-semibold rounded-full transition-colors duration-300 ease-in-out z-10 flex items-center gap-2 ${
+              isActive
+                ? "text-stone-900"
+                : "text-stone-500 hover:text-stone-800"
+            }`}
           >
             {isActive && (
               <motion.div

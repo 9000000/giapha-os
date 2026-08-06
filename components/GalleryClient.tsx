@@ -1,11 +1,11 @@
 "use client";
 
 import { GalleryItem } from "@/types";
-import { useState, useEffect } from "react";
-import GalleryGrid from "./GalleryGrid";
-import UploadModal from "./modal/UploadModal";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import GalleryGrid from "./GalleryGrid";
+import UploadModal from "./modal/UploadModal";
 
 export default function GalleryClient({
   initialItems,

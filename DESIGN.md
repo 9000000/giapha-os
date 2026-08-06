@@ -131,9 +131,9 @@ The palette is rooted in soft, warm neutrals, high-contrast primary dark slate, 
 
 The type system pairs the elegance of **Playfair Display** (for traditional editorial headings and branding) with the readability of **Inter** (for UI elements, dense data displays, and complex family tree structures).
 
-- **Branding & Headings:** Set in *Playfair Display* with robust weights to create a sense of heritage, lineage, and permanence.
-- **Body & Controls:** Set in *Inter* to ensure crisp legibility at small sizes, particularly within name nodes on the family chart.
-- **Data & Relationships:** Capitalized *Inter* is used for relational tags (e.g., "CHỒNG", "VỢ") with slight letter-spacing for premium technical clarity.
+- **Branding & Headings:** Set in _Playfair Display_ with robust weights to create a sense of heritage, lineage, and permanence.
+- **Body & Controls:** Set in _Inter_ to ensure crisp legibility at small sizes, particularly within name nodes on the family chart.
+- **Data & Relationships:** Capitalized _Inter_ is used for relational tags (e.g., "CHỒNG", "VỢ") with slight letter-spacing for premium technical clarity.
 
 ---
 
@@ -171,9 +171,9 @@ Soft, consistent curves bring warmth and modern approachability to the digital a
 Style patterns for primary component atoms:
 
 - **Buttons:**
-  - *Primary Button:* Styled in deep stone (`#1C1917`) with rounded-2xl curves, high-contrast white text, and hover translation effects.
-  - *Action Badge Button:* Styled in amber (`#D97706`) with rounded-full curves for focal actions (e.g., adding members, sharing tree).
-  - *Outline Button:* Transparent background, thin borders (`border-stone-200`), stone-600 text, and a transition to limestone background on hover.
+  - _Primary Button:_ Styled in deep stone (`#1C1917`) with rounded-2xl curves, high-contrast white text, and hover translation effects.
+  - _Action Badge Button:_ Styled in amber (`#D97706`) with rounded-full curves for focal actions (e.g., adding members, sharing tree).
+  - _Outline Button:_ Transparent background, thin borders (`border-stone-200`), stone-600 text, and a transition to limestone background on hover.
 - **FamilyNodeCard:**
   - Standard card structure with size scaling (`w-20` on mobile up to `w-28` on desktop).
   - Semi-transparent white background with active blur and a smooth 1px white border.

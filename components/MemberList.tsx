@@ -418,7 +418,13 @@ export default function MemberList({
                                 )
                                 .filter(Boolean) as Person[];
                               const parentNames = parents
-                                .map((p) => p.full_name.trim().split(" ").splice(-2).join(" "))
+                                .map((p) =>
+                                  p.full_name
+                                    .trim()
+                                    .split(" ")
+                                    .splice(-2)
+                                    .join(" "),
+                                )
                                 .join(" & ");
 
                               const label = parentNames

@@ -248,7 +248,10 @@ export default function BubbleMapTree({
           d.people[0].gender === "male" ? "#3b82f6" : "#ec4899",
         )
         .attr("stroke-width", (d) => (d.isRoot ? 4 : 2))
-        .attr("class", "shadow-md transition-all hover:scale-105 cursor-pointer");
+        .attr(
+          "class",
+          "shadow-md transition-all hover:scale-105 cursor-pointer",
+        );
 
       // Avatars for everyone in the Family Unit
       if (showAvatar) {
@@ -283,9 +286,9 @@ export default function BubbleMapTree({
               .attr(
                 "href",
                 person.avatar_url ||
-                (person.gender === "male"
-                  ? `/avatar/${AVATAR_VERSION}/male.svg`
-                  : `/avatar/${AVATAR_VERSION}/female.svg`),
+                  (person.gender === "male"
+                    ? `/avatar/${AVATAR_VERSION}/male.svg`
+                    : `/avatar/${AVATAR_VERSION}/female.svg`),
               );
           });
         });
@@ -327,7 +330,8 @@ export default function BubbleMapTree({
     return (
       <div className="absolute inset-0 overflow-hidden bg-stone-50 rounded-2xl border border-stone-200/60 shadow-inner flex items-center justify-center p-4 text-center">
         <span className="text-stone-500">
-          Tính năng này không được hỗ trợ trên trình duyệt của bạn ({error.message}). Vui lòng cập nhật hoặc sử dụng trình duyệt khác.
+          Tính năng này không được hỗ trợ trên trình duyệt của bạn (
+          {error.message}). Vui lòng cập nhật hoặc sử dụng trình duyệt khác.
         </span>
       </div>
     );

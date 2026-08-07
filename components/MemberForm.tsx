@@ -18,6 +18,8 @@ import {
 import { Lunar, Solar } from "lunar-javascript";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { updateDescendantGenerationsAction } from "@/app/actions/member";
+
 
 interface MemberFormProps {
   initialData?: Person;
@@ -88,6 +90,15 @@ export default function MemberForm({
   const [generation, setGeneration] = useState<number | "">(
     initialData?.generation || "",
   );
+
+  const [updateDescendantGenerations, setUpdateDescendantGenerations] =
+    useState(true); // Default to true if they change it
+
+  const hasGenerationChanged =
+    isEditing &&
+    initialData?.generation !== undefined &&
+    generation !== initialData?.generation &&
+    generation !== "";
 
   const [avatarUrl, setAvatarUrl] = useState(initialData?.avatar_url || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -402,7 +413,21 @@ export default function MemberForm({
           if (error) throw error;
         }
       }
+
+      // 4. Update descendants' generations if checked and changed
+      if (hasGenerationChanged && updateDescendantGenerations && currentPersonId) {
+        const delta = Number(generation) - (initialData?.generation || 0);
+        if (delta !== 0) {
+          const res = await updateDescendantGenerationsAction(currentPersonId, delta);
+          if (res.error) {
+            console.error("Failed to update descendant generations:", res.error);
+            // Non-blocking error, but we could show a toast if we had one
+          }
+        }
+      }
+
       // After save: use callback if provided, otherwise fall back to page navigation
+
       if (!currentPersonId)
         throw new Error("Không lấy được ID thành viên sau khi lưu.");
       if (onSuccess) {
@@ -563,6 +588,59 @@ export default function MemberForm({
             <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
               <span>💡</span> Để trống nếu không rõ
             </p>
+
+            <AnimatePresence>
+              {hasGenerationChanged && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  className="overflow-hidden"
+                >
+                  <label className="flex items-start gap-3 group bg-amber-50/50 p-3 rounded-xl border border-amber-200/60 cursor-pointer">
+                    <div className="relative flex items-center mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={updateDescendantGenerations}
+                        onChange={(e) =>
+                          setUpdateDescendantGenerations(e.target.checked)
+                        }
+                        className="peer sr-only"
+                      />
+                      <div className="size-4 sm:size-5 border-2 border-stone-300 rounded peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-colors flex items-center justify-center">
+                        <motion.svg
+                          initial={false}
+                          animate={{
+                            opacity: updateDescendantGenerations ? 1 : 0,
+                            scale: updateDescendantGenerations ? 1 : 0.5,
+                          }}
+                          className="size-3 text-white pointer-events-none"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={4}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </motion.svg>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm font-semibold text-stone-700 group-hover:text-amber-700 transition-colors block">
+                        Cập nhật đời cho các thế hệ sau
+                      </span>
+                      <p className="text-xs text-stone-500 mt-1">
+                        Tự động điều chỉnh đời của con, cháu... tương ứng với
+                        thay đổi này.
+                      </p>
+                    </div>
+                  </label>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="md:col-span-2 mt-2">

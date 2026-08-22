@@ -322,7 +322,9 @@ export default function BubbleMapTree({
       }
     } catch (err) {
       console.error('D3 rendering error:', err)
-      setError(err instanceof Error ? err : new Error('Unknown error'))
+      const errorToDisplay =
+        err instanceof Error ? err : new Error('Unknown error')
+      requestAnimationFrame(() => setError(errorToDisplay))
     }
   }, [nodes, links])
 

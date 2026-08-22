@@ -1,9 +1,9 @@
 'use client'
 
 import { GalleryItem } from '@/types'
-import { Plus, LayoutGrid, Clock } from 'lucide-react'
+import { Clock, LayoutGrid, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import GalleryGrid from './GalleryGrid'
 import UploadModal from './modal/UploadModal'
 
@@ -19,11 +19,6 @@ export default function GalleryClient({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null)
   const router = useRouter()
-
-  // Sync with server items when they change
-  useEffect(() => {
-    setItems(initialItems)
-  }, [initialItems])
 
   const handleUploadSuccess = () => {
     setIsModalOpen(false)
@@ -104,6 +99,7 @@ export default function GalleryClient({
       />
 
       <UploadModal
+        key={editingItem?.id || 'new'}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSuccess={handleUploadSuccess}

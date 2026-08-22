@@ -17,7 +17,11 @@ export default async function GalleryPage() {
 
   return (
     <main className='mx-auto flex w-full max-w-7xl flex-1 flex-col p-4 sm:p-8'>
-      <GalleryClient initialItems={items || []} isAdmin={isAdmin} />
+      <GalleryClient
+        key={items?.length || 0}
+        initialItems={items || []}
+        isAdmin={isAdmin}
+      />
     </main>
   )
 }

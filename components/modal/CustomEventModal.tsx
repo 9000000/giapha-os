@@ -47,7 +47,8 @@ export default function CustomEventModal({
   )
 
   useEffect(() => {
-    if (isOpen) {
+    const frame = requestAnimationFrame(() => {
+      if (!isOpen) return
       if (eventToEdit) {
         setName(eventToEdit.name)
         setEventDate(eventToEdit.event_date)
@@ -70,7 +71,9 @@ export default function CustomEventModal({
       setLunarMonth('')
       setLunarYear('')
       setLunarConvertError(null)
-    }
+    })
+
+    return () => cancelAnimationFrame(frame)
   }, [isOpen, eventToEdit])
 
   // Auto-convert lunar → solar when all 3 fields are filled
@@ -82,21 +85,24 @@ export default function CustomEventModal({
       lunarYear !== '' &&
       lunarYear > 100
     ) {
-      try {
-        const lunar = Lunar.fromYmd(
-          lunarYear as number,
-          lunarMonth as number,
-          lunarDay as number
-        )
-        const solar = lunar.getSolar()
-        const y = solar.getYear()
-        const m = String(solar.getMonth()).padStart(2, '0')
-        const d = String(solar.getDay()).padStart(2, '0')
-        setEventDate(`${y}-${m}-${d}`)
-        setLunarConvertError(null)
-      } catch {
-        setLunarConvertError('Ngày âm lịch không hợp lệ.')
-      }
+      const frame = requestAnimationFrame(() => {
+        try {
+          const lunar = Lunar.fromYmd(
+            lunarYear as number,
+            lunarMonth as number,
+            lunarDay as number
+          )
+          const solar = lunar.getSolar()
+          const y = solar.getYear()
+          const m = String(solar.getMonth()).padStart(2, '0')
+          const d = String(solar.getDay()).padStart(2, '0')
+          setEventDate(`${y}-${m}-${d}`)
+          setLunarConvertError(null)
+        } catch {
+          setLunarConvertError('Ngày âm lịch không hợp lệ.')
+        }
+      })
+      return () => cancelAnimationFrame(frame)
     }
   }, [dateMode, lunarDay, lunarMonth, lunarYear])
 

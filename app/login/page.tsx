@@ -7,25 +7,16 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Info, KeyRound, Mail, Shield, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const isDemo =
+    typeof window !== 'undefined' &&
+    window.location.hostname === config.demoDomain
+  const [email, setEmail] = useState(isDemo ? 'giaphaos@homielab.com' : '')
+  const [password, setPassword] = useState(isDemo ? 'giaphaos' : '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isDemo, setIsDemo] = useState(false)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname
-      if (hostname === config.demoDomain) {
-        setIsDemo(true)
-        setEmail('giaphaos@homielab.com')
-        setPassword('giaphaos')
-      }
-    }
-  }, [])
 
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])

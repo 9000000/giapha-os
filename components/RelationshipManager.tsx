@@ -274,7 +274,8 @@ export default function RelationshipManager({
   }, [personId, supabase, onStatsLoaded])
 
   useEffect(() => {
-    fetchRelationships()
+    const timeoutId = window.setTimeout(fetchRelationships, 0)
+    return () => window.clearTimeout(timeoutId)
   }, [fetchRelationships])
 
   // Search for people to add

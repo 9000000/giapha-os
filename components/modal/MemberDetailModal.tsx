@@ -20,7 +20,6 @@ export default function MemberDetailModal() {
   } = useMemberListView()
   const { isAdmin, isEditor: canEdit, supabase } = useUser()
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
   const [loading, setLoading] = useState(false)
@@ -31,6 +30,7 @@ export default function MemberDetailModal() {
     string,
     unknown
   > | null>(null)
+  const isOpen = Boolean(memberId || showCreateMember)
 
   const closeModal = () => {
     setMemberModalId(null)
@@ -82,17 +82,18 @@ export default function MemberDetailModal() {
     let timeoutId: NodeJS.Timeout | null = null
 
     if (memberId) {
-      setIsOpen(true)
-      setIsEditing(false) // always start on detail view when opening
-      fetchData(memberId)
+      timeoutId = setTimeout(() => {
+        setIsEditing(false) // always start on detail view when opening
+        fetchData(memberId)
+      }, 0)
     } else if (showCreateMember) {
-      setIsOpen(true)
-      setIsEditing(false)
-      setPerson(null)
-      setPrivateData(null)
-      setError(null)
+      timeoutId = setTimeout(() => {
+        setIsEditing(false)
+        setPerson(null)
+        setPrivateData(null)
+        setError(null)
+      }, 0)
     } else {
-      setIsOpen(false)
       timeoutId = setTimeout(() => {
         setPerson(null)
         setPrivateData(null)

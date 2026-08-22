@@ -2,10 +2,10 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useMemberListView } from '@/context/MemberListContext'
 import { usePanZoom } from '@/hooks/usePanZoom'
 import { Person, Relationship } from '@/types'
 import { Minus, Plus } from 'lucide-react'
-import { useMemberListView } from '@/context/MemberListContext'
 import FamilyNodeCard from './FamilyNodeCard'
 import TreeToolbar from './TreeToolbar'
 
@@ -175,10 +175,11 @@ export default function FamilyTree({
     }
 
     roots.forEach((root) => walk(root.id, new Set(), 0))
-    setCollapsedNodes(autoCollapsed)
 
-    // Double rAF: wait for React to re-render with collapsed state, then center
+    // Wait for the browser frame before applying the new layout state, then
+    // center after React has committed it.
     const raf = requestAnimationFrame(() => {
+      setCollapsedNodes(autoCollapsed)
       requestAnimationFrame(centerTree)
     })
     return () => cancelAnimationFrame(raf)

@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, UploadCloud, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { GalleryItem } from '@/types'
+import type { GalleryItem } from '@/types'
 import Image from 'next/image'
 
 interface UploadModalProps {
@@ -23,24 +23,14 @@ export default function UploadModal({
   initialData
 }: UploadModalProps) {
   const [file, setFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [eventDate, setEventDate] = useState('')
+  const [preview, setPreview] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Sync initialData when modal opens
-  useEffect(() => {
-    if (isOpen && initialData) {
-      setTitle(initialData.title)
-      setDescription(initialData.description || '')
-      setEventDate(initialData.event_date || '')
-      setPreview(initialData.image_url)
-    }
-  }, [isOpen, initialData])
 
   // Prevent background scrolling when modal is open
   useEffect(() => {

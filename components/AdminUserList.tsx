@@ -10,7 +10,7 @@ import config from '@/app/config'
 import { AdminUserData, UserRole } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Trash } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 interface AdminUserListProps {
   initialUsers: AdminUserData[]
@@ -26,18 +26,14 @@ export default function AdminUserList({
   initialUsers,
   currentUserId
 }: AdminUserListProps) {
+  const isDemo =
+    typeof window !== 'undefined' &&
+    window.location.hostname === config.demoDomain
   const [users, setUsers] = useState<AdminUserData[]>(initialUsers)
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [notification, setNotification] = useState<Notification | null>(null)
-  const [isDemo, setIsDemo] = useState(false)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsDemo(window.location.hostname === config.demoDomain)
-    }
-  }, [])
 
   const showNotification = (
     message: string,

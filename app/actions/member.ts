@@ -51,7 +51,7 @@ export async function deleteMemberProfile(memberId: string) {
 
 export async function updateDescendantGenerationsAction(
   personId: string,
-  generationDelta: number
+  generationDelta: number,
 ) {
   if (generationDelta === 0) return { success: true };
 
@@ -59,7 +59,9 @@ export async function updateDescendantGenerationsAction(
   const supabase = await getSupabase();
 
   if (profile?.role !== "admin" && profile?.role !== "editor") {
-    return { error: "Từ chối truy cập. Chỉ Admin hoặc Editor mới có quyền chỉnh sửa." };
+    return {
+      error: "Từ chối truy cập. Chỉ Admin hoặc Editor mới có quyền chỉnh sửa.",
+    };
   }
 
   // 1. Fetch all parent-child relationships
@@ -75,7 +77,7 @@ export async function updateDescendantGenerationsAction(
 
   // Build children map (person_a is parent, person_b is child)
   const childrenMap = new Map<string, string[]>();
-  relationships.forEach(r => {
+  relationships.forEach((r) => {
     if (!childrenMap.has(r.person_a)) childrenMap.set(r.person_a, []);
     childrenMap.get(r.person_a)!.push(r.person_b);
   });
@@ -118,7 +120,7 @@ export async function updateDescendantGenerationsAction(
         .from("persons")
         .update({ generation: newGen })
         .eq("id", person.id);
-      
+
       if (updateError) {
         console.error(`Error updating person ${person.id}:`, updateError);
         hasError = true;

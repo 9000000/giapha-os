@@ -88,7 +88,10 @@ export default function GalleryClient({
             </button>
           </div>
 
-          <button onClick={() => setIsModalOpen(true)} className="btn-primary whitespace-nowrap">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn-primary whitespace-nowrap"
+          >
             <Plus className="size-5" />
             <span>Thêm hình ảnh</span>
           </button>
@@ -112,4 +115,3 @@ export default function GalleryClient({
     </>
   );
 }
-

@@ -62,10 +62,12 @@ export default function GalleryGrid({
       groupsMap.get(year)!.push(item);
     });
 
-    const groups = Array.from(groupsMap.entries()).map(([year, groupItems]) => ({
-      year: String(year),
-      items: groupItems,
-    }));
+    const groups = Array.from(groupsMap.entries()).map(
+      ([year, groupItems]) => ({
+        year: String(year),
+        items: groupItems,
+      }),
+    );
 
     if (undatedItems.length > 0) {
       groups.push({
@@ -318,4 +320,3 @@ export default function GalleryGrid({
     </>
   );
 }
-

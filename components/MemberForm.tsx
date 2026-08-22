@@ -20,7 +20,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { updateDescendantGenerationsAction } from "@/app/actions/member";
 
-
 interface MemberFormProps {
   initialData?: Person;
   isEditing?: boolean;
@@ -415,12 +414,22 @@ export default function MemberForm({
       }
 
       // 4. Update descendants' generations if checked and changed
-      if (hasGenerationChanged && updateDescendantGenerations && currentPersonId) {
+      if (
+        hasGenerationChanged &&
+        updateDescendantGenerations &&
+        currentPersonId
+      ) {
         const delta = Number(generation) - (initialData?.generation || 0);
         if (delta !== 0) {
-          const res = await updateDescendantGenerationsAction(currentPersonId, delta);
+          const res = await updateDescendantGenerationsAction(
+            currentPersonId,
+            delta,
+          );
           if (res.error) {
-            console.error("Failed to update descendant generations:", res.error);
+            console.error(
+              "Failed to update descendant generations:",
+              res.error,
+            );
             // Non-blocking error, but we could show a toast if we had one
           }
         }

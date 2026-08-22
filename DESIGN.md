@@ -3,13 +3,13 @@ version: alpha
 name: GiaPha-OS
 description: A modern, elegant, and secure open-source family tree platform designed for Vietnamese families to preserve their lineage and heritage.
 colors:
-  primary: "#1c1917"
-  secondary: "#57534e"
-  tertiary: "#d97706"
-  neutral: "#fafaf9"
-  surface: "#ffffff"
-  border: "#e7e5e4"
-  error: "#dc2626"
+  primary: '#1c1917'
+  secondary: '#57534e'
+  tertiary: '#d97706'
+  neutral: '#fafaf9'
+  surface: '#ffffff'
+  border: '#e7e5e4'
+  error: '#dc2626'
 typography:
   headline-display:
     fontFamily: Playfair Display
@@ -57,7 +57,7 @@ rounded:
   md: 8px
   lg: 12px
   xl: 16px
-  "3xl": 24px
+  '3xl': 24px
   full: 9999px
 spacing:
   base: 16px
@@ -66,41 +66,41 @@ spacing:
   md: 16px
   lg: 24px
   xl: 32px
-  "2xl": 48px
-  "3xl": 64px
+  '2xl': 48px
+  '3xl': 64px
   gutter: 24px
   margin: 32px
 components:
   button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.surface}"
-    rounded: "{rounded.xl}"
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.surface}'
+    rounded: '{rounded.xl}'
     padding: 16px
   button-primary-hover:
-    backgroundColor: "#292524"
+    backgroundColor: '#292524'
   button-amber:
-    backgroundColor: "{colors.tertiary}"
-    textColor: "{colors.primary}"
-    rounded: "{rounded.full}"
+    backgroundColor: '{colors.tertiary}'
+    textColor: '{colors.primary}'
+    rounded: '{rounded.full}'
     padding: 10px
   button-outline:
-    backgroundColor: "transparent"
-    textColor: "{colors.secondary}"
-    rounded: "{rounded.xl}"
+    backgroundColor: 'transparent'
+    textColor: '{colors.secondary}'
+    rounded: '{rounded.xl}'
     padding: 16px
   button-outline-hover:
-    backgroundColor: "{colors.neutral}"
+    backgroundColor: '{colors.neutral}'
   divider:
-    backgroundColor: "{colors.border}"
+    backgroundColor: '{colors.border}'
     height: 1px
   badge-error:
-    backgroundColor: "{colors.error}"
-    textColor: "{colors.surface}"
-    rounded: "{rounded.sm}"
+    backgroundColor: '{colors.error}'
+    textColor: '{colors.surface}'
+    rounded: '{rounded.sm}'
     padding: 4px 8px
   card-feature:
-    backgroundColor: "rgba(255, 255, 255, 0.7)"
-    rounded: "{rounded.3xl}"
+    backgroundColor: 'rgba(255, 255, 255, 0.7)'
+    rounded: '{rounded.3xl}'
     padding: 32px
 ---
 

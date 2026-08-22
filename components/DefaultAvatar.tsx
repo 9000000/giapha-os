@@ -1,36 +1,36 @@
-import { getAvatarBg } from "@/utils/styleHelprs";
-import Image from "next/image";
+import { getAvatarBg } from '@/utils/styleHelprs'
+import Image from 'next/image'
 
-export const AVATAR_VERSION = "v2";
+export const AVATAR_VERSION = 'v2'
 
 export default function DefaultAvatar({
   gender,
-  size = 64,
+  size = 64
 }: {
-  gender?: string;
-  size?: number;
+  gender?: string
+  size?: number
 }) {
-  if (gender === "male") {
+  if (gender === 'male') {
     return (
       <Image
         unoptimized
         src={`/avatar/${AVATAR_VERSION}/male.svg`}
-        alt="Male"
-        className={`w-full h-full object-cover ${getAvatarBg(gender)}`}
+        alt='Male'
+        className={`h-full w-full object-cover ${getAvatarBg(gender)}`}
         width={size}
         height={size}
       />
-    );
+    )
   }
 
   return (
     <Image
       unoptimized
       src={`/avatar/${AVATAR_VERSION}/female.svg`}
-      alt="Female"
-      className="w-full h-full object-cover"
+      alt='Female'
+      className='h-full w-full object-cover'
       width={size}
       height={size}
     />
-  );
+  )
 }

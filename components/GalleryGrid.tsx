@@ -1,140 +1,139 @@
-"use client";
+'use client'
 
-import { GalleryItem } from "@/types";
-import dayjs from "dayjs";
-import { CalendarDays, Maximize2, X, Clock } from "lucide-react";
-import { useState, useMemo } from "react";
+import { GalleryItem } from '@/types'
+import dayjs from 'dayjs'
+import { CalendarDays, Maximize2, X, Clock } from 'lucide-react'
+import { useState, useMemo } from 'react'
 
-import { createClient } from "@/utils/supabase/client";
-import Image from "next/image";
+import { createClient } from '@/utils/supabase/client'
+import Image from 'next/image'
 
 interface GalleryGridProps {
-  items: GalleryItem[];
-  isAdmin?: boolean;
-  viewMode?: "grid" | "timeline";
-  onEdit?: (item: GalleryItem) => void;
-  onDeleteSuccess?: (id: string) => void;
+  items: GalleryItem[]
+  isAdmin?: boolean
+  viewMode?: 'grid' | 'timeline'
+  onEdit?: (item: GalleryItem) => void
+  onDeleteSuccess?: (id: string) => void
 }
 
 export default function GalleryGrid({
   items,
   isAdmin,
-  viewMode = "grid",
+  viewMode = 'grid',
   onEdit,
-  onDeleteSuccess,
+  onDeleteSuccess
 }: GalleryGridProps) {
-  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Group items by year/month for timeline mode
   const timelineGroups = useMemo(() => {
-    if (viewMode !== "timeline") return [];
+    if (viewMode !== 'timeline') return []
 
-    const datedItems: { item: GalleryItem; year: number; month: number }[] = [];
-    const undatedItems: GalleryItem[] = [];
+    const datedItems: { item: GalleryItem; year: number; month: number }[] = []
+    const undatedItems: GalleryItem[] = []
 
     items.forEach((item) => {
       if (item.event_date) {
-        const d = dayjs(item.event_date);
+        const d = dayjs(item.event_date)
         datedItems.push({
           item,
           year: d.year(),
-          month: d.month() + 1,
-        });
+          month: d.month() + 1
+        })
       } else {
-        undatedItems.push(item);
+        undatedItems.push(item)
       }
-    });
+    })
 
     // Sort dated items descending
     datedItems.sort((a, b) => {
-      const timeA = dayjs(a.item.event_date).valueOf();
-      const timeB = dayjs(b.item.event_date).valueOf();
-      return timeB - timeA;
-    });
+      const timeA = dayjs(a.item.event_date).valueOf()
+      const timeB = dayjs(b.item.event_date).valueOf()
+      return timeB - timeA
+    })
 
     // Group by Year
-    const groupsMap = new Map<number, GalleryItem[]>();
+    const groupsMap = new Map<number, GalleryItem[]>()
     datedItems.forEach(({ item, year }) => {
       if (!groupsMap.has(year)) {
-        groupsMap.set(year, []);
+        groupsMap.set(year, [])
       }
-      groupsMap.get(year)!.push(item);
-    });
+      groupsMap.get(year)!.push(item)
+    })
 
     const groups = Array.from(groupsMap.entries()).map(
       ([year, groupItems]) => ({
         year: String(year),
-        items: groupItems,
-      }),
-    );
+        items: groupItems
+      })
+    )
 
     if (undatedItems.length > 0) {
       groups.push({
-        year: "Kỷ niệm khác",
-        items: undatedItems,
-      });
+        year: 'Kỷ niệm khác',
+        items: undatedItems
+      })
     }
 
-    return groups;
-  }, [items, viewMode]);
+    return groups
+  }, [items, viewMode])
 
   const handleDelete = async (item: GalleryItem) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa hình ảnh này?")) return;
-    setIsDeleting(true);
+    if (!confirm('Bạn có chắc chắn muốn xóa hình ảnh này?')) return
+    setIsDeleting(true)
     try {
-      const supabase = createClient();
+      const supabase = createClient()
 
       // Delete from storage if possible
-      const fileName = item.image_url.split("/").pop();
+      const fileName = item.image_url.split('/').pop()
       if (fileName) {
-        await supabase.storage.from("gallery").remove([fileName]);
+        await supabase.storage.from('gallery').remove([fileName])
       }
 
       // Delete from db
       const { error } = await supabase
-        .from("gallery_items")
+        .from('gallery_items')
         .delete()
-        .eq("id", item.id);
-      if (error) throw error;
+        .eq('id', item.id)
+      if (error) throw error
 
-      setSelectedItem(null);
-      if (onDeleteSuccess) onDeleteSuccess(item.id);
+      setSelectedItem(null)
+      if (onDeleteSuccess) onDeleteSuccess(item.id)
     } catch (err) {
-      console.error("Error deleting gallery item", err);
-      alert("Đã xảy ra lỗi khi xóa hình ảnh.");
+      console.error('Error deleting gallery item', err)
+      alert('Đã xảy ra lỗi khi xóa hình ảnh.')
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false)
     }
-  };
+  }
 
   if (!items || items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white rounded-3xl border border-stone-100 shadow-sm">
-        <div className="size-20 bg-stone-50 rounded-full flex items-center justify-center mb-4 border border-stone-100">
-          <Maximize2 className="size-8 text-stone-300" />
+      <div className='flex flex-col items-center justify-center rounded-3xl border border-stone-100 bg-white px-4 py-20 text-center shadow-sm'>
+        <div className='mb-4 flex size-20 items-center justify-center rounded-full border border-stone-100 bg-stone-50'>
+          <Maximize2 className='size-8 text-stone-300' />
         </div>
-        <h3 className="text-xl font-bold text-stone-700 mb-2">
+        <h3 className='mb-2 text-xl font-bold text-stone-700'>
           Chưa có hình ảnh nào
         </h3>
-        <p className="text-stone-500 max-w-sm">
+        <p className='max-w-sm text-stone-500'>
           Hãy là người đầu tiên thêm hình ảnh để lưu giữ những kỷ niệm đẹp của
           dòng họ.
         </p>
       </div>
-    );
+    )
   }
 
   return (
     <>
-      {viewMode === "grid" ? (
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+      {viewMode === 'grid' ? (
+        <div className='columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3 xl:columns-4'>
           {items.map((item) => (
             <div
               key={item.id}
-              className="break-inside-avoid relative group rounded-2xl overflow-hidden bg-stone-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-500"
-              onClick={() => setSelectedItem(item)}
-            >
+              className='group relative cursor-pointer break-inside-avoid overflow-hidden rounded-2xl bg-stone-100 shadow-sm transition-all duration-500 hover:shadow-xl'
+              onClick={() => setSelectedItem(item)}>
               {/* Image */}
               <Image
                 unoptimized
@@ -142,29 +141,29 @@ export default function GalleryGrid({
                 alt={item.title}
                 width={800}
                 height={600}
-                className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
+                className='w-full object-cover transition-transform duration-700 group-hover:scale-105'
+                loading='lazy'
               />
 
               {/* Overlay */}
-              <div className="absolute inset-0 bg-linear-to-t from-stone-900/80 via-stone-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                  <h3 className="text-white font-bold text-lg leading-tight mb-1 line-clamp-2">
+              <div className='absolute inset-0 flex flex-col justify-end bg-linear-to-t from-stone-900/80 via-stone-900/20 to-transparent p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100'>
+                <div className='translate-y-4 transform transition-transform duration-300 group-hover:translate-y-0'>
+                  <h3 className='mb-1 line-clamp-2 text-lg leading-tight font-bold text-white'>
                     {item.title}
                   </h3>
                   {item.event_date && (
-                    <p className="text-stone-300 text-sm flex items-center gap-1.5 font-medium">
-                      <CalendarDays className="size-3.5" />
-                      {dayjs(item.event_date).format("DD/MM/YYYY")}
+                    <p className='flex items-center gap-1.5 text-sm font-medium text-stone-300'>
+                      <CalendarDays className='size-3.5' />
+                      {dayjs(item.event_date).format('DD/MM/YYYY')}
                     </p>
                   )}
                 </div>
               </div>
 
               {/* Top Right Icon */}
-              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                <div className="p-2 bg-white/20 backdrop-blur-md rounded-full text-white">
-                  <Maximize2 className="size-4" />
+              <div className='absolute top-4 right-4 opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100'>
+                <div className='rounded-full bg-white/20 p-2 text-white backdrop-blur-md'>
+                  <Maximize2 className='size-4' />
                 </div>
               </div>
             </div>
@@ -172,56 +171,55 @@ export default function GalleryGrid({
         </div>
       ) : (
         /* Timeline View */
-        <div className="relative pl-4 sm:pl-8 space-y-12 before:absolute before:left-3 sm:before:left-7 before:top-3 before:bottom-3 before:w-0.5 before:bg-linear-to-b before:from-amber-500 before:via-stone-300 before:to-stone-200">
+        <div className='relative space-y-12 pl-4 before:absolute before:top-3 before:bottom-3 before:left-3 before:w-0.5 before:bg-linear-to-b before:from-amber-500 before:via-stone-300 before:to-stone-200 sm:pl-8 sm:before:left-7'>
           {timelineGroups.map((group) => (
-            <div key={group.year} className="relative">
+            <div key={group.year} className='relative'>
               {/* Timeline Header Badge */}
-              <div className="flex items-center gap-3 mb-6 relative">
-                <div className="absolute -left-7 sm:-left-11 size-6 sm:size-7 rounded-full bg-amber-600 border-4 border-stone-50 flex items-center justify-center shadow-md z-10">
-                  <Clock className="size-3 text-white" />
+              <div className='relative mb-6 flex items-center gap-3'>
+                <div className='absolute -left-7 z-10 flex size-6 items-center justify-center rounded-full border-4 border-stone-50 bg-amber-600 shadow-md sm:-left-11 sm:size-7'>
+                  <Clock className='size-3 text-white' />
                 </div>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 bg-stone-50/90 backdrop-blur-xs pr-4 inline-block">
+                <h2 className='inline-block bg-stone-50/90 pr-4 font-serif text-2xl font-bold text-stone-900 backdrop-blur-xs sm:text-3xl'>
                   {group.year}
                 </h2>
               </div>
 
               {/* Items under this year */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
                 {group.items.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
-                    className="group bg-white/80 backdrop-blur-xl border border-stone-200/80 rounded-2xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between"
-                  >
+                    className='group flex cursor-pointer flex-col justify-between rounded-2xl border border-stone-200/80 bg-white/80 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)]'>
                     <div>
-                      <div className="relative aspect-16/10 rounded-xl overflow-hidden mb-4 bg-stone-100">
+                      <div className='relative mb-4 aspect-16/10 overflow-hidden rounded-xl bg-stone-100'>
                         <Image
                           unoptimized
                           src={item.image_url}
                           alt={item.title}
                           width={600}
                           height={400}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
+                          className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
+                          loading='lazy'
                         />
-                        <div className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Maximize2 className="size-3.5" />
+                        <div className='absolute top-2 right-2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-md transition-opacity group-hover:opacity-100'>
+                          <Maximize2 className='size-3.5' />
                         </div>
                       </div>
 
                       {item.event_date && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 text-xs font-semibold mb-2">
-                          <CalendarDays className="size-3" />
-                          {dayjs(item.event_date).format("DD/MM/YYYY")}
+                        <span className='mb-2 inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800'>
+                          <CalendarDays className='size-3' />
+                          {dayjs(item.event_date).format('DD/MM/YYYY')}
                         </span>
                       )}
 
-                      <h3 className="font-bold text-stone-900 text-lg leading-snug group-hover:text-amber-700 transition-colors line-clamp-2">
+                      <h3 className='line-clamp-2 text-lg leading-snug font-bold text-stone-900 transition-colors group-hover:text-amber-700'>
                         {item.title}
                       </h3>
 
                       {item.description && (
-                        <p className="text-stone-500 text-sm mt-1.5 line-clamp-2 leading-relaxed">
+                        <p className='mt-1.5 line-clamp-2 text-sm leading-relaxed text-stone-500'>
                           {item.description}
                         </p>
                       )}
@@ -236,79 +234,76 @@ export default function GalleryGrid({
 
       {/* Lightbox Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className='animate-in fade-in fixed inset-0 z-60 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm duration-200'>
           <button
             onClick={() => setSelectedItem(null)}
-            className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors z-10"
-          >
-            <X className="size-6" />
+            className='absolute top-4 right-4 z-10 rounded-full p-3 text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:top-8 sm:right-8'>
+            <X className='size-6' />
           </button>
 
-          <div className="flex flex-col lg:flex-row w-full max-w-6xl max-h-[90vh] bg-stone-950 rounded-2xl overflow-hidden shadow-2xl">
+          <div className='flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-stone-950 shadow-2xl lg:flex-row'>
             {/* Image Section */}
-            <div className="flex-1 relative flex items-center justify-center bg-black/50 p-4 min-h-[50vh] lg:min-h-0">
+            <div className='relative flex min-h-[50vh] flex-1 items-center justify-center bg-black/50 p-4 lg:min-h-0'>
               <Image
                 unoptimized
                 src={selectedItem.image_url}
                 alt={selectedItem.title}
                 width={1200}
                 height={800}
-                className="max-w-full max-h-[80vh] object-contain rounded-lg"
+                className='max-h-[80vh] max-w-full rounded-lg object-contain'
               />
             </div>
 
             {/* Content Section */}
-            <div className="w-full lg:w-96 bg-white flex flex-col max-h-[40vh] lg:max-h-none overflow-y-auto">
-              <div className="p-6 sm:p-8 flex-1">
-                <h2 className="text-2xl font-bold text-stone-800 mb-4 leading-tight">
+            <div className='flex max-h-[40vh] w-full flex-col overflow-y-auto bg-white lg:max-h-none lg:w-96'>
+              <div className='flex-1 p-6 sm:p-8'>
+                <h2 className='mb-4 text-2xl leading-tight font-bold text-stone-800'>
                   {selectedItem.title}
                 </h2>
 
                 {selectedItem.event_date && (
-                  <div className="flex items-center gap-2 text-stone-500 font-medium mb-6 pb-6 border-b border-stone-100">
-                    <CalendarDays className="size-4" />
+                  <div className='mb-6 flex items-center gap-2 border-b border-stone-100 pb-6 font-medium text-stone-500'>
+                    <CalendarDays className='size-4' />
                     <span>
-                      {dayjs(selectedItem.event_date).format("DD/MM/YYYY")}
+                      {dayjs(selectedItem.event_date).format('DD/MM/YYYY')}
                     </span>
                   </div>
                 )}
 
                 {selectedItem.description ? (
-                  <div className="prose prose-stone text-stone-600">
-                    <p className="whitespace-pre-wrap leading-relaxed">
+                  <div className='prose prose-stone text-stone-600'>
+                    <p className='leading-relaxed whitespace-pre-wrap'>
                       {selectedItem.description}
                     </p>
                   </div>
                 ) : (
-                  <p className="text-stone-400 italic">
+                  <p className='text-stone-400 italic'>
                     Không có nội dung mô tả.
                   </p>
                 )}
               </div>
 
-              <div className="p-6 bg-stone-50 border-t border-stone-100 text-xs text-stone-400 font-medium flex justify-between items-center">
+              <div className='flex items-center justify-between border-t border-stone-100 bg-stone-50 p-6 text-xs font-medium text-stone-400'>
                 <span>
-                  Đã thêm vào{" "}
-                  {dayjs(selectedItem.created_at).format("DD/MM/YYYY")}
+                  Đã thêm vào{' '}
+                  {dayjs(selectedItem.created_at).format('DD/MM/YYYY')}
                 </span>
 
                 {isAdmin && (
-                  <div className="flex gap-2">
+                  <div className='flex gap-2'>
                     <button
                       onClick={() => {
-                        setSelectedItem(null);
-                        if (onEdit) onEdit(selectedItem);
+                        setSelectedItem(null)
+                        if (onEdit) onEdit(selectedItem)
                       }}
-                      className="px-4 py-2 bg-stone-100/80 text-stone-700 rounded-lg hover:bg-stone-200 hover:text-stone-900 font-medium text-sm transition-all shadow-sm"
-                    >
+                      className='rounded-lg bg-stone-100/80 px-4 py-2 text-sm font-medium text-stone-700 shadow-sm transition-all hover:bg-stone-200 hover:text-stone-900'>
                       Sửa
                     </button>
                     <button
                       onClick={() => handleDelete(selectedItem)}
                       disabled={isDeleting}
-                      className="px-4 py-2 bg-red-100 text-red-800 rounded-md hover:bg-red-200 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {isDeleting ? "Đang xóa..." : "Xóa"}
+                      className='rounded-md bg-red-100 px-4 py-2 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50'>
+                      {isDeleting ? 'Đang xóa...' : 'Xóa'}
                     </button>
                   </div>
                 )}
@@ -318,5 +313,5 @@ export default function GalleryGrid({
         </div>
       )}
     </>
-  );
+  )
 }

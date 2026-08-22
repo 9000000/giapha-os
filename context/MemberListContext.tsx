@@ -1,126 +1,125 @@
-"use client";
+'use client'
 
-import { ViewMode } from "@/components/ViewToggle";
-import { useSearchParams } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import { ViewMode } from '@/components/ViewToggle'
+import { useSearchParams } from 'next/navigation'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 interface MemberListViewState {
-  memberModalId: string | null;
-  setMemberModalId: (id: string | null) => void;
-  showCreateMember: boolean;
-  setShowCreateMember: (show: boolean) => void;
-  showAvatar: boolean;
-  setShowAvatar: (show: boolean) => void;
-  view: ViewMode;
-  setView: (view: ViewMode) => void;
-  rootId: string | null;
-  setRootId: (id: string | null) => void;
+  memberModalId: string | null
+  setMemberModalId: (id: string | null) => void
+  showCreateMember: boolean
+  setShowCreateMember: (show: boolean) => void
+  showAvatar: boolean
+  setShowAvatar: (show: boolean) => void
+  view: ViewMode
+  setView: (view: ViewMode) => void
+  rootId: string | null
+  setRootId: (id: string | null) => void
 }
 
 export const MemberListContext = createContext<MemberListViewState | undefined>(
-  undefined,
-);
+  undefined
+)
 
 export function MemberListProvider({
   children,
   initialView,
   initialRootId,
-  initialShowAvatar,
+  initialShowAvatar
 }: {
-  children: React.ReactNode;
-  initialView?: ViewMode;
-  initialRootId?: string | null;
-  initialShowAvatar?: boolean;
+  children: React.ReactNode
+  initialView?: ViewMode
+  initialRootId?: string | null
+  initialShowAvatar?: boolean
 }) {
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams()
 
   // Initialize state directly from URL to avoid flash of wrong view
   const [memberModalId, setMemberModalId] = useState<string | null>(
-    () => searchParams.get("memberModalId") ?? null,
-  );
-  const [showCreateMember, setShowCreateMember] = useState(false);
+    () => searchParams.get('memberModalId') ?? null
+  )
+  const [showCreateMember, setShowCreateMember] = useState(false)
   const [showAvatar, setShowAvatar] = useState<boolean>(
-    () => initialShowAvatar ?? searchParams.get("avatar") !== "hide",
-  );
+    () => initialShowAvatar ?? searchParams.get('avatar') !== 'hide'
+  )
   const [view, setViewState] = useState<ViewMode>(
-    () =>
-      initialView ?? (searchParams.get("view") as ViewMode | null) ?? "list",
-  );
+    () => initialView ?? (searchParams.get('view') as ViewMode | null) ?? 'list'
+  )
   const [rootId, setRootIdState] = useState<string | null>(
-    () => initialRootId ?? searchParams.get("rootId") ?? null,
-  );
+    () => initialRootId ?? searchParams.get('rootId') ?? null
+  )
 
   // Initialize from URL and listen to Next.js route changes
   useEffect(() => {
     const syncFromURL = () => {
-      if (typeof window === "undefined") return;
+      if (typeof window === 'undefined') return
 
-      const sp = new URLSearchParams(window.location.search);
+      const sp = new URLSearchParams(window.location.search)
 
-      const avatarParam = sp.get("avatar");
-      setShowAvatar(avatarParam !== "hide");
+      const avatarParam = sp.get('avatar')
+      setShowAvatar(avatarParam !== 'hide')
 
-      const viewParam = sp.get("view") as ViewMode;
-      if (viewParam) setViewState(viewParam);
+      const viewParam = sp.get('view') as ViewMode
+      if (viewParam) setViewState(viewParam)
 
-      const rootIdParam = sp.get("rootId");
-      setRootIdState(rootIdParam);
+      const rootIdParam = sp.get('rootId')
+      setRootIdState(rootIdParam)
 
-      const modalId = sp.get("memberModalId");
-      setMemberModalId(modalId);
-    };
+      const modalId = sp.get('memberModalId')
+      setMemberModalId(modalId)
+    }
 
-    syncFromURL();
-  }, [searchParams]);
+    syncFromURL()
+  }, [searchParams])
 
   // Sync to URL silently
   const updateModalId = (id: string | null) => {
-    setMemberModalId(id);
-    if (typeof window !== "undefined") {
-      const newUrl = new URL(window.location.href);
+    setMemberModalId(id)
+    if (typeof window !== 'undefined') {
+      const newUrl = new URL(window.location.href)
       if (id) {
-        newUrl.searchParams.set("memberModalId", id);
+        newUrl.searchParams.set('memberModalId', id)
       } else {
-        newUrl.searchParams.delete("memberModalId");
+        newUrl.searchParams.delete('memberModalId')
       }
-      window.history.replaceState(null, "", newUrl.toString());
+      window.history.replaceState(null, '', newUrl.toString())
     }
-  };
+  }
 
   const updateAvatar = (show: boolean) => {
-    setShowAvatar(show);
-    if (typeof window !== "undefined") {
-      const newUrl = new URL(window.location.href);
+    setShowAvatar(show)
+    if (typeof window !== 'undefined') {
+      const newUrl = new URL(window.location.href)
       if (!show) {
-        newUrl.searchParams.set("avatar", "hide");
+        newUrl.searchParams.set('avatar', 'hide')
       } else {
-        newUrl.searchParams.delete("avatar");
+        newUrl.searchParams.delete('avatar')
       }
-      window.history.replaceState(null, "", newUrl.toString());
+      window.history.replaceState(null, '', newUrl.toString())
     }
-  };
+  }
 
   const setView = (v: ViewMode) => {
-    setViewState(v);
-    if (typeof window !== "undefined") {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("view", v);
-      window.history.replaceState(null, "", newUrl.toString());
+    setViewState(v)
+    if (typeof window !== 'undefined') {
+      const newUrl = new URL(window.location.href)
+      newUrl.searchParams.set('view', v)
+      window.history.replaceState(null, '', newUrl.toString())
     }
-  };
+  }
 
   const setRootId = (id: string | null) => {
-    setRootIdState(id);
-    if (typeof window !== "undefined") {
-      const newUrl = new URL(window.location.href);
+    setRootIdState(id)
+    if (typeof window !== 'undefined') {
+      const newUrl = new URL(window.location.href)
       if (id) {
-        newUrl.searchParams.set("rootId", id);
+        newUrl.searchParams.set('rootId', id)
       } else {
-        newUrl.searchParams.delete("rootId");
+        newUrl.searchParams.delete('rootId')
       }
-      window.history.replaceState(null, "", newUrl.toString());
+      window.history.replaceState(null, '', newUrl.toString())
     }
-  };
+  }
 
   return (
     <MemberListContext.Provider
@@ -134,16 +133,15 @@ export function MemberListProvider({
         view,
         setView,
         rootId,
-        setRootId,
-      }}
-    >
+        setRootId
+      }}>
       {children}
     </MemberListContext.Provider>
-  );
+  )
 }
 
 export function useMemberListView(): MemberListViewState {
-  const context = useContext(MemberListContext);
+  const context = useContext(MemberListContext)
   // Return a safe no-op fallback when used outside MemberListProvider
   // (e.g., on the /dashboard/members/[id] standalone page)
   if (context === undefined) {
@@ -154,11 +152,11 @@ export function useMemberListView(): MemberListViewState {
       setShowCreateMember: () => {},
       showAvatar: true,
       setShowAvatar: () => {},
-      view: "list",
+      view: 'list',
       setView: () => {},
       rootId: null,
-      setRootId: () => {},
-    };
+      setRootId: () => {}
+    }
   }
-  return context;
+  return context
 }

@@ -1,12 +1,12 @@
-import { Crosshair, ZoomIn, ZoomOut } from "lucide-react";
-import BaseToolbar, { type BaseToolbarProps } from "./BaseToolbar";
+import { Crosshair, ZoomIn, ZoomOut } from 'lucide-react'
+import BaseToolbar, { type BaseToolbarProps } from './BaseToolbar'
 
 interface TreeToolbarProps extends BaseToolbarProps {
-  scale: number;
-  handleZoomIn: () => void;
-  handleZoomOut: () => void;
-  handleResetZoom: () => void;
-  handleCenter: () => void;
+  scale: number
+  handleZoomIn: () => void
+  handleZoomOut: () => void
+  handleResetZoom: () => void
+  handleCenter: () => void
 }
 
 export default function TreeToolbar({
@@ -20,40 +20,36 @@ export default function TreeToolbar({
   return (
     <BaseToolbar {...baseProps}>
       {/* Zoom Controls */}
-      <div className="flex items-center bg-white/80 backdrop-blur-md shadow-sm border border-stone-200/60 rounded-full overflow-hidden transition-opacity h-10">
+      <div className='flex h-10 items-center overflow-hidden rounded-full border border-stone-200/60 bg-white/80 shadow-sm backdrop-blur-md transition-opacity'>
         <button
           onClick={handleZoomOut}
-          className="px-3 h-full hover:bg-stone-100/50 text-stone-600 transition-colors disabled:opacity-50"
-          title="Thu nhỏ"
-          disabled={scale <= 0.3}
-        >
-          <ZoomOut className="size-4" />
+          className='h-full px-3 text-stone-600 transition-colors hover:bg-stone-100/50 disabled:opacity-50'
+          title='Thu nhỏ'
+          disabled={scale <= 0.3}>
+          <ZoomOut className='size-4' />
         </button>
         <button
           onClick={handleResetZoom}
-          className="px-2 h-full hover:bg-stone-100/50 text-stone-600 transition-colors text-xs font-medium min-w-12.5 text-center border-x border-stone-200/50"
-          title="Đặt lại"
-        >
+          className='h-full min-w-12.5 border-x border-stone-200/50 px-2 text-center text-xs font-medium text-stone-600 transition-colors hover:bg-stone-100/50'
+          title='Đặt lại'>
           {Math.round(scale * 100)}%
         </button>
         <button
           onClick={handleZoomIn}
-          className="px-3 h-full hover:bg-stone-100/50 text-stone-600 transition-colors disabled:opacity-50"
-          title="Phóng to"
-          disabled={scale >= 2}
-        >
-          <ZoomIn className="size-4" />
+          className='h-full px-3 text-stone-600 transition-colors hover:bg-stone-100/50 disabled:opacity-50'
+          title='Phóng to'
+          disabled={scale >= 2}>
+          <ZoomIn className='size-4' />
         </button>
       </div>
 
       {/* Center Button */}
       <button
         onClick={handleCenter}
-        className="flex items-center justify-center size-10 rounded-full bg-white/80 backdrop-blur-md shadow-sm border border-stone-200/60 text-stone-600 hover:bg-white hover:text-stone-900 hover:shadow-md transition-all"
-        title="Căn giữa"
-      >
-        <Crosshair className="size-4" />
+        className='flex size-10 items-center justify-center rounded-full border border-stone-200/60 bg-white/80 text-stone-600 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:text-stone-900 hover:shadow-md'
+        title='Căn giữa'>
+        <Crosshair className='size-4' />
       </button>
     </BaseToolbar>
-  );
+  )
 }

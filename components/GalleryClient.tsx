@@ -1,98 +1,95 @@
-"use client";
+'use client'
 
-import { GalleryItem } from "@/types";
-import { Plus, LayoutGrid, Clock } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import GalleryGrid from "./GalleryGrid";
-import UploadModal from "./modal/UploadModal";
+import { GalleryItem } from '@/types'
+import { Plus, LayoutGrid, Clock } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import GalleryGrid from './GalleryGrid'
+import UploadModal from './modal/UploadModal'
 
 export default function GalleryClient({
   initialItems,
-  isAdmin,
+  isAdmin
 }: {
-  initialItems: GalleryItem[];
-  isAdmin: boolean;
+  initialItems: GalleryItem[]
+  isAdmin: boolean
 }) {
-  const [items, setItems] = useState<GalleryItem[]>(initialItems);
-  const [viewMode, setViewMode] = useState<"grid" | "timeline">("grid");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
-  const router = useRouter();
+  const [items, setItems] = useState<GalleryItem[]>(initialItems)
+  const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<GalleryItem | null>(null)
+  const router = useRouter()
 
   // Sync with server items when they change
   useEffect(() => {
-    setItems(initialItems);
-  }, [initialItems]);
+    setItems(initialItems)
+  }, [initialItems])
 
   const handleUploadSuccess = () => {
-    setIsModalOpen(false);
-    setEditingItem(null);
+    setIsModalOpen(false)
+    setEditingItem(null)
     // Refresh the server component to get new data
-    router.refresh();
-  };
+    router.refresh()
+  }
 
   const handleDeleteSuccess = (deletedId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== deletedId));
-    router.refresh();
-  };
+    setItems((prev) => prev.filter((item) => item.id !== deletedId))
+    router.refresh()
+  }
 
   const handleEdit = (item: GalleryItem) => {
-    setEditingItem(item);
-    setIsModalOpen(true);
-  };
+    setEditingItem(item)
+    setIsModalOpen(true)
+  }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => setEditingItem(null), 300); // clear after animation
-  };
+    setIsModalOpen(false)
+    setTimeout(() => setEditingItem(null), 300) // clear after animation
+  }
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8 sm:mb-12">
-        <div className="flex items-center gap-3">
+      <div className='mb-8 flex flex-col items-stretch justify-between gap-4 sm:mb-12 sm:flex-row sm:items-center'>
+        <div className='flex items-center gap-3'>
           <div>
-            <h1 className="title">Phòng trưng bày</h1>
-            <p className="text-stone-500 mt-2 text-sm sm:text-base">
+            <h1 className='title'>Phòng trưng bày</h1>
+            <p className='mt-2 text-sm text-stone-500 sm:text-base'>
               Lưu giữ những kỷ niệm và khoảnh khắc đáng nhớ
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className='flex items-center gap-3'>
           {/* View switcher */}
-          <div className="flex items-center p-1 bg-stone-100 rounded-xl border border-stone-200/60">
+          <div className='flex items-center rounded-xl border border-stone-200/60 bg-stone-100 p-1'>
             <button
-              onClick={() => setViewMode("grid")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                viewMode === "grid"
-                  ? "bg-white text-stone-900 shadow-xs"
-                  : "text-stone-500 hover:text-stone-800"
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-white text-stone-900 shadow-xs'
+                  : 'text-stone-500 hover:text-stone-800'
               }`}
-              title="Chế độ lưới"
-            >
-              <LayoutGrid className="size-4" />
-              <span className="hidden xs:inline">Lưới</span>
+              title='Chế độ lưới'>
+              <LayoutGrid className='size-4' />
+              <span className='xs:inline hidden'>Lưới</span>
             </button>
             <button
-              onClick={() => setViewMode("timeline")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                viewMode === "timeline"
-                  ? "bg-white text-stone-900 shadow-xs"
-                  : "text-stone-500 hover:text-stone-800"
+              onClick={() => setViewMode('timeline')}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                viewMode === 'timeline'
+                  ? 'bg-white text-stone-900 shadow-xs'
+                  : 'text-stone-500 hover:text-stone-800'
               }`}
-              title="Chế độ dòng thời gian"
-            >
-              <Clock className="size-4" />
-              <span className="hidden xs:inline">Dòng thời gian</span>
+              title='Chế độ dòng thời gian'>
+              <Clock className='size-4' />
+              <span className='xs:inline hidden'>Dòng thời gian</span>
             </button>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary whitespace-nowrap"
-          >
-            <Plus className="size-5" />
+            className='btn-primary whitespace-nowrap'>
+            <Plus className='size-5' />
             <span>Thêm hình ảnh</span>
           </button>
         </div>
@@ -113,5 +110,5 @@ export default function GalleryClient({
         initialData={editingItem}
       />
     </>
-  );
+  )
 }

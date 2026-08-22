@@ -1,47 +1,47 @@
-"use client";
+'use client'
 
-import { Person, Relationship } from "@/types";
-import { Share2 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useMemberListView } from "@/context/MemberListContext";
-import { MindmapContextData, MindmapNode } from "./MindmapNode";
-import MindmapToolbar from "./MindmapToolbar";
+import { Person, Relationship } from '@/types'
+import { Share2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useMemberListView } from '@/context/MemberListContext'
+import { MindmapContextData, MindmapNode } from './MindmapNode'
+import MindmapToolbar from './MindmapToolbar'
 
-import { buildAdjacencyLists } from "@/utils/treeHelpers";
+import { buildAdjacencyLists } from '@/utils/treeHelpers'
 
-const DEFAULT_AUTO_COLLAPSE_LEVEL = 2;
+const DEFAULT_AUTO_COLLAPSE_LEVEL = 2
 
 interface MindmapTreeProps {
-  personsMap: Map<string, Person>;
-  relationships: Relationship[];
-  roots: Person[];
-  canEdit?: boolean;
+  personsMap: Map<string, Person>
+  relationships: Relationship[]
+  roots: Person[]
+  canEdit?: boolean
 }
 
 export default function MindmapTree({
   personsMap,
   relationships,
   roots,
-  canEdit,
+  canEdit
 }: MindmapTreeProps) {
-  const { showAvatar, setMemberModalId } = useMemberListView();
-  const [hideDaughtersInLaw, setHideDaughtersInLaw] = useState(false);
-  const [hideSonsInLaw, setHideSonsInLaw] = useState(false);
-  const [hideDaughters, setHideDaughters] = useState(false);
-  const [hideSons, setHideSons] = useState(false);
-  const [hideMales, setHideMales] = useState(false);
-  const [hideFemales, setHideFemales] = useState(false);
-  const [hideExpandButtons, setHideExpandButtons] = useState(false);
+  const { showAvatar, setMemberModalId } = useMemberListView()
+  const [hideDaughtersInLaw, setHideDaughtersInLaw] = useState(false)
+  const [hideSonsInLaw, setHideSonsInLaw] = useState(false)
+  const [hideDaughters, setHideDaughters] = useState(false)
+  const [hideSons, setHideSons] = useState(false)
+  const [hideMales, setHideMales] = useState(false)
+  const [hideFemales, setHideFemales] = useState(false)
+  const [hideExpandButtons, setHideExpandButtons] = useState(false)
   const [autoCollapseLevel, setAutoCollapseLevel] = useState(
-    DEFAULT_AUTO_COLLAPSE_LEVEL,
-  );
+    DEFAULT_AUTO_COLLAPSE_LEVEL
+  )
   const [expandSignal, setExpandSignal] = useState<{
-    type: "expand" | "collapse";
-    ts: number;
-  } | null>(null);
+    type: 'expand' | 'collapse'
+    ts: number
+  } | null>(null)
 
   const ctx: MindmapContextData = useMemo(() => {
-    const adj = buildAdjacencyLists(relationships, personsMap);
+    const adj = buildAdjacencyLists(relationships, personsMap)
 
     return {
       personsMap,
@@ -57,8 +57,8 @@ export default function MindmapTree({
       hideExpandButtons,
       autoCollapseLevel,
       expandSignal,
-      setMemberModalId,
-    };
+      setMemberModalId
+    }
   }, [
     personsMap,
     relationships,
@@ -72,24 +72,24 @@ export default function MindmapTree({
     hideExpandButtons,
     autoCollapseLevel,
     expandSignal,
-    setMemberModalId,
-  ]);
+    setMemberModalId
+  ])
 
   if (roots.length === 0) {
     return (
-      <div className="p-12 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-stone-100 mb-4">
-          <Share2 className="size-8 text-stone-300" />
+      <div className='p-12 text-center'>
+        <div className='mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-stone-100'>
+          <Share2 className='size-8 text-stone-300' />
         </div>
-        <p className="text-stone-500 font-medium tracking-wide">
+        <p className='font-medium tracking-wide text-stone-500'>
           Gia phả trống
         </p>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="w-full h-full relative p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-140px)] flex justify-start lg:justify-center overflow-x-auto">
+    <div className='relative flex h-full min-h-[calc(100vh-140px)] w-full justify-start overflow-x-auto p-4 sm:p-6 lg:justify-center lg:p-8'>
       <MindmapToolbar
         hideDaughtersInLaw={hideDaughtersInLaw}
         setHideDaughtersInLaw={setHideDaughtersInLaw}
@@ -113,9 +113,8 @@ export default function MindmapTree({
 
       {/* Root Container */}
       <div
-        id="export-container"
-        className="font-sans min-w-max pb-20 p-10 px-0 sm:px-8"
-      >
+        id='export-container'
+        className='min-w-max p-10 px-0 pb-20 font-sans sm:px-8'>
         {roots.map((root, index) => (
           <MindmapNode
             key={root.id}
@@ -127,5 +126,5 @@ export default function MindmapTree({
         ))}
       </div>
     </div>
-  );
+  )
 }

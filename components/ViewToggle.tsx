@@ -1,67 +1,65 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import { Circle, List, ListTree, Network } from "lucide-react";
-import { useMemberListView } from "@/context/MemberListContext";
+import { motion } from 'framer-motion'
+import { Circle, List, ListTree, Network } from 'lucide-react'
+import { useMemberListView } from '@/context/MemberListContext'
 
-export type ViewMode = "list" | "tree" | "mindmap" | "bubble";
+export type ViewMode = 'list' | 'tree' | 'mindmap' | 'bubble'
 
 export default function ViewToggle() {
-  const { view: currentView, setView } = useMemberListView();
+  const { view: currentView, setView } = useMemberListView()
 
   const tabs = [
     {
-      id: "list",
-      label: "Danh sách",
-      icon: <List className="size-6 sm:size-4" />,
+      id: 'list',
+      label: 'Danh sách',
+      icon: <List className='size-6 sm:size-4' />
     },
     {
-      id: "tree",
-      label: "Sơ đồ cây",
-      icon: <Network className="size-6 sm:size-4" />,
+      id: 'tree',
+      label: 'Sơ đồ cây',
+      icon: <Network className='size-6 sm:size-4' />
     },
     {
-      id: "mindmap",
-      label: "Mindmap",
-      icon: <ListTree className="size-6 sm:size-4" />,
+      id: 'mindmap',
+      label: 'Mindmap',
+      icon: <ListTree className='size-6 sm:size-4' />
     },
     {
-      id: "bubble",
-      label: "Bong bóng",
-      icon: <Circle className="size-6 sm:size-4" />,
-    },
-  ] as const;
+      id: 'bubble',
+      label: 'Bong bóng',
+      icon: <Circle className='size-6 sm:size-4' />
+    }
+  ] as const
 
   return (
-    <div className="flex bg-stone-200/50 p-1.5 rounded-full shadow-inner w-fit mx-auto mt-4 mb-2 relative border border-stone-200/60 backdrop-blur-sm z-10">
+    <div className='relative z-10 mx-auto mt-4 mb-2 flex w-fit rounded-full border border-stone-200/60 bg-stone-200/50 p-1.5 shadow-inner backdrop-blur-sm'>
       {tabs.map((tab) => {
-        const isActive = currentView === tab.id;
+        const isActive = currentView === tab.id
         return (
           <button
             key={tab.id}
             onClick={() => setView(tab.id as ViewMode)}
-            className={`relative px-4 sm:px-6 py-1.5 sm:py-2.5 text-sm font-semibold rounded-full transition-colors duration-300 ease-in-out z-10 flex items-center gap-2 ${
+            className={`relative z-10 flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors duration-300 ease-in-out sm:px-6 sm:py-2.5 ${
               isActive
-                ? "text-stone-900"
-                : "text-stone-500 hover:text-stone-800"
-            }`}
-          >
+                ? 'text-stone-900'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}>
             {isActive && (
               <motion.div
-                layoutId="activeTab"
-                className="absolute inset-0 bg-white rounded-full shadow-sm border border-stone-200/60 z-[-1]"
-                transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                layoutId='activeTab'
+                className='absolute inset-0 z-[-1] rounded-full border border-stone-200/60 bg-white shadow-sm'
+                transition={{ type: 'spring', stiffness: 450, damping: 30 }}
               />
             )}
             <span
-              className={`transition-colors duration-300 ${isActive ? "text-amber-700" : "text-stone-400"}`}
-            >
+              className={`transition-colors duration-300 ${isActive ? 'text-amber-700' : 'text-stone-400'}`}>
               {tab.icon}
             </span>
-            <span className="hidden sm:block tracking-wide">{tab.label}</span>
+            <span className='hidden tracking-wide sm:block'>{tab.label}</span>
           </button>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

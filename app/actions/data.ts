@@ -1,8 +1,8 @@
-"use server";
+'use server'
 
-import { Relationship } from "@/types";
-import { getIsAdmin, getSupabase } from "@/utils/supabase/queries";
-import { revalidatePath } from "next/cache";
+import { Relationship } from '@/types'
+import { getIsAdmin, getSupabase } from '@/utils/supabase/queries'
+import { revalidatePath } from 'next/cache'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -12,71 +12,71 @@ import { revalidatePath } from "next/cache";
  * nhưng sẽ bị loại bỏ khi import lại.
  */
 interface PersonExport {
-  id: string;
-  full_name: string;
-  gender: "male" | "female" | "other";
-  birth_year: number | null;
-  birth_month: number | null;
-  birth_day: number | null;
-  death_year: number | null;
-  death_month: number | null;
-  death_day: number | null;
-  death_lunar_year: number | null;
-  death_lunar_month: number | null;
-  death_lunar_day: number | null;
-  is_deceased: boolean;
-  is_in_law: boolean;
-  birth_order: number | null;
-  generation: number | null;
-  other_names: string | null;
-  avatar_url: string | null;
-  note: string | null;
+  id: string
+  full_name: string
+  gender: 'male' | 'female' | 'other'
+  birth_year: number | null
+  birth_month: number | null
+  birth_day: number | null
+  death_year: number | null
+  death_month: number | null
+  death_day: number | null
+  death_lunar_year: number | null
+  death_lunar_month: number | null
+  death_lunar_day: number | null
+  is_deceased: boolean
+  is_in_law: boolean
+  birth_order: number | null
+  generation: number | null
+  other_names: string | null
+  avatar_url: string | null
+  note: string | null
   // DB-managed fields (kept in export for traceability, stripped on import)
-  created_at?: string;
-  updated_at?: string;
+  created_at?: string
+  updated_at?: string
 }
 
 interface RelationshipExport {
-  id?: string;
-  type: string;
-  person_a: string;
-  person_b: string;
-  note?: string | null;
-  created_at?: string;
-  updated_at?: string;
+  id?: string
+  type: string
+  person_a: string
+  person_b: string
+  note?: string | null
+  created_at?: string
+  updated_at?: string
 }
 
 interface PersonDetailsPrivateExport {
-  person_id: string;
-  phone_number: string | null;
-  occupation: string | null;
-  current_residence: string | null;
+  person_id: string
+  phone_number: string | null
+  occupation: string | null
+  current_residence: string | null
 }
 
 interface CustomEventExport {
-  id: string;
-  name: string;
-  content: string | null;
-  event_date: string;
-  location: string | null;
-  created_by: string | null;
+  id: string
+  name: string
+  content: string | null
+  event_date: string
+  location: string | null
+  created_by: string | null
 }
 
 interface BackupPayload {
-  version: number;
-  timestamp: string;
-  persons: PersonExport[];
-  relationships: RelationshipExport[];
-  person_details_private?: PersonDetailsPrivateExport[];
-  custom_events?: CustomEventExport[];
+  version: number
+  timestamp: string
+  persons: PersonExport[]
+  relationships: RelationshipExport[]
+  person_details_private?: PersonDetailsPrivateExport[]
+  custom_events?: CustomEventExport[]
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 // Các field được phép insert vào bảng persons (loại bỏ created_at/updated_at)
 function sanitizePerson(
-  p: PersonExport,
-): Omit<PersonExport, "created_at" | "updated_at"> {
+  p: PersonExport
+): Omit<PersonExport, 'created_at' | 'updated_at'> {
   return {
     id: p.id,
     full_name: p.full_name,
@@ -96,156 +96,156 @@ function sanitizePerson(
     generation: p.generation ?? null,
     other_names: p.other_names ?? null,
     avatar_url: p.avatar_url ?? null,
-    note: p.note ?? null,
-  };
+    note: p.note ?? null
+  }
 }
 
 function sanitizeRelationship(
-  r: RelationshipExport,
-): Omit<RelationshipExport, "id" | "created_at" | "updated_at"> {
+  r: RelationshipExport
+): Omit<RelationshipExport, 'id' | 'created_at' | 'updated_at'> {
   return {
     type: r.type,
     person_a: r.person_a,
     person_b: r.person_b,
-    note: r.note ?? null,
-  };
+    note: r.note ?? null
+  }
 }
 
 function sanitizeCustomEvent(
-  e: CustomEventExport,
-): Omit<CustomEventExport, "created_by"> {
+  e: CustomEventExport
+): Omit<CustomEventExport, 'created_by'> {
   return {
     id: e.id,
     name: e.name,
     content: e.content ?? null,
     event_date: e.event_date,
-    location: e.location ?? null,
-  };
+    location: e.location ?? null
+  }
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────
 
 export async function exportData(
-  exportRootId?: string,
+  exportRootId?: string
 ): Promise<BackupPayload | { error: string }> {
-  const isAdmin = await getIsAdmin();
+  const isAdmin = await getIsAdmin()
   if (!isAdmin) {
-    return { error: "Từ chối truy cập. Chỉ admin mới có quyền này." };
+    return { error: 'Từ chối truy cập. Chỉ admin mới có quyền này.' }
   }
 
-  const supabase = await getSupabase();
+  const supabase = await getSupabase()
 
   // Fetch ALL rows using pagination to avoid the 1000-row Supabase limit.
   const fetchAll = async <T>(
     table: string,
     selectCols: string,
-    orderBy: string,
+    orderBy: string
   ): Promise<T[]> => {
-    let allData: T[] = [];
-    let from = 0;
-    const step = 1000;
+    let allData: T[] = []
+    let from = 0
+    const step = 1000
     while (true) {
       const { data, error } = await supabase
         .from(table)
         .select(selectCols)
         .order(orderBy, { ascending: true })
-        .range(from, from + step - 1);
-      if (error) throw error;
-      if (!data || data.length === 0) break;
-      allData = allData.concat(data as T[]);
-      if (data.length < step) break;
-      from += step;
+        .range(from, from + step - 1)
+      if (error) throw error
+      if (!data || data.length === 0) break
+      allData = allData.concat(data as T[])
+      if (data.length < step) break
+      from += step
     }
-    return allData;
-  };
+    return allData
+  }
 
-  let allPersons: PersonExport[] = [];
-  let allRels: RelationshipExport[] = [];
-  let allPrivateDetails: PersonDetailsPrivateExport[] = [];
-  let allCustomEvents: CustomEventExport[] = [];
+  let allPersons: PersonExport[] = []
+  let allRels: RelationshipExport[] = []
+  let allPrivateDetails: PersonDetailsPrivateExport[] = []
+  let allCustomEvents: CustomEventExport[] = []
 
   try {
     allPersons = await fetchAll<PersonExport>(
-      "persons",
-      "id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, birth_order, generation, other_names, avatar_url, note, created_at, updated_at",
-      "created_at",
-    );
+      'persons',
+      'id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, birth_order, generation, other_names, avatar_url, note, created_at, updated_at',
+      'created_at'
+    )
     allRels = await fetchAll<RelationshipExport>(
-      "relationships",
-      "id, type, person_a, person_b, note, created_at, updated_at",
-      "created_at",
-    );
+      'relationships',
+      'id, type, person_a, person_b, note, created_at, updated_at',
+      'created_at'
+    )
     // person_details_private might not have created_at, order by person_id
     allPrivateDetails = await fetchAll<PersonDetailsPrivateExport>(
-      "person_details_private",
-      "person_id, phone_number, occupation, current_residence",
-      "person_id",
-    );
+      'person_details_private',
+      'person_id, phone_number, occupation, current_residence',
+      'person_id'
+    )
     allCustomEvents = await fetchAll<CustomEventExport>(
-      "custom_events",
-      "id, name, content, event_date, location, created_by",
-      "event_date",
-    );
+      'custom_events',
+      'id, name, content, event_date, location, created_by',
+      'event_date'
+    )
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { error: "Lỗi tải dữ liệu: " + message };
+    const message = error instanceof Error ? error.message : String(error)
+    return { error: 'Lỗi tải dữ liệu: ' + message }
   }
 
-  let exportPersons = allPersons;
-  let exportRels = allRels;
-  let exportPrivateDetails = allPrivateDetails;
-  const exportCustomEvents = allCustomEvents;
+  let exportPersons = allPersons
+  let exportRels = allRels
+  let exportPrivateDetails = allPrivateDetails
+  const exportCustomEvents = allCustomEvents
 
   // If a root person is selected, filter the export to only their subtree
   if (exportRootId && exportPersons.some((p) => p.id === exportRootId)) {
-    const includedPersonIds = new Set<string>([exportRootId]);
+    const includedPersonIds = new Set<string>([exportRootId])
 
     // Pre-calculate adjacency lists for O(1) lookup to improve performance with large datasets
-    const childrenMap = new Map<string, string[]>();
-    const spouseMap = new Map<string, string[]>();
+    const childrenMap = new Map<string, string[]>()
+    const spouseMap = new Map<string, string[]>()
 
     exportRels.forEach((r) => {
-      if (r.type === "biological_child" || r.type === "adopted_child") {
-        if (!childrenMap.has(r.person_a)) childrenMap.set(r.person_a, []);
-        childrenMap.get(r.person_a)!.push(r.person_b);
-      } else if (r.type === "marriage") {
-        if (!spouseMap.has(r.person_a)) spouseMap.set(r.person_a, []);
-        if (!spouseMap.has(r.person_b)) spouseMap.set(r.person_b, []);
-        spouseMap.get(r.person_a)!.push(r.person_b);
-        spouseMap.get(r.person_b)!.push(r.person_a);
+      if (r.type === 'biological_child' || r.type === 'adopted_child') {
+        if (!childrenMap.has(r.person_a)) childrenMap.set(r.person_a, [])
+        childrenMap.get(r.person_a)!.push(r.person_b)
+      } else if (r.type === 'marriage') {
+        if (!spouseMap.has(r.person_a)) spouseMap.set(r.person_a, [])
+        if (!spouseMap.has(r.person_b)) spouseMap.set(r.person_b, [])
+        spouseMap.get(r.person_a)!.push(r.person_b)
+        spouseMap.get(r.person_b)!.push(r.person_a)
       }
-    });
+    })
 
     // 1. Traverse biological and adopted children recursively
     const findDescendants = (parentId: string) => {
-      const children = childrenMap.get(parentId) || [];
+      const children = childrenMap.get(parentId) || []
       children.forEach((childId) => {
         if (!includedPersonIds.has(childId)) {
-          includedPersonIds.add(childId);
-          findDescendants(childId);
+          includedPersonIds.add(childId)
+          findDescendants(childId)
         }
-      });
-    };
-    findDescendants(exportRootId);
+      })
+    }
+    findDescendants(exportRootId)
 
     // 2. Add spouses for everyone in the tree so far
-    const descendantsArray = Array.from(includedPersonIds); // snapshot current members
+    const descendantsArray = Array.from(includedPersonIds) // snapshot current members
     descendantsArray.forEach((personId) => {
-      const spouses = spouseMap.get(personId) || [];
+      const spouses = spouseMap.get(personId) || []
       spouses.forEach((spouseId) => {
-        includedPersonIds.add(spouseId);
-      });
-    });
+        includedPersonIds.add(spouseId)
+      })
+    })
 
     // 3. Filter the payload
-    exportPersons = exportPersons.filter((p) => includedPersonIds.has(p.id));
+    exportPersons = exportPersons.filter((p) => includedPersonIds.has(p.id))
     exportRels = exportRels.filter(
       (r) =>
-        includedPersonIds.has(r.person_a) && includedPersonIds.has(r.person_b),
-    );
+        includedPersonIds.has(r.person_a) && includedPersonIds.has(r.person_b)
+    )
     exportPrivateDetails = exportPrivateDetails.filter((d) =>
-      includedPersonIds.has(d.person_id),
-    );
+      includedPersonIds.has(d.person_id)
+    )
     // custom_events are not person-scoped, so export all when subtree is selected
   }
 
@@ -255,8 +255,8 @@ export async function exportData(
     persons: exportPersons,
     relationships: exportRels,
     person_details_private: exportPrivateDetails,
-    custom_events: exportCustomEvents,
-  };
+    custom_events: exportCustomEvents
+  }
 }
 
 // ─── Import ───────────────────────────────────────────────────────────────────
@@ -265,135 +265,134 @@ export async function importData(
   importPayload:
     | BackupPayload
     | {
-        persons: PersonExport[];
-        relationships: Relationship[];
-        person_details_private?: PersonDetailsPrivateExport[];
-        custom_events?: CustomEventExport[];
-      },
+        persons: PersonExport[]
+        relationships: Relationship[]
+        person_details_private?: PersonDetailsPrivateExport[]
+        custom_events?: CustomEventExport[]
+      }
 ) {
-  const isAdmin = await getIsAdmin();
+  const isAdmin = await getIsAdmin()
   if (!isAdmin) {
-    return { error: "Từ chối truy cập. Chỉ admin mới có quyền này." };
+    return { error: 'Từ chối truy cập. Chỉ admin mới có quyền này.' }
   }
 
-  const supabase = await getSupabase();
+  const supabase = await getSupabase()
 
   if (!importPayload?.persons || !importPayload?.relationships) {
-    return { error: "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại file JSON." };
+    return { error: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại file JSON.' }
   }
 
   if (importPayload.persons.length === 0) {
     return {
-      error: "File backup trống — không có thành viên nào để phục hồi.",
-    };
+      error: 'File backup trống — không có thành viên nào để phục hồi.'
+    }
   }
 
   // 1. Xoá custom_events
   const { error: delEventsError } = await supabase
-    .from("custom_events")
+    .from('custom_events')
     .delete()
-    .neq("id", "00000000-0000-0000-0000-000000000000");
+    .neq('id', '00000000-0000-0000-0000-000000000000')
 
   if (delEventsError)
     return {
-      error: "Lỗi khi xoá custom_events cũ: " + delEventsError.message,
-    };
+      error: 'Lỗi khi xoá custom_events cũ: ' + delEventsError.message
+    }
 
   // 2. Xoá relationships (FK constraint)
   const { error: delRelError } = await supabase
-    .from("relationships")
+    .from('relationships')
     .delete()
-    .neq("id", "00000000-0000-0000-0000-000000000000");
+    .neq('id', '00000000-0000-0000-0000-000000000000')
 
   if (delRelError)
-    return { error: "Lỗi khi xoá relationships cũ: " + delRelError.message };
+    return { error: 'Lỗi khi xoá relationships cũ: ' + delRelError.message }
 
   // 3. Xoá person_details_private (FK constraint on persons)
   const { error: delPrivateError } = await supabase
-    .from("person_details_private")
+    .from('person_details_private')
     .delete()
-    .neq("person_id", "00000000-0000-0000-0000-000000000000");
+    .neq('person_id', '00000000-0000-0000-0000-000000000000')
 
   if (delPrivateError)
     return {
-      error:
-        "Lỗi khi xoá person_details_private cũ: " + delPrivateError.message,
-    };
+      error: 'Lỗi khi xoá person_details_private cũ: ' + delPrivateError.message
+    }
 
   // 4. Xoá persons
   const { error: delPersonsError } = await supabase
-    .from("persons")
+    .from('persons')
     .delete()
-    .neq("id", "00000000-0000-0000-0000-000000000000");
+    .neq('id', '00000000-0000-0000-0000-000000000000')
 
   if (delPersonsError)
-    return { error: "Lỗi khi xoá persons cũ: " + delPersonsError.message };
+    return { error: 'Lỗi khi xoá persons cũ: ' + delPersonsError.message }
 
   // 5. Insert persons (sanitized — chỉ giữ các field schema hiện tại)
-  const CHUNK = 200;
-  const persons = importPayload.persons.map(sanitizePerson);
+  const CHUNK = 200
+  const persons = importPayload.persons.map(sanitizePerson)
 
   for (let i = 0; i < persons.length; i += CHUNK) {
-    const chunk = persons.slice(i, i + CHUNK);
-    const { error } = await supabase.from("persons").insert(chunk);
+    const chunk = persons.slice(i, i + CHUNK)
+    const { error } = await supabase.from('persons').insert(chunk)
     if (error)
       return {
-        error: `Lỗi khi import persons (chunk ${i / CHUNK + 1}): ${error.message}`,
-      };
+        error: `Lỗi khi import persons (chunk ${i / CHUNK + 1}): ${error.message}`
+      }
   }
 
   // 6. Insert relationships (stripped of id/created_at to avoid conflicts)
   // Filter out self-relationships to avoid "no_self_relationship" constraint violation
   const relationships = importPayload.relationships
     .filter((r) => r.person_a !== r.person_b)
-    .map(sanitizeRelationship);
+    .map(sanitizeRelationship)
 
   for (let i = 0; i < relationships.length; i += CHUNK) {
-    const chunk = relationships.slice(i, i + CHUNK);
-    const { error } = await supabase.from("relationships").insert(chunk);
+    const chunk = relationships.slice(i, i + CHUNK)
+    const { error } = await supabase.from('relationships').insert(chunk)
     if (error)
       return {
-        error: `Lỗi khi import relationships (chunk ${i / CHUNK + 1}): ${error.message}`,
-      };
+        error: `Lỗi khi import relationships (chunk ${i / CHUNK + 1}): ${error.message}`
+      }
   }
 
   // 7. Insert person_details_private (if present in payload)
-  let privateDetailsCount = 0;
-  const privateDetails = importPayload.person_details_private ?? [];
+  let privateDetailsCount = 0
+  const privateDetails = importPayload.person_details_private ?? []
   if (privateDetails.length > 0) {
     for (let i = 0; i < privateDetails.length; i += CHUNK) {
-      const chunk = privateDetails.slice(i, i + CHUNK);
+      const chunk = privateDetails.slice(i, i + CHUNK)
       const { error } = await supabase
-        .from("person_details_private")
-        .insert(chunk);
+        .from('person_details_private')
+        .insert(chunk)
       if (error)
         return {
-          error: `Lỗi khi import person_details_private (chunk ${i / CHUNK + 1}): ${error.message}`,
-        };
+          error: `Lỗi khi import person_details_private (chunk ${i / CHUNK + 1}): ${error.message}`
+        }
     }
-    privateDetailsCount = privateDetails.length;
+    privateDetailsCount = privateDetails.length
   }
 
   // 8. Insert custom_events (if present in payload, strip created_by)
-  let customEventsCount = 0;
+  let customEventsCount = 0
   const customEvents = (importPayload.custom_events ?? []).map(
-    sanitizeCustomEvent,
-  );
+    sanitizeCustomEvent
+  )
   if (customEvents.length > 0) {
     for (let i = 0; i < customEvents.length; i += CHUNK) {
-      const chunk = customEvents.slice(i, i + CHUNK);
-      const { error } = await supabase.from("custom_events").insert(chunk);
+      const chunk = customEvents.slice(i, i + CHUNK)
+      const { error } = await supabase.from('custom_events').insert(chunk)
       if (error)
         return {
-          error: `Lỗi khi import custom_events (chunk ${i / CHUNK + 1}): ${error.message}`,
-        };
+          error: `Lỗi khi import custom_events (chunk ${i / CHUNK + 1}): ${error.message}`
+        }
     }
-    customEventsCount = customEvents.length;
+    customEventsCount = customEvents.length
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/members");
-  revalidatePath("/dashboard/data");
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/members')
+  revalidatePath('/dashboard/data')
 
   return {
     success: true,
@@ -401,7 +400,7 @@ export async function importData(
       persons: persons.length,
       relationships: relationships.length,
       person_details_private: privateDetailsCount,
-      custom_events: customEventsCount,
-    },
-  };
+      custom_events: customEventsCount
+    }
+  }
 }

@@ -1,25 +1,25 @@
-"use client";
+'use client'
 
-import { Eye, EyeOff } from "lucide-react";
-import { useMemberListView } from "@/context/MemberListContext";
+import { Eye, EyeOff } from 'lucide-react'
+import { useMemberListView } from '@/context/MemberListContext'
 
 export default function AvatarToggle() {
-  const { showAvatar, setShowAvatar } = useMemberListView();
+  const { showAvatar, setShowAvatar } = useMemberListView()
 
   const toggleAvatar = () => {
-    setShowAvatar(!showAvatar);
-  };
+    setShowAvatar(!showAvatar)
+  }
 
   return (
-    <button onClick={toggleAvatar} className="btn">
+    <button onClick={toggleAvatar} className='btn'>
       {showAvatar ? (
-        <EyeOff className="size-4 shrink-0" />
+        <EyeOff className='size-4 shrink-0' />
       ) : (
-        <Eye className="size-4 shrink-0" />
+        <Eye className='size-4 shrink-0' />
       )}
-      <span className="inline-block tracking-wide min-w-max">
-        {showAvatar ? "Ẩn ảnh" : "Hiện ảnh"}
+      <span className='inline-block min-w-max tracking-wide'>
+        {showAvatar ? 'Ẩn ảnh' : 'Hiện ảnh'}
       </span>
     </button>
-  );
+  )
 }

@@ -1,31 +1,31 @@
-"use client";
+'use client'
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Filter } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { useMemberListView } from "@/context/MemberListContext";
-import ExportButton from "./ExportButton";
+import { AnimatePresence, motion } from 'framer-motion'
+import { Filter } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useMemberListView } from '@/context/MemberListContext'
+import ExportButton from './ExportButton'
 
 export interface BaseToolbarProps {
-  hideDaughtersInLaw: boolean;
-  setHideDaughtersInLaw: (val: boolean) => void;
-  hideSonsInLaw: boolean;
-  setHideSonsInLaw: (val: boolean) => void;
-  hideDaughters: boolean;
-  setHideDaughters: (val: boolean) => void;
-  hideSons: boolean;
-  setHideSons: (val: boolean) => void;
-  hideMales: boolean;
-  setHideMales: (val: boolean) => void;
-  hideFemales: boolean;
-  setHideFemales: (val: boolean) => void;
-  hideExpandButtons?: boolean;
-  setHideExpandButtons?: (val: boolean) => void;
-  autoCollapseLevel?: number;
-  setAutoCollapseLevel?: (val: number) => void;
-  canEdit?: boolean;
-  children?: React.ReactNode;
+  hideDaughtersInLaw: boolean
+  setHideDaughtersInLaw: (val: boolean) => void
+  hideSonsInLaw: boolean
+  setHideSonsInLaw: (val: boolean) => void
+  hideDaughters: boolean
+  setHideDaughters: (val: boolean) => void
+  hideSons: boolean
+  setHideSons: (val: boolean) => void
+  hideMales: boolean
+  setHideMales: (val: boolean) => void
+  hideFemales: boolean
+  setHideFemales: (val: boolean) => void
+  hideExpandButtons?: boolean
+  setHideExpandButtons?: (val: boolean) => void
+  autoCollapseLevel?: number
+  setAutoCollapseLevel?: (val: number) => void
+  canEdit?: boolean
+  children?: React.ReactNode
 }
 
 export default function BaseToolbar({
@@ -46,60 +46,58 @@ export default function BaseToolbar({
   autoCollapseLevel,
   setAutoCollapseLevel,
   canEdit,
-  children,
+  children
 }: BaseToolbarProps) {
-  const { showAvatar, setShowAvatar } = useMemberListView();
-  const [showFilters, setShowFilters] = useState(false);
-  const filtersRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const { showAvatar, setShowAvatar } = useMemberListView()
+  const [showFilters, setShowFilters] = useState(false)
+  const filtersRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     // defer state init to avoid hydration mismatch checks with strict mode
-    const timer = setTimeout(() => setMounted(true), 0);
+    const timer = setTimeout(() => setMounted(true), 0)
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
         filtersRef.current &&
         !filtersRef.current.contains(event.target as Node)
       ) {
-        setShowFilters(false);
+        setShowFilters(false)
       }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
+    }
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
-      clearTimeout(timer);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+      clearTimeout(timer)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
-  if (!mounted) return null;
+  if (!mounted) return null
 
   const portalNode =
-    typeof document !== "undefined"
-      ? document.getElementById("tree-toolbar-portal")
-      : null;
-  if (!portalNode) return null;
+    typeof document !== 'undefined'
+      ? document.getElementById('tree-toolbar-portal')
+      : null
+  if (!portalNode) return null
 
   return createPortal(
     <div
-      className="flex flex-wrap justify-center items-center gap-2 w-max"
-      ref={filtersRef}
-    >
+      className='flex w-max flex-wrap items-center justify-center gap-2'
+      ref={filtersRef}>
       {/* Custom Controls (Zoom or Expand/Collapse) */}
       {children}
 
       {/* Filters */}
-      <div className="relative">
+      <div className='relative'>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`flex items-center gap-2 px-4 h-10 rounded-full font-semibold text-sm shadow-sm border transition-all duration-300 ${
+          className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold shadow-sm transition-all duration-300 ${
             showFilters
-              ? "bg-amber-100/90 text-amber-800 border-amber-200"
-              : "bg-white/80 text-stone-600 border-stone-200/60 hover:bg-white hover:text-stone-900 hover:shadow-md backdrop-blur-md"
-          }`}
-        >
-          <Filter className="size-4" />
-          <span className="hidden sm:inline">Hiển thị</span>
+              ? 'border-amber-200 bg-amber-100/90 text-amber-800'
+              : 'border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md hover:bg-white hover:text-stone-900 hover:shadow-md'
+          }`}>
+          <Filter className='size-4' />
+          <span className='hidden sm:inline'>Hiển thị</span>
         </button>
 
         <AnimatePresence>
@@ -108,104 +106,103 @@ export default function BaseToolbar({
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              className="absolute top-full right-0 mt-2 w-48 bg-surface/95 backdrop-blur-xl shadow-soft border border-border rounded-3xl p-4 flex flex-col gap-3 z-50"
-            >
-              <div className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+              className='absolute top-full right-0 z-50 mt-2 flex w-48 flex-col gap-3 rounded-3xl border border-border bg-surface/95 p-4 shadow-soft backdrop-blur-xl'>
+              <div className='mb-1 text-xs font-bold tracking-wider text-stone-400 uppercase'>
                 HIỂN THỊ
               </div>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={!showAvatar}
                   onChange={(e) => setShowAvatar(!e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                  className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
                 Tối giản
               </label>
               {setHideExpandButtons && (
-                <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                   <input
-                    type="checkbox"
+                    type='checkbox'
                     checked={!!hideExpandButtons}
                     onChange={(e) => setHideExpandButtons(e.target.checked)}
-                    className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                    className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                   />
                   Ẩn nút đóng/mở
                 </label>
               )}
               {setAutoCollapseLevel && (
-                <label className="flex items-center justify-between gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+                <label className='flex cursor-pointer items-center justify-between gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                   <span>Số thế hệ</span>
                   <input
-                    type="number"
+                    type='number'
                     min={0}
                     max={99}
                     value={autoCollapseLevel ?? 0}
                     onChange={(e) => {
-                      const val = parseInt(e.target.value, 10);
-                      setAutoCollapseLevel(isNaN(val) ? 0 : val);
+                      const val = parseInt(e.target.value, 10)
+                      setAutoCollapseLevel(isNaN(val) ? 0 : val)
                     }}
-                    className="w-14 px-2 py-1 text-center text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className='w-14 rounded-lg border border-stone-200 px-2 py-1 text-center text-sm focus:ring-1 focus:ring-amber-400 focus:outline-none'
                   />
                 </label>
               )}
 
-              <div className="h-px w-full bg-stone-100 my-1 font-bold text-stone-400 uppercase tracking-wider flex items-center gap-2"></div>
-              <div className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">
+              <div className='my-1 flex h-px w-full items-center gap-2 bg-stone-100 font-bold tracking-wider text-stone-400 uppercase'></div>
+              <div className='mb-1 text-xs font-bold tracking-wider text-stone-400 uppercase'>
                 LỌC DỮ LIỆU
               </div>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={hideDaughtersInLaw}
                   onChange={(e) => setHideDaughtersInLaw(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                  className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
                 Ẩn dâu
               </label>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={hideSonsInLaw}
                   onChange={(e) => setHideSonsInLaw(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                  className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
                 Ẩn rể
               </label>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={hideDaughters}
                   onChange={(e) => setHideDaughters(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                  className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
                 Ẩn con gái
               </label>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={hideSons}
                   onChange={(e) => setHideSons(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                  className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
                 Ẩn con trai
               </label>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={hideMales}
                   onChange={(e) => setHideMales(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                  className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
                 Ẩn nam
               </label>
-              <label className="flex items-center gap-2 text-sm text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
+              <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={hideFemales}
                   onChange={(e) => setHideFemales(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer size-4"
+                  className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
                 Ẩn nữ
               </label>
@@ -217,6 +214,6 @@ export default function BaseToolbar({
       {/* Export Button */}
       {canEdit && <ExportButton />}
     </div>,
-    portalNode,
-  );
+    portalNode
+  )
 }

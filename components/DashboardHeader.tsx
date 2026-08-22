@@ -1,35 +1,34 @@
-import config from "@/app/config";
-import HeaderMenu from "@/components/HeaderMenu";
-import Image from "next/image";
-import Link from "next/link";
+import config from '@/app/config'
+import HeaderMenu from '@/components/HeaderMenu'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default function DashboardHeader() {
   return (
-    <header className="sticky top-0 z-30 bg-surface/80 backdrop-blur-xl border-b border-border shadow-soft transition-all duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <header className='sticky top-0 z-30 border-b border-border bg-surface/80 shadow-soft backdrop-blur-xl transition-all duration-200'>
+      <div className='mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8'>
+        <div className='flex items-center gap-4'>
           <Link
-            href="/dashboard"
-            className="group flex items-center gap-2 sm:gap-3"
-          >
-            <div className="relative size-10 rounded-xl overflow-hidden shrink-0 transition-all">
+            href='/dashboard'
+            className='group flex items-center gap-2 sm:gap-3'>
+            <div className='relative size-10 shrink-0 overflow-hidden rounded-xl transition-all'>
               <Image
-                src="/icon.png"
-                alt="Logo"
+                src='/icon.png'
+                alt='Logo'
                 fill
-                className="object-contain"
-                sizes="40px"
+                className='object-contain'
+                sizes='40px'
               />
             </div>
-            <h1 className="text-xl sm:text-2xl font-serif font-bold text-stone-800 group-hover:text-amber-700 transition-colors">
+            <h1 className='font-serif text-xl font-bold text-stone-800 transition-colors group-hover:text-amber-700 sm:text-2xl'>
               {config.siteName}
             </h1>
           </Link>
         </div>
-        <div className="flex items-center gap-4">
+        <div className='flex items-center gap-4'>
           <HeaderMenu />
         </div>
       </div>
     </header>
-  );
+  )
 }

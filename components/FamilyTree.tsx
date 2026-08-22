@@ -1,51 +1,45 @@
-"use client";
+'use client'
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { usePanZoom } from "@/hooks/usePanZoom";
-import { Person, Relationship } from "@/types";
-import { Minus, Plus } from "lucide-react";
-import { useMemberListView } from "@/context/MemberListContext";
-import FamilyNodeCard from "./FamilyNodeCard";
-import TreeToolbar from "./TreeToolbar";
+import { usePanZoom } from '@/hooks/usePanZoom'
+import { Person, Relationship } from '@/types'
+import { Minus, Plus } from 'lucide-react'
+import { useMemberListView } from '@/context/MemberListContext'
+import FamilyNodeCard from './FamilyNodeCard'
+import TreeToolbar from './TreeToolbar'
 
-import { buildAdjacencyLists, getFilteredTreeData } from "@/utils/treeHelpers";
+import { buildAdjacencyLists, getFilteredTreeData } from '@/utils/treeHelpers'
 
-const DEFAULT_AUTO_COLLAPSE_LEVEL = 2;
+const DEFAULT_AUTO_COLLAPSE_LEVEL = 2
 
 export default function FamilyTree({
   personsMap,
   relationships,
   roots,
-  canEdit,
+  canEdit
 }: {
-  personsMap: Map<string, Person>;
-  relationships: Relationship[];
-  roots: Person[];
-  canEdit?: boolean;
+  personsMap: Map<string, Person>
+  relationships: Relationship[]
+  roots: Person[]
+  canEdit?: boolean
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hideDaughtersInLaw, setHideDaughtersInLaw] = useState(false);
-  const [hideSonsInLaw, setHideSonsInLaw] = useState(false);
-  const [hideDaughters, setHideDaughters] = useState(false);
-  const [hideSons, setHideSons] = useState(false);
-  const [hideMales, setHideMales] = useState(false);
-  const [hideFemales, setHideFemales] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [hideDaughtersInLaw, setHideDaughtersInLaw] = useState(false)
+  const [hideSonsInLaw, setHideSonsInLaw] = useState(false)
+  const [hideDaughters, setHideDaughters] = useState(false)
+  const [hideSons, setHideSons] = useState(false)
+  const [hideMales, setHideMales] = useState(false)
+  const [hideFemales, setHideFemales] = useState(false)
 
   // Tập hợp các personId đang bị đóng (collapsed)
-  const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
-  const [hideExpandButtons, setHideExpandButtons] = useState(false);
+  const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set())
+  const [hideExpandButtons, setHideExpandButtons] = useState(false)
   const [autoCollapseLevel, setAutoCollapseLevel] = useState(
-    DEFAULT_AUTO_COLLAPSE_LEVEL,
-  );
+    DEFAULT_AUTO_COLLAPSE_LEVEL
+  )
 
-  const { showAvatar } = useMemberListView();
+  const { showAvatar } = useMemberListView()
 
   const {
     scale,
@@ -58,74 +52,74 @@ export default function FamilyTree({
       handleClickCapture,
       handleZoomIn,
       handleZoomOut,
-      handleResetZoom,
-    },
-  } = usePanZoom(containerRef);
+      handleResetZoom
+    }
+  } = usePanZoom(containerRef)
 
   // Center the scroll area horizontally
   const centerTree = useCallback(() => {
-    if (!containerRef.current) return;
-    const el = containerRef.current;
-    const inner = el.querySelector("#export-container");
+    if (!containerRef.current) return
+    const el = containerRef.current
+    const inner = el.querySelector('#export-container')
     if (inner) {
-      const innerRect = inner.getBoundingClientRect();
-      const containerRect = el.getBoundingClientRect();
+      const innerRect = inner.getBoundingClientRect()
+      const containerRect = el.getBoundingClientRect()
       el.scrollLeft +=
         innerRect.left +
         innerRect.width / 2 -
-        (containerRect.left + containerRect.width / 2);
+        (containerRect.left + containerRect.width / 2)
     } else {
-      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     const equalizeHeights = () => {
-      if (!containerRef.current) return;
-      const nodes = containerRef.current.querySelectorAll(".node-container");
-      const levelMap: Record<string, HTMLElement[]> = {};
+      if (!containerRef.current) return
+      const nodes = containerRef.current.querySelectorAll('.node-container')
+      const levelMap: Record<string, HTMLElement[]> = {}
 
       nodes.forEach((node) => {
-        const level = node.getAttribute("data-level");
+        const level = node.getAttribute('data-level')
         if (level != null) {
-          if (!levelMap[level]) levelMap[level] = [];
-          levelMap[level].push(node as HTMLElement);
+          if (!levelMap[level]) levelMap[level] = []
+          levelMap[level].push(node as HTMLElement)
         }
-      });
+      })
 
       Object.values(levelMap).forEach((levelNodes) => {
         // Reset min-height first to get natural height
         levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement;
-          if (innerFlex) innerFlex.style.minHeight = "0px";
-        });
+          const innerFlex = node.firstElementChild as HTMLElement
+          if (innerFlex) innerFlex.style.minHeight = '0px'
+        })
 
-        let maxHeight = 0;
+        let maxHeight = 0
         // Find the maximum height in this level
         levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement;
+          const innerFlex = node.firstElementChild as HTMLElement
           if (innerFlex) {
-            maxHeight = Math.max(maxHeight, innerFlex.offsetHeight);
+            maxHeight = Math.max(maxHeight, innerFlex.offsetHeight)
           }
-        });
+        })
 
         // Apply max height to all nodes in this level
         levelNodes.forEach((node) => {
-          const innerFlex = node.firstElementChild as HTMLElement;
+          const innerFlex = node.firstElementChild as HTMLElement
           if (innerFlex && maxHeight > 0) {
-            innerFlex.style.minHeight = `${maxHeight}px`;
+            innerFlex.style.minHeight = `${maxHeight}px`
           }
-        });
-      });
-    };
+        })
+      })
+    }
 
-    const timeoutId = setTimeout(equalizeHeights, 50);
-    window.addEventListener("resize", equalizeHeights);
+    const timeoutId = setTimeout(equalizeHeights, 50)
+    window.addEventListener('resize', equalizeHeights)
 
     return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener("resize", equalizeHeights);
-    };
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', equalizeHeights)
+    }
   }, [
     roots,
     personsMap,
@@ -138,13 +132,13 @@ export default function FamilyTree({
     hideSons,
     hideMales,
     hideFemales,
-    collapsedNodes,
-  ]);
+    collapsedNodes
+  ])
 
   const adj = useMemo(
     () => buildAdjacencyLists(relationships, personsMap),
-    [relationships, personsMap],
-  );
+    [relationships, personsMap]
+  )
 
   const getTreeData = (personId: string) =>
     getFilteredTreeData(personId, personsMap, adj, {
@@ -153,94 +147,92 @@ export default function FamilyTree({
       hideDaughters,
       hideSons,
       hideMales,
-      hideFemales,
-    });
+      hideFemales
+    })
 
   // Tự động đóng các nhánh từ đời autoCollapseLevel trở đi + căn giữa sau khi layout ổn định
   useEffect(() => {
-    const autoCollapsed = new Set<string>();
+    const autoCollapsed = new Set<string>()
 
     const walk = (personId: string, visited: Set<string>, level: number) => {
-      if (visited.has(personId)) return;
-      visited.add(personId);
+      if (visited.has(personId)) return
+      visited.add(personId)
 
-      const data = getTreeData(personId);
-      if (!data.person) return;
+      const data = getTreeData(personId)
+      if (!data.person) return
 
       if (
         autoCollapseLevel > 0 &&
         level >= autoCollapseLevel &&
         data.children.length > 0
       ) {
-        autoCollapsed.add(personId);
+        autoCollapsed.add(personId)
       }
 
       data.children.forEach((child) =>
-        walk(child.id, new Set(visited), level + 1),
-      );
-    };
+        walk(child.id, new Set(visited), level + 1)
+      )
+    }
 
-    roots.forEach((root) => walk(root.id, new Set(), 0));
-    setCollapsedNodes(autoCollapsed);
+    roots.forEach((root) => walk(root.id, new Set(), 0))
+    setCollapsedNodes(autoCollapsed)
 
     // Double rAF: wait for React to re-render with collapsed state, then center
     const raf = requestAnimationFrame(() => {
-      requestAnimationFrame(centerTree);
-    });
-    return () => cancelAnimationFrame(raf);
+      requestAnimationFrame(centerTree)
+    })
+    return () => cancelAnimationFrame(raf)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roots, personsMap, relationships, autoCollapseLevel]);
+  }, [roots, personsMap, relationships, autoCollapseLevel])
 
   const toggleCollapse = useCallback((personId: string) => {
     setCollapsedNodes((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(personId)) {
-        next.delete(personId);
+        next.delete(personId)
       } else {
-        next.add(personId);
+        next.add(personId)
       }
-      return next;
-    });
-  }, []);
+      return next
+    })
+  }, [])
 
-  const handleCenter = centerTree;
+  const handleCenter = centerTree
 
   // Recursive function for rendering nodes
   // Tracks visited IDs to prevent infinite loops from circular relationships
   const renderTreeNode = (
     personId: string,
     visited: Set<string> = new Set(),
-    level: number = 0,
+    level: number = 0
   ): React.ReactNode => {
-    if (visited.has(personId)) return null; // cycle guard
-    visited.add(personId);
+    if (visited.has(personId)) return null // cycle guard
+    visited.add(personId)
 
-    const data = getTreeData(personId);
-    if (!data.person) return null;
+    const data = getTreeData(personId)
+    if (!data.person) return null
 
-    const hasChildren = data.children.length > 0;
-    const isCollapsed = collapsedNodes.has(personId);
+    const hasChildren = data.children.length > 0
+    const isCollapsed = collapsedNodes.has(personId)
 
     return (
       <li>
         <div
-          className="node-container inline-flex flex-col items-center"
-          data-level={level}
-        >
+          className='node-container inline-flex flex-col items-center'
+          data-level={level}>
           {/* Main Person & Spouses Row */}
           <div
-            className={`flex relative z-10 items-stretch h-full${showAvatar ? " bg-white rounded-2xl shadow-md border border-stone-200/80 transition-opacity" : ""}`}
-          >
+            className={`relative z-10 flex items-stretch h-full${showAvatar ? 'rounded-2xl border border-stone-200/80 bg-white shadow-md transition-opacity' : ''}`}>
             <FamilyNodeCard person={data.person} level={level} />
 
             {data.spouses.length > 0 &&
               data.spouses.map((spouseData, idx) => (
-                <div key={spouseData.person.id} className="flex relative">
+                <div key={spouseData.person.id} className='relative flex'>
                   <FamilyNodeCard
                     isRingVisible={idx === 0}
                     isPlusVisible={idx > 0}
                     person={spouseData.person}
-                    role={spouseData.person.gender === "male" ? "Chồng" : "Vợ"}
+                    role={spouseData.person.gender === 'male' ? 'Chồng' : 'Vợ'}
                     note={spouseData.note}
                     level={level}
                   />
@@ -250,27 +242,26 @@ export default function FamilyTree({
             {/* Expand/Collapse Toggle – centered on the row */}
             {!hideExpandButtons && hasChildren && (
               <div
-                role="button"
+                role='button'
                 tabIndex={0}
                 onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  toggleCollapse(personId);
+                  e.stopPropagation()
+                  e.preventDefault()
+                  toggleCollapse(personId)
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    toggleCollapse(personId);
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    toggleCollapse(personId)
                   }
                 }}
-                className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white border border-stone-200/80 rounded-full size-6 flex items-center justify-center shadow-md z-100 text-stone-500 hover:text-amber-600 hover:border-amber-300 transition-colors cursor-pointer"
-                title={isCollapsed ? "Mở rộng" : "Thu gọn"}
-              >
+                className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border border-stone-200/80 bg-white text-stone-500 shadow-md transition-colors hover:border-amber-300 hover:text-amber-600'
+                title={isCollapsed ? 'Mở rộng' : 'Thu gọn'}>
                 {isCollapsed ? (
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className='h-3.5 w-3.5' />
                 ) : (
-                  <Minus className="w-3.5 h-3.5" />
+                  <Minus className='h-3.5 w-3.5' />
                 )}
               </div>
             )}
@@ -288,18 +279,18 @@ export default function FamilyTree({
           </ul>
         )}
       </li>
-    );
-  };
+    )
+  }
 
   if (roots.length === 0)
     return (
-      <div className="text-center p-10 text-stone-500">
+      <div className='p-10 text-center text-stone-500'>
         Không tìm thấy dữ liệu.
       </div>
-    );
+    )
 
   return (
-    <div className="w-full h-full relative">
+    <div className='relative h-full w-full'>
       <TreeToolbar
         scale={scale}
         handleZoomIn={handleZoomIn}
@@ -327,7 +318,7 @@ export default function FamilyTree({
 
       <div
         ref={containerRef}
-        className={`w-full h-full overflow-auto bg-stone-50 ${isPressed ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`h-full w-full overflow-auto bg-stone-50 ${isPressed ? 'cursor-grabbing' : 'cursor-grab'}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUpOrLeave}
@@ -410,7 +401,7 @@ export default function FamilyTree({
           border-left: 2px solid #d6d3d1;
           width: 0; height: 30px;
         }
-      `,
+      `
           }}
         />
 
@@ -420,13 +411,12 @@ export default function FamilyTree({
         p-8 adds padding inside scroll area.
       */}
         <div
-          id="export-container"
-          className={`w-max min-w-full mx-auto p-4 css-tree transition-all duration-200 ${isDragging ? "opacity-90" : ""}`}
+          id='export-container'
+          className={`css-tree mx-auto w-max min-w-full p-4 transition-all duration-200 ${isDragging ? 'opacity-90' : ''}`}
           style={{
             transform: `scale(${scale})`,
-            transformOrigin: "top center",
-          }}
-        >
+            transformOrigin: 'top center'
+          }}>
           <ul>
             {roots.map((root) => (
               <React.Fragment key={root.id}>
@@ -437,5 +427,5 @@ export default function FamilyTree({
         </div>
       </div>
     </div>
-  );
+  )
 }

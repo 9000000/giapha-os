@@ -1,4 +1,4 @@
-import MigrationManager from '@/components/MigrationManager'
+import UpgradeManager from '@/components/UpgradeManager'
 import { getMigrationStatus } from '@/app/actions/migrations'
 import { getProfile } from '@/utils/supabase/queries'
 import { redirect } from 'next/navigation'
@@ -25,7 +25,7 @@ export default async function UpgradePage() {
           </div>
         </div>
 
-        <MigrationManager initialStatus={migrationStatus} />
+        <UpgradeManager initialStatus={migrationStatus} />
       </div>
     </main>
   )

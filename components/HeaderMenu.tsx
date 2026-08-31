@@ -5,10 +5,10 @@ import {
   BarChart2,
   ChevronDown,
   Database,
+  ArrowUpCircle,
   GitMerge,
   Info,
   Network,
-  RefreshCw,
   UserCircle,
   Users
 } from 'lucide-react'
@@ -118,14 +118,6 @@ export default function HeaderMenu() {
                   </Link>
 
                   <Link
-                    href='/dashboard/upgrade'
-                    onClick={() => setIsOpen(false)}
-                    className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-700'>
-                    <RefreshCw className='size-4' />
-                    Nâng cấp hệ thống
-                  </Link>
-
-                  <Link
                     href='/dashboard/lineage'
                     onClick={() => setIsOpen(false)}
                     className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700'>
@@ -139,6 +131,14 @@ export default function HeaderMenu() {
                     className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-teal-50 hover:text-teal-700'>
                     <Database className='size-4' />
                     Sao lưu & Phục hồi
+                  </Link>
+
+                  <Link
+                    href='/dashboard/upgrade'
+                    onClick={() => setIsOpen(false)}
+                    className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-700'>
+                    <ArrowUpCircle className='size-4' />
+                    Nâng cấp hệ thống
                   </Link>
                 </>
               )}

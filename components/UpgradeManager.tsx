@@ -7,14 +7,14 @@ import {
 } from '@/app/actions/migrations'
 import {
   AlertTriangle,
+  ArrowUpCircle,
   CheckCircle2,
-  Database,
   Loader2,
   RefreshCw
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-export default function MigrationManager({
+export default function UpgradeManager({
   initialStatus
 }: {
   initialStatus: MigrationStatus
@@ -70,7 +70,7 @@ export default function MigrationManager({
       <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
         <div className='flex items-start gap-3'>
           <div className='rounded-xl bg-amber-50 p-2.5 text-amber-700'>
-            <Database className='size-5' />
+            <ArrowUpCircle className='size-5' />
           </div>
           <div>
             <h2 className='font-serif text-xl font-semibold text-stone-900'>
@@ -208,7 +208,7 @@ export default function MigrationManager({
         {isRunning ? (
           <Loader2 className='size-4 animate-spin' />
         ) : (
-          <Database className='size-4' />
+          <ArrowUpCircle className='size-4' />
         )}
         {isRunning ? 'Đang cập nhật...' : 'Chạy migration còn thiếu'}
       </button>

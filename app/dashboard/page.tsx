@@ -3,6 +3,7 @@ import { computeEvents } from '@/utils/eventHelpers'
 import { getIsAdmin, getSupabase } from '@/utils/supabase/queries'
 import {
   ArrowRight,
+  ArrowUpCircle,
   BarChart2,
   Cake,
   CalendarDays,
@@ -130,15 +131,6 @@ export default async function DashboardLaunchpad() {
       hoverColor: 'hover:border-rose-400 '
     },
     {
-      title: 'Nâng cấp hệ thống',
-      description: 'Kiểm tra và đồng bộ source code, database',
-      icon: <Database className='size-8 text-amber-600' />,
-      href: '/dashboard/upgrade',
-      bgColor: 'bg-amber-50',
-      borderColor: 'border-amber-200/60',
-      hoverColor: 'hover:border-amber-400 '
-    },
-    {
       title: 'Thứ tự gia phả',
       description: 'Sắp xếp và xem cấu trúc hệ thống',
       icon: <Network className='size-8 text-indigo-600' />,
@@ -155,6 +147,15 @@ export default async function DashboardLaunchpad() {
       bgColor: 'bg-teal-50',
       borderColor: 'border-teal-200/60',
       hoverColor: 'hover:border-teal-400 '
+    },
+    {
+      title: 'Nâng cấp hệ thống',
+      description: 'Kiểm tra và đồng bộ source code, database',
+      icon: <ArrowUpCircle className='size-8 text-amber-600' />,
+      href: '/dashboard/upgrade',
+      bgColor: 'bg-amber-50',
+      borderColor: 'border-amber-200/60',
+      hoverColor: 'hover:border-amber-400 '
     }
   ]
 

@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/client'
 
 export async function uploadGalleryImage(
   file: File
-): Promise<{ url: string | null; error: Error | null }> {
+): Promise<{ path: string | null; error: Error | null }> {
   try {
     const supabase = createClient()
 
@@ -22,13 +22,9 @@ export async function uploadGalleryImage(
       throw uploadError
     }
 
-    const { data: publicUrlData } = supabase.storage
-      .from('gallery')
-      .getPublicUrl(filePath)
-
-    return { url: publicUrlData.publicUrl, error: null }
+    return { path: filePath, error: null }
   } catch (error) {
     console.error('Error uploading image:', error)
-    return { url: null, error: error as Error }
+    return { path: null, error: error as Error }
   }
 }

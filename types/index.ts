@@ -76,4 +76,6 @@ export interface GalleryItem {
   event_date: string | null // ISO string or date string
   created_at: string
   created_by: string | null
+  // Storage path used to create signed URLs and delete the object.
+  storage_path?: string
 }

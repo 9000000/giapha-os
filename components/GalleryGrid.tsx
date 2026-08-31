@@ -6,6 +6,7 @@ import { CalendarDays, Maximize2, X, Clock } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { createClient } from '@/utils/supabase/client'
+import { getGalleryStoragePath } from '@/utils/supabase/storage-path'
 import Image from 'next/image'
 
 interface GalleryGridProps {
@@ -86,9 +87,10 @@ export default function GalleryGrid({
       const supabase = createClient()
 
       // Delete from storage if possible
-      const fileName = item.image_url.split('/').pop()
-      if (fileName) {
-        await supabase.storage.from('gallery').remove([fileName])
+      const storagePath =
+        item.storage_path || getGalleryStoragePath(item.image_url)
+      if (storagePath) {
+        await supabase.storage.from('gallery').remove([storagePath])
       }
 
       // Delete from db

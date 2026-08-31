@@ -90,6 +90,8 @@ Chỉ cần khoảng 10 -> 15 phút là bạn có thể tự dựng hệ thống
 
 Bạn sẽ có một đường link website để sử dụng ngay.
 
+> **Nếu đang nâng cấp hệ thống đã có dữ liệu:** hãy mở Supabase Dashboard → SQL Editor và chạy file [`docs/migrations/20260831_fix_member_access.sql`](docs/migrations/20260831_fix_member_access.sql). Migration sẽ khóa các tài khoản `member` hiện có để chờ admin duyệt lại, đồng thời giới hạn RLS theo trạng thái `is_active`.
+
 ---
 
 ## Cách 2: Chạy trên máy cá nhân
@@ -125,7 +127,7 @@ Mở trình duyệt và truy cập: `http://localhost:3000`
 
 - Đăng ký tài khoản mới khi vào web lần đầu.
 - Người đăng ký đầu tiên sẽ tự động có quyền **admin**.
-- Các tài khoản đăng ký sau sẽ mặc định là **member**.
+- Các tài khoản đăng ký sau sẽ mặc định là **member** và ở trạng thái **chờ admin duyệt**.
 
 ## Xử lý lỗi khi đăng ký
 
@@ -143,6 +145,7 @@ Sau khi cài đặt xong, nếu bạn gặp lỗi `Failed to fetch` khi đăng k
 4. Ở mục **Redirect URLs**, nhấn **Add URL** và thêm:
    - `https://giapha-os.vercel.app/**`
    - `http://localhost:3000/**` (nếu chạy local)
+   - Hoặc tối thiểu: `https://giapha-os.vercel.app/auth/callback` và `http://localhost:3000/auth/callback`
 5. Nhấn **Save** và thử lại.
 
 > **Lưu ý:** Thay `giapha-os.vercel.app` bằng domain thực tế của bạn. Nếu dùng domain tùy chỉnh, hãy thêm cả domain đó vào danh sách.

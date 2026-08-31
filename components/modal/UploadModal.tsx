@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/client'
 import { uploadGalleryImage } from '@/utils/supabase/storage'
+import { getGalleryStoragePath } from '@/utils/supabase/storage-path'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, UploadCloud, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -87,15 +88,18 @@ export default function UploadModal({
     setError(null)
 
     try {
-      let finalUrl = initialData?.image_url || ''
+      let finalPath = initialData
+        ? initialData.storage_path ||
+          getGalleryStoragePath(initialData.image_url)
+        : ''
 
       // 1. Upload to storage (only if new file selected)
       if (file) {
-        const { url, error: uploadError } = await uploadGalleryImage(file)
-        if (uploadError || !url) {
+        const { path, error: uploadError } = await uploadGalleryImage(file)
+        if (uploadError || !path) {
           throw new Error('Lỗi khi tải ảnh lên. Vui lòng thử lại.')
         }
-        finalUrl = url
+        finalPath = path
       }
 
       // 2. Save to database
@@ -105,7 +109,7 @@ export default function UploadModal({
       const itemData = {
         title,
         description: description || null,
-        image_url: finalUrl,
+        image_url: finalPath,
         event_date: eventDate || null
       }
 

@@ -31,8 +31,8 @@ export default async function AdminUsersPage() {
       <div className='relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8'>
         <div className='mb-8 flex flex-col items-start justify-between sm:flex-row sm:items-center'>
           <div>
-            <h1 className='title'>Quản lý Người dùng</h1>
-            <p className='mt-2 text-sm text-stone-500 sm:text-base'>
+            <h1 className='title'>Quản lý người dùng</h1>
+            <p className='mt-2 text-sm text-stone-500 sm:text-sm'>
               Danh sách các tài khoản đang tham gia vào hệ thống.
             </p>
           </div>

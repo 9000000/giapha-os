@@ -128,9 +128,9 @@ function EventCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
       onClick={handleClick}
-      className={`group flex w-full cursor-pointer items-start gap-3 rounded-2xl border p-3.5 text-left transition-all hover:shadow-md active:scale-[0.98] sm:gap-4 sm:p-4 ${
+      className={`group flex w-full cursor-pointer items-start gap-3 rounded-2xl border p-3.5 text-left transition-all active:scale-[0.98] sm:gap-4 sm:p-4 ${
         isToday
-          ? 'border-amber-300 bg-amber-50 shadow-sm'
+          ? 'border-amber-300 bg-amber-50'
           : isPast
             ? 'border-stone-200/50 bg-stone-50/60'
             : isBirthday
@@ -166,7 +166,7 @@ function EventCard({
         {/* Top row: name + badge */}
         <div className='flex flex-wrap items-center gap-x-2 gap-y-1'>
           <p
-            className={`truncate text-[15px] font-semibold transition-colors sm:text-base ${
+            className={`truncate text-sm font-medium transition-colors sm:text-sm ${
               isPast
                 ? 'text-stone-500'
                 : 'text-stone-800 group-hover:text-amber-700'
@@ -177,13 +177,13 @@ function EventCard({
             event.originDay &&
             event.originMonth &&
             getZodiacSign(event.originDay, event.originMonth) && (
-              <span className='shrink-0 rounded-md border border-indigo-200/60 bg-indigo-50 px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-wider whitespace-nowrap text-indigo-700 shadow-xs'>
+              <span className='shrink-0 rounded-md border border-indigo-200/60 bg-indigo-50 px-1.5 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-indigo-700'>
                 {getZodiacSign(event.originDay, event.originMonth)}
               </span>
             )}
           {/* Days badge — inline with name */}
           <span
-            className={`inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] leading-tight font-bold whitespace-nowrap ${
+            className={`inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-0.5 text-sm leading-tight font-medium whitespace-nowrap ${
               isToday
                 ? 'bg-amber-400 text-white'
                 : isPast
@@ -205,20 +205,20 @@ function EventCard({
 
         {/* Details */}
         <div className='mt-1 flex flex-col gap-0.5'>
-          <p className='flex items-center gap-1.5 text-[13px] leading-snug text-stone-500 sm:text-sm'>
+          <p className='flex items-center gap-1.5 text-sm leading-snug text-stone-500 sm:text-sm'>
             <CalendarDays className='size-3.5 shrink-0' />
             <span className='font-medium text-stone-600'>{dateLabel}</span>
             {yearsInfo && <span className='text-stone-400'>· {yearsInfo}</span>}
           </p>
 
           {event.location && (
-            <p className='flex items-center gap-1.5 text-[13px] leading-snug text-stone-500 sm:text-sm'>
+            <p className='flex items-center gap-1.5 text-sm leading-snug text-stone-500 sm:text-sm'>
               <MapPin className='size-3.5 shrink-0' />
               <span className='truncate'>{event.location}</span>
             </p>
           )}
           {event.content && (
-            <p className='mt-0.5 flex items-start gap-1.5 text-[13px] leading-snug text-stone-400 sm:text-sm'>
+            <p className='mt-0.5 flex items-start gap-1.5 text-sm leading-snug text-stone-400 sm:text-sm'>
               <AlignLeft className='mt-0.5 size-3.5 shrink-0' />
               <span className='line-clamp-2'>{event.content}</span>
             </p>
@@ -330,24 +330,24 @@ export default function EventsList({
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className='relative mb-8 flex flex-col justify-between gap-6 overflow-hidden rounded-3xl border border-stone-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:border-stone-400 hover:shadow-stone-100 sm:flex-row sm:items-center sm:p-8'>
+        className='relative mb-8 flex flex-col justify-between gap-6 overflow-hidden rounded-3xl border border-stone-200/60 bg-white p-6 transition-all duration-300 hover:border-stone-400 sm:flex-row sm:items-center sm:p-8'>
         {/* Subtle background flair */}
         <div className='pointer-events-none absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-50/50 opacity-50 blur-3xl'></div>
 
         <div className='relative flex items-center gap-4 sm:gap-6'>
-          <div className='flex size-16 shrink-0 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50 text-stone-600 shadow-sm'>
+          <div className='flex size-16 shrink-0 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50 text-stone-600'>
             <CalendarDays className='size-8' />
           </div>
           <div>
-            <p className='text-xl font-bold tracking-tight text-stone-800 sm:text-2xl'>
+            <p className='text-sm font-medium text-stone-800 sm:text-sm'>
               {todayDate.solar}
             </p>
             {todayDate.lunar && (
               <div className='mt-2.5 inline-flex flex-wrap items-center gap-2 rounded-full border border-stone-100 bg-stone-50 px-3.5 py-1'>
-                <span className='text-xs font-medium tracking-wider text-stone-500 uppercase'>
+                <span className='text-sm font-medium text-stone-500'>
                   Âm lịch:
                 </span>
-                <span className='text-sm font-semibold text-stone-700'>
+                <span className='text-sm font-medium text-stone-700'>
                   {todayDate.lunar}
                 </span>
               </div>
@@ -360,7 +360,7 @@ export default function EventsList({
                 </span>
                 <span className='flex flex-wrap items-center gap-1.5'>
                   {todayCount > 0 && (
-                    <span className='font-semibold text-stone-700'>
+                    <span className='font-medium text-stone-700'>
                       {todayCount} sự kiện hôm nay
                     </span>
                   )}
@@ -403,17 +403,17 @@ export default function EventsList({
                 setFilter(tab.key)
                 setShowCount(20)
               }}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
                 filter === tab.key
                   ? filter === 'past'
-                    ? 'bg-stone-600 text-white shadow-sm'
-                    : 'bg-amber-500 text-white shadow-sm'
+                    ? 'bg-stone-600 text-white'
+                    : 'bg-amber-500 text-white'
                   : 'border border-stone-200/60 bg-white/80 text-stone-600 hover:border-amber-200 hover:text-amber-700'
               }`}>
               {tab.label}
             </button>
           ))}
-          <span className='ml-auto self-center text-xs text-stone-400'>
+          <span className='ml-auto self-center text-sm text-stone-400'>
             {filtered.length} sự kiện{filter === 'past' ? ' trong năm qua' : ''}
           </span>
         </div>

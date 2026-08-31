@@ -81,9 +81,7 @@ export default function MindmapTree({
         <div className='mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-stone-100'>
           <Share2 className='size-8 text-stone-300' />
         </div>
-        <p className='font-medium tracking-wide text-stone-500'>
-          Gia phả trống
-        </p>
+        <p className='font-medium text-stone-500'>Gia phả trống</p>
       </div>
     )
   }

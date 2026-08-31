@@ -107,7 +107,7 @@ export const MindmapNode = memo(
             {hasChildren && !ctx.hideExpandButtons ? (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className='flex size-5 items-center justify-center rounded border border-stone-200 bg-white text-stone-500 shadow-sm transition-colors hover:bg-amber-50 hover:text-amber-600 focus:outline-none'
+                className='flex size-5 items-center justify-center rounded border border-stone-200 bg-white text-stone-500 transition-colors hover:bg-amber-50 hover:text-amber-600 focus:outline-none'
                 aria-label={isExpanded ? 'Thu gọn' : 'Mở rộng'}>
                 {isExpanded ? (
                   <ChevronDown strokeWidth={2.5} className='h-3.5 w-3.5' />
@@ -126,14 +126,14 @@ export const MindmapNode = memo(
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`group/card relative flex cursor-pointer flex-wrap items-center gap-2 overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 p-2 shadow-sm transition-all duration-300 hover:border-amber-300 hover:bg-white/90 hover:shadow-md sm:p-2.5 ${data.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
+                className={`group/card relative flex cursor-pointer flex-wrap items-center gap-2 overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 p-2 transition-all duration-300 hover:border-amber-300 hover:bg-white/90 sm:p-2.5 ${data.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
                 onClick={() => ctx.setMemberModalId(data.person.id)}>
                 <div className='relative z-10 flex w-full items-center gap-2.5'>
                   <div className='flex min-w-0 flex-1 items-center gap-2.5'>
                     {ctx.showAvatar && (
                       <div className='relative shrink-0'>
                         <div
-                          className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-xs font-bold text-white shadow-md ring-2 ring-white transition-transform duration-300 group-hover/card:scale-105 ${getAvatarBg(data.person.gender)}`}>
+                          className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-md ring-2 ring-white transition-transform duration-300 group-hover/card:scale-105 ${getAvatarBg(data.person.gender)}`}>
                           {data.person.avatar_url ? (
                             <Image
                               unoptimized
@@ -153,10 +153,10 @@ export const MindmapNode = memo(
                       </div>
                     )}
                     <div className='flex min-w-0 flex-1 flex-col'>
-                      <span className='mb-0.5 truncate text-[14px] leading-tight font-bold text-stone-900 transition-colors group-hover/card:text-amber-700'>
+                      <span className='mb-0.5 truncate text-sm leading-tight font-medium text-stone-900 transition-colors group-hover/card:text-amber-700'>
                         {data.person.full_name}
                       </span>
-                      <span className='flex items-center gap-1 truncate text-[11px] font-medium text-stone-500'>
+                      <span className='flex items-center gap-1 truncate text-sm font-medium text-stone-500'>
                         <svg
                           className='size-3 shrink-0 text-stone-400'
                           fill='none'
@@ -179,7 +179,7 @@ export const MindmapNode = memo(
                         <div className='mt-1.5 flex shrink-0 flex-wrap items-center gap-1'>
                           {data.person.is_in_law && (
                             <span
-                              className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[9px] font-bold tracking-widest uppercase shadow-xs ${
+                              className={`inline-flex items-center rounded border px-1.5 py-0.5 text-sm font-medium ${
                                 data.person.gender === 'male'
                                   ? 'border-sky-200/60 bg-sky-50 text-sky-700'
                                   : data.person.gender === 'female'
@@ -209,7 +209,7 @@ export const MindmapNode = memo(
                               e.stopPropagation()
                               ctx.setMemberModalId(spouseData.person.id)
                             }}
-                            className={`group/spouse flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-stone-200/60 bg-stone-50/50 p-1.5 shadow-sm transition-all hover:border-amber-300 hover:bg-white hover:shadow-md ${spouseData.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
+                            className={`group/spouse flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-stone-200/60 bg-stone-50/50 p-1.5 transition-all hover:border-amber-300 hover:bg-white ${spouseData.person.is_deceased ? 'opacity-80 grayscale-[0.3]' : ''}`}
                             title={
                               spouseData.note ||
                               (spouseData.person.gender === 'male'
@@ -218,7 +218,7 @@ export const MindmapNode = memo(
                             }>
                             {ctx.showAvatar && (
                               <div
-                                className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-[10px] font-bold text-white shadow-sm ring-2 ring-white transition-transform duration-300 group-hover/spouse:scale-105 ${getAvatarBg(spouseData.person.gender)}`}>
+                                className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-sm ring-2 ring-white transition-transform duration-300 group-hover/spouse:scale-105 ${getAvatarBg(spouseData.person.gender)}`}>
                                 {spouseData.person.avatar_url ? (
                                   <Image
                                     unoptimized
@@ -236,7 +236,7 @@ export const MindmapNode = memo(
                                 )}
                               </div>
                             )}
-                            <span className='max-w-12.5 truncate text-center text-[10px] font-bold text-stone-600'>
+                            <span className='max-w-12.5 truncate text-center text-sm font-medium text-stone-600'>
                               {spouseData.person.full_name.split(' ').pop()}
                             </span>
                           </button>

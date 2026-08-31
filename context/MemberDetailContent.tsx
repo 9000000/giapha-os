@@ -115,7 +115,7 @@ export default function MemberDetailContent({
           variants={itemVariants}
           className='absolute -bottom-12 left-6 z-10 sm:-bottom-16 sm:left-8'>
           <div
-            className={`flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white text-3xl font-bold text-white shadow-xl sm:h-32 sm:w-32 sm:border-[6px] sm:text-4xl ${
+            className={`flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white text-sm font-medium text-white sm:h-32 sm:w-32 sm:border-[6px] sm:text-sm ${
               person.gender === 'male'
                 ? 'bg-linear-to-br from-sky-400 to-sky-700'
                 : person.gender === 'female'
@@ -158,16 +158,16 @@ export default function MemberDetailContent({
           variants={itemVariants}
           className='flex flex-col items-start justify-between sm:flex-row sm:items-center'>
           <div>
-            <h1 className='flex flex-wrap items-center gap-2 font-serif text-2xl font-bold text-stone-900 sm:gap-3 sm:text-3xl'>
+            <h1 className='flex flex-wrap items-center gap-2 font-serif text-2xl font-semibold text-stone-900 sm:gap-3 sm:text-3xl'>
               {fullPerson.full_name}
               {isDeceased && (
-                <span className='rounded-md border border-stone-200/80 bg-stone-100/50 px-2 py-0.5 font-sans text-[10px] font-bold tracking-wider whitespace-nowrap text-stone-500 uppercase shadow-xs sm:text-xs'>
+                <span className='rounded-md border border-stone-200/80 bg-stone-100/50 px-2 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-stone-500 sm:text-sm'>
                   Đã mất
                 </span>
               )}
               {person.is_in_law && (
                 <span
-                  className={`rounded-md border px-2 py-0.5 font-sans text-[10px] font-bold tracking-wider whitespace-nowrap uppercase shadow-xs sm:text-xs ${
+                  className={`rounded-md border px-2 py-0.5 font-sans text-sm font-medium whitespace-nowrap sm:text-sm ${
                     person.gender === 'female'
                       ? 'border-rose-200/60 bg-rose-50/50 text-rose-700'
                       : person.gender === 'male'
@@ -182,22 +182,22 @@ export default function MemberDetailContent({
                 </span>
               )}
               {person.birth_order != null && (
-                <span className='rounded-md border border-amber-200/60 bg-amber-50/60 px-2 py-0.5 font-sans text-[10px] font-bold tracking-wider whitespace-nowrap text-amber-700 uppercase shadow-xs sm:text-xs'>
+                <span className='rounded-md border border-amber-200/60 bg-amber-50/60 px-2 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-amber-700 sm:text-sm'>
                   {person.birth_order === 1
                     ? 'Con trưởng'
                     : `Con thứ ${person.birth_order}`}
                 </span>
               )}
               {person.generation != null && (
-                <span className='rounded-md border border-emerald-200/60 bg-emerald-50/60 px-2 py-0.5 font-sans text-[10px] font-bold tracking-wider whitespace-nowrap text-emerald-700 uppercase shadow-xs sm:text-xs'>
+                <span className='rounded-md border border-emerald-200/60 bg-emerald-50/60 px-2 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-emerald-700 sm:text-sm'>
                   Đời thứ {person.generation}
                 </span>
               )}
             </h1>
             {person.other_names && (
-              <p className='mt-1.5 text-sm font-medium text-stone-600 italic sm:text-base'>
+              <p className='mt-1.5 text-sm font-medium text-stone-600 italic sm:text-sm'>
                 Tên khác:{' '}
-                <span className='font-semibold text-stone-700 not-italic'>
+                <span className='font-medium text-stone-700 not-italic'>
                   {person.other_names}
                 </span>
               </p>
@@ -207,11 +207,11 @@ export default function MemberDetailContent({
               {/* Birth Card */}
               <motion.div
                 variants={itemVariants}
-                className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 shadow-sm backdrop-blur-sm transition-all hover:border-amber-200/60 hover:shadow-md'>
+                className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
                 <div className='mb-2 flex items-center justify-between'>
                   <div className='flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'></span>
-                    <h3 className='text-[11px] font-bold tracking-widest text-stone-400 uppercase'>
+                    <h3 className='text-base font-semibold text-stone-400'>
                       Sinh
                     </h3>
                   </div>
@@ -222,7 +222,7 @@ export default function MemberDetailContent({
                         person.birth_month,
                         person.birth_day
                       ) && (
-                        <span className='rounded-md border border-rose-200/60 bg-rose-50 px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-wider whitespace-nowrap text-rose-700 shadow-xs'>
+                        <span className='rounded-md border border-rose-200/60 bg-rose-50 px-1.5 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-rose-700'>
                           Tuổi{' '}
                           {getZodiacAnimal(
                             person.birth_year,
@@ -234,14 +234,14 @@ export default function MemberDetailContent({
                     {person.birth_day &&
                       person.birth_month &&
                       getZodiacSign(person.birth_day, person.birth_month) && (
-                        <span className='rounded-md border border-indigo-200/60 bg-indigo-50 px-1.5 py-0.5 font-sans text-[10px] font-bold tracking-wider whitespace-nowrap text-indigo-700 shadow-xs'>
+                        <span className='rounded-md border border-indigo-200/60 bg-indigo-50 px-1.5 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-indigo-700'>
                           {getZodiacSign(person.birth_day, person.birth_month)}
                         </span>
                       )}
                   </div>
                 </div>
                 <div className='space-y-1.5 border-l-2 border-stone-100 pl-4'>
-                  <p className='text-sm font-semibold text-stone-800 sm:text-base'>
+                  <p className='text-sm font-medium text-stone-800 sm:text-sm'>
                     {formatDisplayDate(
                       person.birth_year,
                       person.birth_month,
@@ -252,7 +252,7 @@ export default function MemberDetailContent({
                     person.birth_month ||
                     person.birth_day) && (
                     <p className='flex items-center gap-1.5 text-sm font-medium text-stone-500'>
-                      <span className='rounded border border-stone-200/60 bg-stone-50/80 px-1.5 py-0.5 text-[10px]'>
+                      <span className='rounded border border-stone-200/60 bg-stone-50/80 px-1.5 py-0.5 text-sm'>
                         Âm lịch
                       </span>
                       {getLunarDateString(
@@ -269,15 +269,15 @@ export default function MemberDetailContent({
               {isDeceased && (
                 <motion.div
                   variants={itemVariants}
-                  className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 shadow-sm backdrop-blur-sm transition-all hover:border-amber-200/60 hover:shadow-md'>
+                  className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60'>
                   <div className='mb-2 flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-stone-400 shadow-[0_0_8px_rgba(156,163,175,0.5)]'></span>
-                    <h3 className='text-[11px] font-bold tracking-widest text-stone-400 uppercase'>
+                    <h3 className='text-base font-semibold text-stone-400'>
                       Mất
                     </h3>
                   </div>
                   <div className='space-y-1.5 border-l-2 border-stone-100 pl-4'>
-                    <p className='text-sm font-semibold text-stone-800 sm:text-base'>
+                    <p className='text-sm font-medium text-stone-800 sm:text-sm'>
                       {person.death_day ||
                       person.death_month ||
                       person.death_year
@@ -299,7 +299,7 @@ export default function MemberDetailContent({
                       person.death_lunar_month ||
                       person.death_lunar_day) && (
                       <p className='flex items-center gap-1.5 text-sm font-medium text-stone-500'>
-                        <span className='rounded border border-stone-200/60 bg-stone-50/80 px-1.5 py-0.5 text-[10px]'>
+                        <span className='rounded border border-stone-200/60 bg-stone-50/80 px-1.5 py-0.5 text-sm'>
                           Âm lịch
                         </span>
                         {person.death_lunar_day ||
@@ -336,12 +336,12 @@ export default function MemberDetailContent({
                 return (
                   <motion.div
                     variants={itemVariants}
-                    className='relative flex flex-col justify-center overflow-hidden rounded-2xl border border-amber-200/50 bg-linear-to-br from-amber-50 to-orange-50/40 p-4 shadow-sm transition-all hover:shadow-md'>
+                    className='relative flex flex-col justify-center overflow-hidden rounded-2xl border border-amber-200/50 bg-linear-to-br from-amber-50 to-orange-50/40 p-4 transition-all'>
                     <Leaf className='absolute -right-4 -bottom-4 h-20 w-20 rotate-12 text-amber-500/10' />
                     <div className='relative z-10 mb-1.5 flex items-center gap-2'>
                       <span
                         className={`size-2 rounded-full ${ageData.isDeceased ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]' : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]'}`}></span>
-                      <p className='text-[11px] font-bold tracking-widest text-amber-800/60 uppercase'>
+                      <p className='text-sm font-medium text-amber-800/60'>
                         {ageData.isDeceased
                           ? ageData.age >= 60
                             ? 'Hưởng thọ'
@@ -350,9 +350,9 @@ export default function MemberDetailContent({
                       </p>
                     </div>
                     <div className='relative z-10 pl-4'>
-                      <p className='bg-linear-to-br from-amber-700 to-amber-900 bg-clip-text text-3xl font-black tracking-tight text-transparent sm:text-4xl'>
+                      <p className='bg-linear-to-br from-amber-700 to-amber-900 bg-clip-text text-sm font-medium text-transparent sm:text-sm'>
                         {ageData.age}
-                        <span className='ml-1.5 text-xs font-bold tracking-wider text-amber-700/60 uppercase sm:text-sm'>
+                        <span className='ml-1.5 text-sm font-medium text-amber-700/60 sm:text-sm'>
                           tuổi
                         </span>
                       </p>
@@ -371,10 +371,10 @@ export default function MemberDetailContent({
                   <motion.div
                     layout
                     variants={itemVariants}
-                    className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 shadow-sm backdrop-blur-sm transition-all hover:border-amber-200/60 hover:shadow-md sm:col-span-2 md:col-span-3'>
+                    className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm transition-all hover:border-amber-200/60 sm:col-span-2 md:col-span-3'>
                     <div className='mb-3 flex items-center gap-2'>
                       <span className='size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]'></span>
-                      <h3 className='text-[11px] font-bold tracking-widest text-stone-400 uppercase'>
+                      <h3 className='text-base font-semibold text-stone-400'>
                         Hậu duệ
                       </h3>
                     </div>
@@ -387,10 +387,10 @@ export default function MemberDetailContent({
                               <Users className='size-4' />
                             </div>
                             <div className='flex-1'>
-                              <p className='text-[10px] leading-tight font-bold tracking-widest text-stone-500 uppercase'>
+                              <p className='text-sm leading-tight font-medium text-stone-500'>
                                 Con ruột
                               </p>
-                              <p className='mt-0.5 text-xl leading-none font-black text-stone-700'>
+                              <p className='mt-0.5 text-sm leading-none font-medium text-stone-700'>
                                 {relStats.biologicalChildren}
                               </p>
                             </div>
@@ -398,13 +398,13 @@ export default function MemberDetailContent({
 
                           <div className='mt-auto flex flex-wrap gap-1.5 border-t border-stone-200/50 pt-1'>
                             {relStats.maleBiologicalChildren > 0 && (
-                              <span className='flex items-center gap-1 rounded bg-sky-100/50 px-1.5 py-0.5 text-[11px] font-medium text-sky-700'>
+                              <span className='flex items-center gap-1 rounded bg-sky-100/50 px-1.5 py-0.5 text-sm font-medium text-sky-700'>
                                 <MaleIcon className='size-3 shrink-0' />{' '}
                                 {relStats.maleBiologicalChildren}
                               </span>
                             )}
                             {relStats.femaleBiologicalChildren > 0 && (
-                              <span className='flex items-center gap-1 rounded bg-rose-100/50 px-1.5 py-0.5 text-[11px] font-medium text-rose-700'>
+                              <span className='flex items-center gap-1 rounded bg-rose-100/50 px-1.5 py-0.5 text-sm font-medium text-rose-700'>
                                 <FemaleIcon className='size-3 shrink-0' />{' '}
                                 {relStats.femaleBiologicalChildren}
                               </span>
@@ -421,28 +421,28 @@ export default function MemberDetailContent({
                             <div className='rounded-lg bg-stone-200/50 p-2 text-stone-600 transition-colors group-hover:bg-stone-200'>
                               <UserPlus className='size-4' />
                             </div>
-                            <p className='text-[10px] font-bold tracking-widest text-stone-500 uppercase'>
+                            <p className='text-sm font-medium text-stone-500'>
                               Dâu / Rể
                             </p>
                           </div>
 
                           <div className='mt-auto w-full space-y-1 border-t border-stone-200/50 pt-1'>
                             {relStats.daughterInLaw > 0 && (
-                              <div className='flex items-center justify-between text-xs'>
+                              <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
                                   Con dâu
                                 </span>
-                                <span className='font-bold text-stone-700'>
+                                <span className='font-medium text-stone-700'>
                                   {relStats.daughterInLaw}
                                 </span>
                               </div>
                             )}
                             {relStats.sonInLaw > 0 && (
-                              <div className='flex items-center justify-between text-xs'>
+                              <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
                                   Con rể
                                 </span>
-                                <span className='font-bold text-stone-700'>
+                                <span className='font-medium text-stone-700'>
                                   {relStats.sonInLaw}
                                 </span>
                               </div>
@@ -459,28 +459,28 @@ export default function MemberDetailContent({
                             <div className='rounded-lg bg-emerald-100/50 p-2 text-emerald-600 transition-colors group-hover:bg-emerald-100'>
                               <Baby className='size-4' />
                             </div>
-                            <p className='text-[10px] font-bold tracking-widest text-stone-500 uppercase'>
+                            <p className='text-sm font-medium text-stone-500'>
                               Cháu
                             </p>
                           </div>
 
                           <div className='mt-auto w-full space-y-1 border-t border-stone-200/50 pt-1'>
                             {relStats.paternalGrandchildren > 0 && (
-                              <div className='flex items-center justify-between text-xs'>
+                              <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
                                   Cháu nội
                                 </span>
-                                <span className='font-bold text-stone-700'>
+                                <span className='font-medium text-stone-700'>
                                   {relStats.paternalGrandchildren}
                                 </span>
                               </div>
                             )}
                             {relStats.maternalGrandchildren > 0 && (
-                              <div className='flex items-center justify-between text-xs'>
+                              <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
                                   Cháu ngoại
                                 </span>
-                                <span className='font-bold text-stone-700'>
+                                <span className='font-medium text-stone-700'>
                                   {relStats.maternalGrandchildren}
                                 </span>
                               </div>
@@ -499,11 +499,11 @@ export default function MemberDetailContent({
           {/* Main Info */}
           <div className='space-y-8 lg:col-span-2'>
             <motion.section layout variants={itemVariants}>
-              <h2 className='mb-4 flex items-center gap-2 text-base font-bold text-stone-800 sm:text-lg'>
+              <h2 className='mb-4 flex items-center gap-2 text-base font-semibold text-stone-800 sm:text-lg'>
                 <Info className='size-5 text-amber-600' />
                 Ghi chú
               </h2>
-              <div className='relative overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80 p-5 shadow-sm backdrop-blur-sm sm:p-6'>
+              <div className='relative overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80 p-5 backdrop-blur-sm sm:p-6'>
                 {note ? (
                   <div className='flex flex-col'>
                     <motion.div
@@ -518,7 +518,7 @@ export default function MemberDetailContent({
                         damping: 20,
                         duration: 0.4
                       }}>
-                      <p className='text-sm leading-relaxed whitespace-pre-wrap text-stone-600 sm:text-base'>
+                      <p className='text-sm leading-relaxed whitespace-pre-wrap text-stone-600 sm:text-sm'>
                         {note}
                       </p>
                       {/* Gradient fade overlay when collapsed */}
@@ -530,7 +530,7 @@ export default function MemberDetailContent({
                     {isNoteLong && (
                       <button
                         onClick={() => setIsNoteExpanded(!isNoteExpanded)}
-                        className='group relative z-10 mt-4 flex w-fit items-center gap-1.5 text-[13px] font-bold text-amber-600 transition-colors hover:text-amber-700'>
+                        className='group relative z-10 mt-4 flex w-fit items-center gap-1.5 text-sm font-medium text-amber-600 transition-colors hover:text-amber-700'>
                         <span className='underline decoration-amber-600/30 underline-offset-4 group-hover:decoration-amber-700'>
                           {isNoteExpanded ? 'Thu gọn' : 'Xem thêm'}
                         </span>
@@ -543,7 +543,7 @@ export default function MemberDetailContent({
                     )}
                   </div>
                 ) : (
-                  <p className='text-sm text-stone-400 italic sm:text-base'>
+                  <p className='text-sm text-stone-400 italic sm:text-sm'>
                     Chưa có ghi chú.
                   </p>
                 )}
@@ -551,11 +551,11 @@ export default function MemberDetailContent({
             </motion.section>
 
             <motion.section layout variants={itemVariants}>
-              <h2 className='mb-4 flex items-center gap-2 text-base font-bold text-stone-800 sm:text-lg'>
+              <h2 className='mb-4 flex items-center gap-2 text-base font-semibold text-stone-800 sm:text-lg'>
                 <Users className='size-5 text-amber-600' />
                 Gia đình
               </h2>
-              <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-white/80 p-4 shadow-sm backdrop-blur-sm sm:p-6'>
+              <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm sm:p-6'>
                 <RelationshipManager
                   person={person}
                   isAdmin={isAdmin}
@@ -570,19 +570,19 @@ export default function MemberDetailContent({
           <div className='space-y-6'>
             <motion.div layout variants={itemVariants}>
               {isAdmin ? (
-                <div className='rounded-2xl border border-stone-200/80 bg-stone-50 p-5 shadow-sm sm:p-6'>
-                  <h3 className='mb-4 flex items-center gap-2 border-b border-stone-200/60 pb-3 text-sm font-bold text-stone-900 sm:text-base'>
+                <div className='rounded-2xl border border-stone-200/80 bg-stone-50 p-5 sm:p-6'>
+                  <h3 className='mb-4 flex items-center gap-2 border-b border-stone-200/60 pb-3 text-base font-semibold text-stone-900 sm:text-base'>
                     <span className='rounded-lg border border-amber-200/50 bg-amber-100/80 p-1.5 text-amber-700'>
                       🔒
                     </span>
                     Thông tin liên hệ
                   </h3>
-                  <dl className='space-y-4 text-sm sm:text-base'>
+                  <dl className='space-y-4 text-sm sm:text-sm'>
                     <div>
-                      <dt className='mb-1 flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-stone-500 uppercase'>
+                      <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
                         <Phone className='h-3.5 w-3.5' /> Số điện thoại
                       </dt>
-                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900 shadow-xs'>
+                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.phone_number as string) || (
                           <span className='font-normal text-stone-400'>
                             Chưa cập nhật
@@ -591,10 +591,10 @@ export default function MemberDetailContent({
                       </dd>
                     </div>
                     <div>
-                      <dt className='mb-1 flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-stone-500 uppercase'>
+                      <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
                         <Briefcase className='h-3.5 w-3.5' /> Nghề nghiệp
                       </dt>
-                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900 shadow-xs'>
+                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.occupation as string) || (
                           <span className='font-normal text-stone-400'>
                             Chưa cập nhật
@@ -603,10 +603,10 @@ export default function MemberDetailContent({
                       </dd>
                     </div>
                     <div>
-                      <dt className='mb-1 flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-stone-500 uppercase'>
+                      <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
                         <MapPin className='h-3.5 w-3.5' /> Nơi ở hiện tại
                       </dt>
-                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900 shadow-xs'>
+                      <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.current_residence as string) || (
                           <span className='font-normal text-stone-400'>
                             Chưa cập nhật
@@ -618,7 +618,7 @@ export default function MemberDetailContent({
                 </div>
               ) : (
                 <div className='flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-200 bg-stone-50/50 p-5 text-center'>
-                  <span className='text-2xl opacity-50'>🔒</span>
+                  <span className='text-sm opacity-50'>🔒</span>
                   <p className='text-sm font-medium text-stone-500'>
                     Thông tin liên hệ chỉ hiển thị với Quản trị viên.
                   </p>

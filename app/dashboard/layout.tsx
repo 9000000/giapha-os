@@ -24,11 +24,11 @@ export default async function DashboardLayout({
   if (!profile?.is_active) {
     return (
       <div className='flex min-h-screen flex-col bg-neutral font-sans text-primary'>
-        <header className='sticky top-0 z-30 border-b border-stone-200 bg-white/80 shadow-sm transition-all duration-200'>
+        <header className='sticky top-0 z-30 border-b border-stone-200 bg-white/80 transition-all duration-200'>
           <div className='mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8'>
             <div className='flex items-center gap-4'>
               <Link href='/' className='group flex items-center gap-2'>
-                <h1 className='font-serif text-xl font-bold text-stone-800 transition-colors group-hover:text-amber-700 sm:text-2xl'>
+                <h1 className='font-serif text-xl font-semibold text-stone-800 transition-colors group-hover:text-amber-700 sm:text-2xl'>
                   {config.siteName}
                 </h1>
               </Link>
@@ -54,7 +54,7 @@ export default async function DashboardLayout({
                 />
               </svg>
             </div>
-            <h2 className='mb-2 font-serif text-2xl font-bold text-stone-800'>
+            <h2 className='mb-2 font-serif text-2xl font-semibold text-stone-800'>
               Tài khoản chờ duyệt
             </h2>
             <p className='text-stone-600'>

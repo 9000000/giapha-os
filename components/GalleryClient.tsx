@@ -48,7 +48,7 @@ export default function GalleryClient({
         <div className='flex items-center gap-3'>
           <div>
             <h1 className='title'>Phòng trưng bày</h1>
-            <p className='mt-2 text-sm text-stone-500 sm:text-base'>
+            <p className='mt-2 text-sm text-stone-500 sm:text-sm'>
               Lưu giữ những kỷ niệm và khoảnh khắc đáng nhớ
             </p>
           </div>

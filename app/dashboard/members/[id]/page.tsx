@@ -55,7 +55,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
             title='Quay lại danh sách'>
             <ArrowLeft className='size-5' />
           </Link>
-          <h1 className='title'>Chi Tiết Thành Viên</h1>
+          <h1 className='title'>Chi tiết thành viên</h1>
         </div>
         {canEdit && (
           <div className='flex w-full items-center gap-2.5 sm:w-auto'>
@@ -70,7 +70,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
       </div>
 
       <main className='relative z-10 mx-auto w-full max-w-5xl flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8'>
-        <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 shadow-sm transition-shadow duration-300 hover:shadow-md'>
+        <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 transition-shadow duration-300'>
           <MemberDetailContent
             person={person}
             privateData={privateData}

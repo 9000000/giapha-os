@@ -70,7 +70,7 @@ export default async function DashboardLaunchpad() {
       href: '/dashboard/members',
       bgColor: 'bg-amber-50',
       borderColor: 'border-amber-200/60',
-      hoverColor: 'hover:border-amber-400 hover:shadow-amber-100'
+      hoverColor: 'hover:border-amber-400 '
     },
     // {
     //   title: "Sự kiện",
@@ -79,7 +79,7 @@ export default async function DashboardLaunchpad() {
     //   href: "/dashboard/events",
     //   bgColor: "bg-emerald-50",
     //   borderColor: "border-emerald-200/60",
-    //   hoverColor: "hover:border-emerald-400 hover:shadow-emerald-100",
+    //   hoverColor: "hover:border-emerald-400 ",
     // },
     {
       title: 'Tra cứu danh xưng',
@@ -88,7 +88,7 @@ export default async function DashboardLaunchpad() {
       href: '/dashboard/kinship',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200/60',
-      hoverColor: 'hover:border-blue-400 hover:shadow-blue-100'
+      hoverColor: 'hover:border-blue-400 '
     },
     {
       title: 'Thống kê gia phả',
@@ -97,7 +97,7 @@ export default async function DashboardLaunchpad() {
       href: '/dashboard/stats',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200/60',
-      hoverColor: 'hover:border-purple-400 hover:shadow-purple-100'
+      hoverColor: 'hover:border-purple-400 '
     },
     {
       title: 'Phòng trưng bày',
@@ -106,7 +106,7 @@ export default async function DashboardLaunchpad() {
       href: '/dashboard/gallery',
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-200/60',
-      hoverColor: 'hover:border-pink-400 hover:shadow-pink-100'
+      hoverColor: 'hover:border-pink-400 '
     },
     {
       title: 'Giới thiệu & Liên hệ',
@@ -115,19 +115,19 @@ export default async function DashboardLaunchpad() {
       href: '/about',
       bgColor: 'bg-stone-50',
       borderColor: 'border-stone-200/60',
-      hoverColor: 'hover:border-stone-400 hover:shadow-stone-100'
+      hoverColor: 'hover:border-stone-400 '
     }
   ]
 
   const adminFeatures = [
     {
-      title: 'Quản lý Người dùng',
+      title: 'Quản lý người dùng',
       description: 'Phê duyệt tài khoản và phân quyền',
       icon: <Users className='size-8 text-rose-600' />,
       href: '/dashboard/users',
       bgColor: 'bg-rose-50',
       borderColor: 'border-rose-200/60',
-      hoverColor: 'hover:border-rose-400 hover:shadow-rose-100'
+      hoverColor: 'hover:border-rose-400 '
     },
     {
       title: 'Thứ tự gia phả',
@@ -136,7 +136,7 @@ export default async function DashboardLaunchpad() {
       href: '/dashboard/lineage',
       bgColor: 'bg-indigo-50',
       borderColor: 'border-indigo-200/60',
-      hoverColor: 'hover:border-indigo-400 hover:shadow-indigo-100'
+      hoverColor: 'hover:border-indigo-400 '
     },
     {
       title: 'Sao lưu & Phục hồi',
@@ -145,7 +145,7 @@ export default async function DashboardLaunchpad() {
       href: '/dashboard/data',
       bgColor: 'bg-teal-50',
       borderColor: 'border-teal-200/60',
-      hoverColor: 'hover:border-teal-400 hover:shadow-teal-100'
+      hoverColor: 'hover:border-teal-400 '
     }
   ]
 
@@ -158,25 +158,25 @@ export default async function DashboardLaunchpad() {
       {/* ── Today's Date & Upcoming Events ─────────────────── */}
       <Link
         href='/dashboard/events'
-        className='group relative mb-10 block overflow-hidden rounded-3xl border border-stone-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-stone-400 hover:shadow-stone-100'>
+        className='group relative mb-10 block overflow-hidden rounded-3xl border border-stone-200/60 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-stone-400'>
         {/* Subtle background flair */}
         <div className='pointer-events-none absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-50/50 opacity-50 blur-3xl'></div>
 
         <div className='relative flex flex-col items-center gap-6 p-6 sm:gap-8 sm:p-8 md:flex-row'>
           {/* Date section */}
           <div className='flex w-full flex-col items-center gap-4 border-stone-100 text-center md:w-[35%] md:items-start md:border-r md:pr-8 md:text-left'>
-            <div className='flex size-16 shrink-0 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50 text-stone-600 shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:border-stone-200 group-hover:shadow-md'>
+            <div className='flex size-16 shrink-0 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50 text-stone-600 transition-transform duration-500 group-hover:scale-105 group-hover:border-stone-200'>
               <CalendarDays className='size-7' />
             </div>
             <div className='mt-1'>
-              <p className='text-xl font-bold tracking-tight text-stone-800 sm:text-2xl'>
+              <p className='text-sm font-medium text-stone-800 sm:text-sm'>
                 {lunar.solarStr}
               </p>
               <div className='mt-3 inline-flex items-center gap-2 rounded-full border border-stone-100 bg-stone-50 px-3.5 py-1.5'>
-                <span className='text-xs font-medium tracking-wider text-stone-500 uppercase'>
+                <span className='text-sm font-medium text-stone-500'>
                   Âm lịch:
                 </span>
-                <span className='text-sm font-semibold text-stone-700'>
+                <span className='text-sm font-medium text-stone-700'>
                   {lunar.lunarDayStr}
                 </span>
               </div>
@@ -191,7 +191,7 @@ export default async function DashboardLaunchpad() {
             {upcomingEvents.length > 0 ? (
               <div className='space-y-4'>
                 <div className='flex items-center justify-between'>
-                  <p className='flex items-center gap-2.5 text-sm font-semibold tracking-widest text-stone-500 uppercase'>
+                  <p className='flex items-center gap-2.5 text-sm font-medium text-stone-500'>
                     <span className='relative flex size-2'>
                       <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75'></span>
                       <span className='relative inline-flex size-2 rounded-full bg-amber-500'></span>
@@ -209,14 +209,14 @@ export default async function DashboardLaunchpad() {
                         key={i}
                         className='flex cursor-pointer items-center gap-3.5 rounded-2xl border border-transparent bg-stone-50/50 p-3 transition-all duration-300 hover:border-stone-100 hover:bg-stone-50'>
                         <div
-                          className={`size-10 rounded-xl ${cfg.bg} flex shrink-0 items-center justify-center border border-white shadow-sm`}>
+                          className={`size-10 rounded-xl ${cfg.bg} flex shrink-0 items-center justify-center border border-white`}>
                           <Icon className={`size-4 ${cfg.color}`} />
                         </div>
                         <div className='min-w-0 flex-1'>
-                          <span className='block truncate text-sm font-semibold text-stone-700'>
+                          <span className='block truncate text-sm font-medium text-stone-700'>
                             {evt.personName}
                           </span>
-                          <span className='block pt-0.5 text-xs font-medium text-stone-500'>
+                          <span className='block pt-0.5 text-sm font-medium text-stone-500'>
                             {evt.daysUntil === 0
                               ? 'Hôm nay'
                               : evt.daysUntil === 1
@@ -230,7 +230,7 @@ export default async function DashboardLaunchpad() {
                   })}
                 </div>
                 {upcomingEvents.length > 4 && (
-                  <p className='mt-2 text-center text-xs font-medium text-stone-400 sm:text-left'>
+                  <p className='mt-2 text-center text-sm font-medium text-stone-400 sm:text-left'>
                     + {upcomingEvents.length - 4} sự kiện khác đang chờ...
                   </p>
                 )}
@@ -256,7 +256,7 @@ export default async function DashboardLaunchpad() {
       {/* ── Feature Grid ──────────────────────────────────── */}
       <div className='space-y-12'>
         <section>
-          {/* <h3 className="text-xl font-serif font-bold text-stone-700 mb-6 flex items-center gap-2">
+          {/* <h3 className="text-xl font-serif font-semibold text-stone-700 mb-6 flex items-center gap-2">
             <span className="w-8 h-px bg-stone-300 rounded-full"></span>
             Chức năng chung
           </h3> */}
@@ -265,12 +265,12 @@ export default async function DashboardLaunchpad() {
               <Link
                 key={feat.href}
                 href={feat.href}
-                className={`group flex flex-col rounded-2xl border bg-white p-6 ${feat.borderColor} ${feat.hoverColor} shadow-sm transition-all duration-300 hover:-translate-y-1`}>
+                className={`group flex flex-col rounded-2xl border bg-white p-6 ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1`}>
                 <div
                   className={`mb-5 flex size-14 items-center justify-center rounded-xl ${feat.bgColor} border border-transparent transition-colors duration-300 group-hover:bg-white group-hover:${feat.borderColor}`}>
                   {feat.icon}
                 </div>
-                <h4 className='mb-2 text-lg font-bold text-stone-800 transition-colors group-hover:text-amber-700'>
+                <h4 className='mb-2 text-lg font-semibold text-stone-800 transition-colors group-hover:text-amber-700'>
                   {feat.title}
                 </h4>
                 <p className='line-clamp-2 text-sm text-stone-500'>
@@ -283,7 +283,7 @@ export default async function DashboardLaunchpad() {
 
         {isAdmin && (
           <section>
-            <h3 className='mb-6 flex items-center gap-2 font-serif text-xl font-bold text-rose-800'>
+            <h3 className='mb-6 flex items-center gap-2 font-serif text-xl font-semibold text-rose-800'>
               <span className='h-px w-8 rounded-full bg-rose-200'></span>
               Quản trị viên
             </h3>
@@ -292,12 +292,12 @@ export default async function DashboardLaunchpad() {
                 <Link
                   key={feat.href}
                   href={feat.href}
-                  className={`group flex flex-col rounded-2xl border bg-white p-6 ${feat.borderColor} ${feat.hoverColor} shadow-sm transition-all duration-300 hover:-translate-y-1`}>
+                  className={`group flex flex-col rounded-2xl border bg-white p-6 ${feat.borderColor} ${feat.hoverColor} transition-all duration-300 hover:-translate-y-1`}>
                   <div
                     className={`mb-5 flex size-14 items-center justify-center rounded-xl ${feat.bgColor} border border-transparent transition-colors duration-300 group-hover:bg-white group-hover:${feat.borderColor}`}>
                     {feat.icon}
                   </div>
-                  <h4 className='mb-2 text-lg font-bold text-stone-800 transition-colors group-hover:text-rose-700'>
+                  <h4 className='mb-2 text-lg font-semibold text-stone-800 transition-colors group-hover:text-rose-700'>
                     {feat.title}
                   </h4>
                   <p className='line-clamp-2 text-sm text-stone-500'>

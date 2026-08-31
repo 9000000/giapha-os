@@ -101,17 +101,17 @@ export default function ExportButton() {
       <button
         onClick={() => setShowMenu(!showMenu)}
         disabled={isExporting}
-        className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold shadow-sm transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
           showMenu
             ? 'border-amber-200 bg-amber-100/90 text-amber-800'
-            : 'border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md hover:bg-white hover:text-stone-900 hover:shadow-md'
+            : 'border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md hover:bg-white hover:text-stone-900'
         }`}>
         {isExporting ? (
           <Loader2 className='size-4 shrink-0 animate-spin' />
         ) : (
           <Download className='size-4 shrink-0' />
         )}
-        <span className='hidden min-w-max tracking-wide sm:inline'>
+        <span className='hidden min-w-max sm:inline'>
           {isExporting ? 'Đang xuất...' : 'Xuất file'}
         </span>
       </button>
@@ -123,7 +123,7 @@ export default function ExportButton() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className='absolute top-full right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border border-stone-200/60 bg-white/90 py-2 shadow-xl backdrop-blur-xl sm:right-auto sm:left-0'>
+            className='absolute top-full right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border border-stone-200/60 bg-white/90 py-2 backdrop-blur-xl sm:right-auto sm:left-0'>
             <button
               onClick={() => handleExport('png')}
               className='flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-700'>
@@ -146,7 +146,7 @@ export default function ExportButton() {
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className='absolute top-full right-0 z-50 mt-2 flex w-64 flex-col gap-1 rounded-lg border border-red-200 bg-red-50 p-3 shadow-lg'>
+            className='absolute top-full right-0 z-50 mt-2 flex w-64 flex-col gap-1 rounded-lg border border-red-200 bg-red-50 p-3'>
             <div className='flex items-start justify-between'>
               <div className='flex items-start gap-2'>
                 <AlertCircle className='mt-0.5 h-4 w-4 shrink-0 text-red-500' />

@@ -17,7 +17,7 @@ export default function MissingDBConfigPage() {
 
       <div className='relative z-10 flex w-full flex-1 items-center justify-center px-4 py-12'>
         <motion.div
-          className='relative w-full max-w-2xl overflow-hidden rounded-3xl border border-red-100 bg-white p-8 shadow-xl sm:p-10'
+          className='relative w-full max-w-2xl overflow-hidden rounded-3xl border border-red-100 bg-white p-8 sm:p-10'
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5 }}>
@@ -26,7 +26,7 @@ export default function MissingDBConfigPage() {
               <Database className='size-8' />
             </div>
             <div>
-              <h2 className='text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl'>
+              <h2 className='text-2xl font-semibold text-stone-900 sm:text-3xl'>
                 Chưa kết nối cơ sở dữ liệu
               </h2>
               <p className='font-medium text-stone-500'>
@@ -50,7 +50,7 @@ export default function MissingDBConfigPage() {
                     href='https://supabase.com/dashboard/project/_/settings/api'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='font-semibold text-amber-600 hover:underline'>
+                    className='font-medium text-amber-600 hover:underline'>
                     Supabase Dashboard
                   </a>
                   .
@@ -83,7 +83,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key`}
             <div className='flex justify-center pt-2'>
               <Link
                 href='/'
-                className='rounded-xl bg-amber-500 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-amber-600'>
+                className='rounded-xl bg-amber-500 px-6 py-3 font-medium text-white shadow-sm transition-colors hover:bg-amber-600'>
                 Tải lại trang sau khi cấu hình
               </Link>
             </div>
@@ -93,7 +93,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key`}
 
       <Link
         href='/'
-        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-semibold text-stone-500 shadow-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-900 hover:shadow-md'>
+        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <ArrowLeft className='size-4' />
         Trang chủ
       </Link>

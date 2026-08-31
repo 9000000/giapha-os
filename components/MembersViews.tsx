@@ -16,7 +16,7 @@ const BubbleMapTree = dynamic(
       console.error('Failed to load BubbleMapTree:', err)
       return {
         default: () => (
-          <div className='absolute inset-0 flex items-center justify-center rounded-2xl border border-stone-200/60 bg-stone-50 p-4 text-center text-stone-500 shadow-inner'>
+          <div className='absolute inset-0 flex items-center justify-center rounded-2xl border border-stone-200/60 bg-stone-50 p-4 text-center text-stone-500'>
             Tính năng này không được hỗ trợ trên trình duyệt của bạn. Vui lòng
             cập nhật hoặc sử dụng trình duyệt khác.
           </div>

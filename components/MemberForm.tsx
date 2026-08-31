@@ -460,7 +460,7 @@ export default function MemberForm({
   }
 
   const inputClasses =
-    'bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300 shadow-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!'
+    'bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!'
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6 sm:space-y-8'>
@@ -468,14 +468,14 @@ export default function MemberForm({
         variants={formSectionVariants}
         initial='hidden'
         animate='show'
-        className='rounded-2xl border border-stone-200/80 bg-white/80 p-5 shadow-sm sm:p-8'>
-        <h3 className='mb-6 flex items-center gap-2 border-b border-stone-100 pb-4 font-serif text-lg font-bold text-stone-800 sm:text-xl'>
+        className='rounded-2xl border border-stone-200/80 bg-white/80 p-5 sm:p-8'>
+        <h3 className='mb-6 flex items-center gap-2 border-b border-stone-100 pb-4 font-serif text-lg font-semibold text-stone-800 sm:text-xl'>
           <User className='size-5 text-amber-600' />
           Thông tin chung
         </h3>
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
           <div className='md:col-span-1'>
-            <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               Họ và Tên <span className='text-red-500'>*</span>
             </label>
             <input
@@ -489,7 +489,7 @@ export default function MemberForm({
           </div>
 
           <div className='md:col-span-1'>
-            <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               Tên gọi khác
             </label>
             <input
@@ -502,7 +502,7 @@ export default function MemberForm({
           </div>
 
           <div>
-            <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               Giới tính <span className='text-red-500'>*</span>
             </label>
             <div className='relative'>
@@ -549,14 +549,14 @@ export default function MemberForm({
                   </motion.svg>
                 </div>
               </div>
-              <span className='text-sm font-semibold text-stone-700 transition-colors group-hover:text-amber-700'>
+              <span className='text-sm font-medium text-stone-700 transition-colors group-hover:text-amber-700'>
                 Là con Dâu hoặc con Rể
               </span>
             </label>
           </div>
 
           <div>
-            <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               Thứ tự sinh trong gia đình
             </label>
             <input
@@ -569,13 +569,13 @@ export default function MemberForm({
               }
               className={inputClasses}
             />
-            <p className='mt-1.5 flex items-center gap-1 text-xs text-stone-400'>
+            <p className='mt-1.5 flex items-center gap-1 text-sm text-stone-400'>
               <span>💡</span> Để trống nếu không rõ
             </p>
           </div>
 
           <div>
-            <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               Thuộc đời thứ
             </label>
             <input
@@ -588,7 +588,7 @@ export default function MemberForm({
               }
               className={inputClasses}
             />
-            <p className='mt-1.5 flex items-center gap-1 text-xs text-stone-400'>
+            <p className='mt-1.5 flex items-center gap-1 text-sm text-stone-400'>
               <span>💡</span> Để trống nếu không rõ
             </p>
 
@@ -630,10 +630,10 @@ export default function MemberForm({
                       </div>
                     </div>
                     <div className='flex-1'>
-                      <span className='block text-sm font-semibold text-stone-700 transition-colors group-hover:text-amber-700'>
+                      <span className='block text-sm font-medium text-stone-700 transition-colors group-hover:text-amber-700'>
                         Cập nhật đời cho các thế hệ sau
                       </span>
-                      <p className='mt-1 text-xs text-stone-500'>
+                      <p className='mt-1 text-sm text-stone-500'>
                         Tự động điều chỉnh đời của con, cháu... tương ứng với
                         thay đổi này.
                       </p>
@@ -645,12 +645,12 @@ export default function MemberForm({
           </div>
 
           <div className='mt-2 md:col-span-2'>
-            <label className='mb-2.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-2.5 block text-sm font-medium text-stone-700'>
               Ảnh đại diện
             </label>
             <div className='flex flex-col items-start gap-5 rounded-xl border border-stone-100 bg-stone-50/50 p-4 sm:flex-row sm:items-center'>
               <div
-                className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white text-xl font-bold text-white shadow-md sm:h-24 sm:w-24 ${!avatarPreview ? (gender === 'male' ? 'bg-linear-to-br from-sky-400 to-sky-700' : gender === 'female' ? 'bg-linear-to-br from-rose-400 to-rose-700' : 'bg-linear-to-br from-stone-400 to-stone-600') : ''}`}>
+                className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white text-sm font-medium text-white sm:h-24 sm:w-24 ${!avatarPreview ? (gender === 'male' ? 'bg-linear-to-br from-sky-400 to-sky-700' : gender === 'female' ? 'bg-linear-to-br from-rose-400 to-rose-700' : 'bg-linear-to-br from-stone-400 to-stone-600') : ''}`}>
                 {avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -730,7 +730,7 @@ export default function MemberForm({
                     </button>
                   )}
                 </div>
-                <p className='mt-2.5 flex items-center gap-1.5 text-xs text-stone-500'>
+                <p className='mt-2.5 flex items-center gap-1.5 text-sm text-stone-500'>
                   <AlertCircle className='h-3.5 w-3.5 text-stone-400' />
                   Hỗ trợ PNG, JPG, GIF tối đa 2MB.
                 </p>
@@ -739,7 +739,7 @@ export default function MemberForm({
           </div>
 
           <div className='md:col-span-2'>
-            <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               Ngày sinh dương lịch
             </label>
             <div className='grid grid-cols-3 gap-3'>
@@ -777,7 +777,7 @@ export default function MemberForm({
             </div>
           </div>
 
-          <div className='rounded-2xl border border-stone-200/60 bg-stone-50/50 p-5 shadow-xs md:col-span-2'>
+          <div className='rounded-2xl border border-stone-200/60 bg-stone-50/50 p-5 md:col-span-2'>
             <div className='flex flex-col gap-4'>
               <label className='group flex items-center gap-3'>
                 <div className='relative flex items-center'>
@@ -817,7 +817,7 @@ export default function MemberForm({
                     </motion.svg>
                   </div>
                 </div>
-                <span className='text-sm font-semibold text-stone-700 transition-colors group-hover:text-stone-900'>
+                <span className='text-sm font-medium text-stone-700 transition-colors group-hover:text-stone-900'>
                   Đã mất
                 </span>
               </label>
@@ -830,7 +830,7 @@ export default function MemberForm({
                   animate={{ opacity: 1, height: 'auto', marginTop: 20 }}
                   exit={{ opacity: 0, height: 0, marginTop: 0 }}
                   className='overflow-hidden'>
-                  <p className='mb-4 text-[13px] text-stone-500 italic'>
+                  <p className='mb-4 text-sm text-stone-500 italic'>
                     * Nhập Ngày Dương lịch hoặc Ngày Âm lịch. Hệ thống sẽ tự
                     động tính toán và điền phần còn lại.
                   </p>
@@ -838,7 +838,7 @@ export default function MemberForm({
                   <div className='flex flex-col gap-5'>
                     {/* Lunar Date */}
                     <div>
-                      <label className='mb-2 block text-sm font-semibold text-stone-700'>
+                      <label className='mb-2 block text-sm font-medium text-stone-700'>
                         Ngày mất (Âm lịch)
                       </label>
                       <div className='grid grid-cols-3 gap-3'>
@@ -878,7 +878,7 @@ export default function MemberForm({
 
                     {/* Solar Date */}
                     <div>
-                      <label className='mb-2 block text-sm font-semibold text-stone-700'>
+                      <label className='mb-2 block text-sm font-medium text-stone-700'>
                         Ngày mất (Dương lịch)
                       </label>
                       <div className='grid grid-cols-3 gap-3'>
@@ -922,7 +922,7 @@ export default function MemberForm({
           </div>
 
           <div className='md:col-span-2'>
-            <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+            <label className='mb-1.5 block text-sm font-medium text-stone-700'>
               Ghi chú
             </label>
             <textarea
@@ -943,22 +943,22 @@ export default function MemberForm({
           initial='hidden'
           animate='show'
           transition={{ delay: 0.1 }}
-          className='relative overflow-hidden rounded-2xl border border-amber-200/50 bg-linear-to-br from-amber-50/80 to-stone-50/80 p-5 shadow-sm sm:p-8'>
+          className='relative overflow-hidden rounded-2xl border border-amber-200/50 bg-linear-to-br from-amber-50/80 to-stone-50/80 p-5 sm:p-8'>
           {/* Decorative Background Icon */}
           <Lock className='absolute -right-6 -bottom-6 h-32 w-32 rotate-12 text-amber-500/5' />
 
-          <h3 className='relative z-10 mb-6 flex items-center gap-2 border-b border-amber-200/50 pb-4 font-serif text-lg font-bold text-amber-900 sm:text-xl'>
+          <h3 className='relative z-10 mb-6 flex items-center gap-2 border-b border-amber-200/50 pb-4 font-serif text-lg font-semibold text-amber-900 sm:text-xl'>
             <span className='rounded-lg bg-amber-100/80 p-1.5 text-amber-700 shadow-xs'>
               <Lock className='size-4' />
             </span>
             <span>Thông tin riêng tư</span>
-            <span className='ml-auto rounded-md border border-amber-300/60 bg-amber-200/80 px-2.5 py-1 text-[10px] font-bold tracking-wider text-amber-800 uppercase shadow-xs sm:ml-2'>
+            <span className='ml-auto rounded-md border border-amber-300/60 bg-amber-200/80 px-2.5 py-1 text-sm font-medium text-amber-800 sm:ml-2'>
               Chỉ Admin
             </span>
           </h3>
           <div className='relative z-10 grid grid-cols-1 gap-6 md:grid-cols-2'>
             <div>
-              <label className='mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-amber-900/80'>
+              <label className='mb-1.5 flex items-center gap-1.5 text-sm font-medium text-amber-900/80'>
                 <Phone className='size-4' /> Số điện thoại
               </label>
               <input
@@ -970,7 +970,7 @@ export default function MemberForm({
                 className={`${inputClasses} disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400`}
               />
               {isDeceased && (
-                <p className='mt-1.5 flex items-center gap-1 text-[11px] font-medium text-rose-500'>
+                <p className='mt-1.5 flex items-center gap-1 text-sm font-medium text-rose-500'>
                   <AlertCircle className='size-3' />
                   Không thể nhập SĐT cho người đã mất
                 </p>
@@ -978,7 +978,7 @@ export default function MemberForm({
             </div>
 
             <div>
-              <label className='mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-amber-900/80'>
+              <label className='mb-1.5 flex items-center gap-1.5 text-sm font-medium text-amber-900/80'>
                 <Briefcase className='size-4' /> Nghề nghiệp
               </label>
               <input
@@ -991,7 +991,7 @@ export default function MemberForm({
             </div>
 
             <div className='md:col-span-2'>
-              <label className='mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-amber-900/80'>
+              <label className='mb-1.5 flex items-center gap-1.5 text-sm font-medium text-amber-900/80'>
                 <MapPin className='size-4' /> Nơi ở hiện tại
               </label>
               <input
@@ -1012,7 +1012,7 @@ export default function MemberForm({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className='flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700 shadow-sm'>
+            className='flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700'>
             <AlertCircle className='mt-0.5 size-5 shrink-0' />
             <p>{error}</p>
           </motion.div>

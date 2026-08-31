@@ -14,13 +14,12 @@ typography:
   headline-display:
     fontFamily: Playfair Display
     fontSize: 64px
-    fontWeight: 700
+    fontWeight: 600
     lineHeight: 1.1
-    letterSpacing: -0.02em
   headline-lg:
     fontFamily: Playfair Display
     fontSize: 30px
-    fontWeight: 700
+    fontWeight: 600
     lineHeight: 1.2
   headline-md:
     fontFamily: Playfair Display
@@ -29,12 +28,12 @@ typography:
     lineHeight: 1.3
   body-lg:
     fontFamily: Inter
-    fontSize: 18px
+    fontSize: 14px
     fontWeight: 400
-    lineHeight: 1.6
+    lineHeight: 1.5
   body-md:
     fontFamily: Inter
-    fontSize: 16px
+    fontSize: 14px
     fontWeight: 400
     lineHeight: 1.5
   body-sm:
@@ -46,12 +45,12 @@ typography:
     fontFamily: Inter
     fontSize: 14px
     fontWeight: 600
-    lineHeight: 1
+    lineHeight: 1.4
   label-md:
     fontFamily: Inter
-    fontSize: 12px
+    fontSize: 14px
     fontWeight: 500
-    lineHeight: 1
+    lineHeight: 1.4
 rounded:
   sm: 4px
   md: 8px
@@ -104,89 +103,64 @@ components:
     padding: 32px
 ---
 
-# GiaPha-OS Design System
+# GiaPha-OS design system
 
 ## Overview
 
-**GiaPha-OS** is a modern, elegant, and secure open-source family tree platform designed for Vietnamese families to preserve, trace, and pass down their lineage, history, and cultural traditions. The design balances professional modern aesthetics with visual indicators of respect and tradition.
+GiaPha-OS is a modern and secure open-source family tree platform for Vietnamese families to preserve, trace, and pass down lineage, history, and cultural traditions. The interface balances professional clarity with visual indicators of respect and tradition.
 
-The interface evokes an organic, trustworthy feel through warm limestone backgrounds and crisp typography. Visual details balance technical precision (for timestamps, relations, and lineages) with high-fidelity editorial layouts (for family homepages and history scrolls).
+The visual language uses warm limestone backgrounds, crisp typography, restrained amber accents, and clear grouping. Every screen should feel calm, legible, and easy to scan.
 
----
+## Core UI rules
+
+- Use `14px` for all content text: body copy, buttons, data, labels, form controls, metadata, and other interactive text. Reserve `16px` and larger sizes for headings and subheadings only.
+- Use sentence case for headings. Do not capitalize or uppercase headings. Product names keep their official title case.
+- Do not alter font tracking. Do not use tracking utility classes or custom letter spacing.
+- Do not use bold weight utilities. Use `font-semibold` for headings and `font-medium` for bold inline text.
+- Keep related text closer together than the spacing around the content group it belongs to. Prefer a small gap or margin between a heading and its supporting copy, then a larger gap before the next group.
+- Optically align spacing around text. Account for line height; vertical spacing is typically slightly smaller than horizontal spacing.
+- Never combine a border with a drop shadow. Use a border for definition or a shadow for elevation, not both on the same element.
+- Use concentric border radii. When borders or rings are separated by `8px` or less, the outer radius equals the inner radius plus the padding between them. Circular elements remain `rounded-full`.
 
 ## Colors
 
-The palette is rooted in soft, warm neutrals, high-contrast primary dark slate, and an evocative golden-amber accent representing lineage, tradition, and harvest.
-
-- **Primary (#1C1917):** A deep charcoal (Stone-900) used for headlines, core branding, and important interactive actions to guarantee maximum readability and weight.
-- **Secondary (#57534E):** A sophisticated granite grey (Stone-600) used for metadata, inactive states, icons, and supporting structural layouts.
-- **Tertiary (#D97706):** A golden warm amber (Amber-600) representing heritage, warmth, and lineage. Used exclusively as an accent for focus outlines, primary badges, and key interactive highlights.
-- **Neutral (#FAFAF9):** A soft warm limestone (Stone-50) serving as the main canvas backdrop, providing a softer and more organic feel than sterile hospital white.
-- **Surface (#FFFFFF):** Pure white used for elevated content layers such as member cards, detail dialogs, and navigation headers.
-- **Border (#E7E5E4):** Stone-200 used for subtle grid lines and component borders.
-
----
+- **Primary (#1C1917):** Deep charcoal for headlines, branding, and important actions.
+- **Secondary (#57534E):** Granite grey for metadata, inactive states, icons, and supporting structure.
+- **Tertiary (#D97706):** Golden amber for focus outlines, badges, and key interactive highlights.
+- **Neutral (#FAFAF9):** Warm limestone for the main canvas.
+- **Surface (#FFFFFF):** White for content layers and navigation surfaces.
+- **Border (#E7E5E4):** Subtle stone border for component definition when no shadow is used.
 
 ## Typography
 
-The type system pairs the elegance of **Playfair Display** (for traditional editorial headings and branding) with the readability of **Inter** (for UI elements, dense data displays, and complex family tree structures).
+Playfair Display is used for branding and headings. Inter is used for body copy, controls, dense data, and family tree structures. Body and control text is always 14px. Headings start at 16px and use semibold weight. Do not use visual transforms to force text into uppercase or title case; write the copy in sentence case instead.
 
-- **Branding & Headings:** Set in _Playfair Display_ with robust weights to create a sense of heritage, lineage, and permanence.
-- **Body & Controls:** Set in _Inter_ to ensure crisp legibility at small sizes, particularly within name nodes on the family chart.
-- **Data & Relationships:** Capitalized _Inter_ is used for relational tags (e.g., "CHỒNG", "VỢ") with slight letter-spacing for premium technical clarity.
+## Layout and spacing
 
----
+Use a fluid, mobile-first layout with a maximum content width of 1280px. Group related controls and content with consistent spacing. Keep the gap between a heading and its supporting text smaller than the gap between that group and the next section. For text blocks, use line height to preserve readability and reduce vertical gaps slightly when the text has multiple lines.
 
-## Layout
+The family tree uses standardized spacing for nodes and relationship lines. Large structures may scroll horizontally, but controls and labels remain 14px for consistent scanning.
 
-The page architecture follows a fluid model with special focus on horizontal scrolling capabilities for large phả hệ structures.
+## Elevation and shapes
 
-- **Fluid Grid:** Mobile-first container padding scaling up dynamically for large desktop display setups (max width 1280px).
-- **Tree Spacing:** The phả hệ visualization uses standardized layout spacing to organize nodes and relationship lines without overlapping.
-- **Containment:** Components are grouped logically inside elevated background cards with generous inner padding (`spacing.lg` to `spacing.xl`) and high backdrop-blur values (`backdrop-blur-xl`).
+Use tonal layers such as `bg-white/70` and `backdrop-blur-xl` before adding elevation. A surface may use the existing soft shadow tokens or an existing border, but never both at once. Focus rings are allowed; when a ring surrounds a bordered or nested surface, use concentric radii and keep the separation at or below 8px only when the radii mathematically match.
 
----
-
-## Elevation & Depth
-
-Visual layers are structured logically using physical and color tonal hierarchies.
-
-- **Tonal Layers:** Rather than deep dark box shadows, depth is achieved by stacking absolute white (`#FFFFFF`) surfaces on top of the limestone neutral background (`#FAFAF9`), often styled with `bg-white/70 backdrop-blur-xl`.
-- **Soft Shadows:** Interactive cards utilize micro-shadows (`shadow-[0_8px_30px_rgb(0,0,0,0.04)]`) that scale dynamically to a higher elevation (`shadow-[0_20px_40px_rgb(0,0,0,0.08)]`) with smooth translate transforms (`-translate-y-1`) on hover.
-- **Rings:** Key focused states use `ring-2 ring-white` or `ring-stone-100` to establish clean separation between parent containers.
-
----
-
-## Shapes
-
-Soft, consistent curves bring warmth and modern approachability to the digital archive.
-
-- **Architectural Curves:** Interactive buttons, input fields, and member card containers use curved aesthetics (`rounded-2xl` and `rounded-3xl`) to establish an elegant, organic feel.
-- **Rounded Avatars:** Circular elements (`rounded-full`) are reserved for profile pictures, gender indicators, and secondary navigation buttons.
-
----
+Use the existing rounded tokens. Main content cards use the established organic curves, controls use the established button and input radii, and circular shapes are reserved for avatars, indicators, and compact icon controls.
 
 ## Components
 
-Style patterns for primary component atoms:
+- **Primary button:** Deep stone background, white 14px text, semibold or medium weight as appropriate, and the existing rounded-xl shape.
+- **Action button:** Amber background, primary 14px text, and the existing rounded-full shape.
+- **Outline button:** Transparent surface with a border and secondary 14px text. It has no shadow.
+- **Family node card:** Semi-transparent white surface with the existing rounded shape and a clear, non-conflicting border or shadow treatment. Avatars are circular.
+- **Dialogs and modals:** Full-screen masks on mobile and centered rounded drawers on desktop. Use either a border or a shadow for the dialog surface, with clean dividers and consistent internal padding.
 
-- **Buttons:**
-  - _Primary Button:_ Styled in deep stone (`#1C1917`) with rounded-2xl curves, high-contrast white text, and hover translation effects.
-  - _Action Badge Button:_ Styled in amber (`#D97706`) with rounded-full curves for focal actions (e.g., adding members, sharing tree).
-  - _Outline Button:_ Transparent background, thin borders (`border-stone-200`), stone-600 text, and a transition to limestone background on hover.
-- **FamilyNodeCard:**
-  - Standard card structure with size scaling (`w-20` on mobile up to `w-28` on desktop).
-  - Semi-transparent white background with active blur and a smooth 1px white border.
-  - Profile pictures with rounded-full outlines, utilizing distinct color backgrounds based on genders (male/female visual cues).
-- **Dialogs & Modals:**
-  - Framed in full screen masks on mobile, scaling to centered `rounded-3xl` drawers on desktop.
-  - Clean divider lines and ample internal padding.
+## Do's and don'ts
 
----
-
-## Do's and Don'ts
-
-- **Do** pair Playfair Display for branding/headlines with Inter for data to maintain clear heritage styling.
-- **Don't** use sterile pure black backgrounds or pure gray shadows; always keep shadow values extremely soft and transparent.
-- **Do** verify contrast ratios between the golden amber actions and their backgrounds.
-- **Don't** mix square/sharp corners with organic card shapes. All main content cards should utilize uniform `rounded-3xl` styles.
+- Do pair Playfair Display for branding and headings with Inter for UI text and data.
+- Do write visible headings in sentence case, including Vietnamese headings such as “Chi tiết thành viên”.
+- Do verify contrast for amber actions.
+- Do use spacing and line height to establish hierarchy before adding decoration.
+- Don't use tracking utilities, forced capitalization, bold weight utilities, or body text larger than 14px.
+- Don't combine borders and drop shadows on one element.
+- Don't invent new colors, radii, spacing, or shadow tokens; use the tokens defined above.

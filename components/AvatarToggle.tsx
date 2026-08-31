@@ -17,7 +17,7 @@ export default function AvatarToggle() {
       ) : (
         <Eye className='size-4 shrink-0' />
       )}
-      <span className='inline-block min-w-max tracking-wide'>
+      <span className='inline-block min-w-max'>
         {showAvatar ? 'Ẩn ảnh' : 'Hiện ảnh'}
       </span>
     </button>

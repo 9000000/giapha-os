@@ -41,17 +41,17 @@ export default function LandingHero({ siteName }: LandingHeroProps) {
           variants={fadeIn}>
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className='group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full border border-amber-200/50 bg-white/60 px-4 py-2 text-sm font-semibold text-amber-800 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)]'>
+            className='group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full border border-amber-200/50 bg-white/60 px-4 py-2 text-sm font-medium text-amber-800'>
             <Sparkles className='size-4 text-amber-500' />
             Nền tảng gia phả hiện đại & bảo mật
             <div className='absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/50 to-transparent transition-transform duration-1000 ease-in-out group-hover:translate-x-full'></div>
           </motion.div>
 
-          <h1 className='max-w-4xl font-serif text-5xl leading-[1.1] font-bold tracking-tight text-stone-900 sm:text-6xl md:text-7xl lg:text-[5rem]'>
+          <h1 className='max-w-4xl font-serif text-5xl leading-[1.1] font-semibold text-stone-900 sm:text-6xl md:text-7xl lg:text-[5rem]'>
             <span className='block'>{siteName}</span>
           </h1>
 
-          <p className='mx-auto max-w-2xl text-lg leading-relaxed font-light text-stone-600 sm:text-xl md:text-2xl'>
+          <p className='mx-auto max-w-2xl text-sm leading-relaxed font-light text-stone-600 sm:text-sm md:text-sm'>
             Gìn giữ và lưu truyền những giá trị, cội nguồn và truyền thống tốt
             đẹp của dòng họ cho các thế hệ mai sau.
           </p>
@@ -65,7 +65,7 @@ export default function LandingHero({ siteName }: LandingHeroProps) {
 
           <Link
             href='/login'
-            className='group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-stone-800 bg-primary px-8 py-4 text-base font-bold text-white shadow-xl shadow-stone-900/10 transition-all duration-300 hover:-translate-y-1 hover:border-stone-700 hover:bg-stone-800 hover:shadow-2xl hover:shadow-stone-900/20 active:translate-y-0 sm:w-auto sm:px-10 sm:py-5 sm:text-lg'>
+            className='group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-stone-800 bg-primary px-8 py-4 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:border-stone-700 hover:bg-stone-800 active:translate-y-0 sm:w-auto sm:px-10 sm:py-5 sm:text-sm'>
             <span className='relative z-10 flex items-center gap-3'>
               Đăng nhập để xem thông tin
               <ArrowRight className='size-5 transition-transform group-hover:translate-x-1.5' />
@@ -103,10 +103,10 @@ export default function LandingHero({ siteName }: LandingHeroProps) {
               <div className='relative z-10 mb-6 rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-stone-100 transition-all duration-300 group-hover:scale-110 group-hover:shadow-md'>
                 {feature.icon}
               </div>
-              <h3 className='relative z-10 mb-3 font-serif text-xl font-bold text-stone-800 transition-colors group-hover:text-amber-900 sm:text-2xl'>
+              <h3 className='relative z-10 mb-3 font-serif text-xl font-semibold text-stone-800 transition-colors group-hover:text-amber-900 sm:text-2xl'>
                 {feature.title}
               </h3>
-              <p className='relative z-10 text-base leading-relaxed text-stone-600'>
+              <p className='relative z-10 text-sm leading-relaxed text-stone-600'>
                 {feature.desc}
               </p>
             </motion.div>

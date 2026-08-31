@@ -58,7 +58,7 @@ export default function DeleteMemberButton({
       </button>
 
       {error && (
-        <div className='animate-in fade-in slide-in-from-top-2 absolute top-full right-0 z-50 mt-2 w-72 rounded-lg border border-red-200 bg-red-50 p-3 shadow-lg duration-200'>
+        <div className='animate-in fade-in slide-in-from-top-2 absolute top-full right-0 z-50 mt-2 w-72 rounded-lg border border-red-200 bg-red-50 p-3 duration-200'>
           <div className='flex items-start gap-2 text-sm text-red-800'>
             <AlertCircle className='mt-0.5 h-5 w-5 shrink-0 text-red-500' />
             <div className='flex-1 pr-4'>{error}</div>

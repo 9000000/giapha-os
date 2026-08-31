@@ -14,7 +14,7 @@ export default async function NewMemberPage() {
     return (
       <div className='flex min-h-screen items-center justify-center bg-stone-50'>
         <div className='text-center'>
-          <h1 className='text-2xl font-bold text-stone-800'>
+          <h1 className='text-2xl font-semibold text-stone-800'>
             Truy cập bị từ chối
           </h1>
           <p className='mt-2 text-stone-600'>
@@ -39,7 +39,7 @@ export default async function NewMemberPage() {
             title='Quay lại danh sách'>
             <ArrowLeft className='size-5' />
           </Link>
-          <h1 className='title'>Thêm Thành Viên Mới</h1>
+          <h1 className='title'>Thêm thành viên mới</h1>
         </div>
         <Link
           href='/dashboard/members'

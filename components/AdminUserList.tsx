@@ -191,7 +191,7 @@ export default function AdminUserList({
             initial={{ opacity: 0, y: -20, x: '-50%' }}
             animate={{ opacity: 1, y: 0, x: '-50%' }}
             exit={{ opacity: 0, y: -20, x: '-50%' }}
-            className={`fixed top-1/2 left-1/2 z-100 flex max-w-[90vw] min-w-[320px] items-center gap-3 rounded-xl border px-6 py-3 shadow-lg ${
+            className={`fixed top-1/2 left-1/2 z-100 flex max-w-[90vw] min-w-[320px] items-center gap-3 rounded-xl border px-6 py-3 ${
               notification.type === 'success'
                 ? 'border-emerald-200 bg-emerald-50/90 text-emerald-800'
                 : notification.type === 'error'
@@ -265,24 +265,24 @@ export default function AdminUserList({
         </button>
       </div>
 
-      <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 shadow-sm backdrop-blur-xl'>
+      <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/60 backdrop-blur-xl'>
         <div className='custom-scrollbar overflow-x-auto'>
           <table className='w-full text-left text-sm whitespace-nowrap'>
-            <thead className='border-b border-stone-200/60 bg-stone-50/50 tracking-wider uppercase'>
+            <thead className='border-b border-stone-200/60 bg-stone-50/50'>
               <tr>
-                <th className='px-6 py-4 text-xs font-semibold text-stone-500'>
+                <th className='px-6 py-4 text-sm font-medium text-stone-500'>
                   Email
                 </th>
-                <th className='px-6 py-4 text-xs font-semibold text-stone-500'>
+                <th className='px-6 py-4 text-sm font-medium text-stone-500'>
                   Vai trò
                 </th>
-                <th className='px-6 py-4 text-xs font-semibold text-stone-500'>
+                <th className='px-6 py-4 text-sm font-medium text-stone-500'>
                   Trạng thái
                 </th>
-                <th className='px-6 py-4 text-xs font-semibold text-stone-500'>
+                <th className='px-6 py-4 text-sm font-medium text-stone-500'>
                   Ngày tạo
                 </th>
-                <th className='px-6 py-4 text-right text-xs font-semibold text-stone-500'>
+                <th className='px-6 py-4 text-right text-sm font-medium text-stone-500'>
                   Thao tác
                 </th>
               </tr>
@@ -298,7 +298,7 @@ export default function AdminUserList({
                   <td className='px-6 py-4'>
                     {user.id === currentUserId ? (
                       <span
-                        className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                        className={`inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ${
                           user.role === 'admin'
                             ? 'border border-amber-200 bg-amber-100 text-amber-800'
                             : user.role === 'editor'
@@ -314,7 +314,7 @@ export default function AdminUserList({
                           handleRoleChange(user.id, e.target.value as UserRole)
                         }
                         disabled={loadingId === user.id}
-                        className='rounded-md border border-stone-200 bg-stone-50 px-2 py-1 text-xs text-stone-700 transition-colors outline-none hover:border-stone-300 focus:border-amber-500 focus:ring-amber-500 disabled:opacity-50'>
+                        className='rounded-md border border-stone-200 bg-stone-50 px-2 py-1 text-sm text-stone-700 transition-colors outline-none hover:border-stone-300 focus:border-amber-500 focus:ring-amber-500 disabled:opacity-50'>
                         <option value='admin'>Admin</option>
                         <option value='editor'>Editor</option>
                         <option value='member'>Member</option>
@@ -329,7 +329,7 @@ export default function AdminUserList({
                       onClick={() =>
                         handleStatusChange(user.id, !user.is_active)
                       }
-                      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                      className={`inline-flex items-center rounded-md px-2 py-1 text-sm font-medium transition-colors ${
                         user.is_active
                           ? 'border border-emerald-200 bg-emerald-100 text-emerald-800'
                           : 'border border-stone-200 bg-stone-100 text-stone-800'
@@ -364,7 +364,7 @@ export default function AdminUserList({
                       </div>
                     )}
                     {user.id === currentUserId && (
-                      <span className='text-xs text-stone-400 italic'>Bạn</span>
+                      <span className='text-sm text-stone-400 italic'>Bạn</span>
                     )}
                   </td>
                 </tr>
@@ -386,10 +386,10 @@ export default function AdminUserList({
       {/* Create User Modal */}
       {isCreateModalOpen && (
         <div className='fixed inset-0 z-60 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm transition-opacity duration-300'>
-          <div className='w-full max-w-md transform overflow-hidden rounded-2xl border border-stone-200/60 bg-white/95 shadow-2xl backdrop-blur-xl transition-all'>
+          <div className='w-full max-w-md transform overflow-hidden rounded-2xl border border-stone-200/60 bg-white/95 backdrop-blur-xl transition-all'>
             <div className='flex items-center justify-between border-b border-stone-100/80 bg-stone-50/50 px-6 py-5'>
-              <h3 className='font-serif text-xl font-bold text-stone-800'>
-                Tạo Người Dùng Mới
+              <h3 className='font-serif text-xl font-semibold text-stone-800'>
+                Tạo người dùng mới
               </h3>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
@@ -419,7 +419,7 @@ export default function AdminUserList({
                     type='email'
                     name='email'
                     required
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     placeholder='email@example.com'
                   />
                 </div>
@@ -433,7 +433,7 @@ export default function AdminUserList({
                     name='password'
                     required
                     minLength={6}
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     placeholder='Ít nhất 6 ký tự'
                   />
                 </div>
@@ -444,7 +444,7 @@ export default function AdminUserList({
                   </label>
                   <select
                     name='role'
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     defaultValue='member'>
                     <option value='member'>Thành viên (Member)</option>
                     <option value='editor'>Biên tập (Editor)</option>
@@ -458,7 +458,7 @@ export default function AdminUserList({
                   </label>
                   <select
                     name='is_active'
-                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
+                    className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     defaultValue='true'>
                     <option value='true'>Đã duyệt (Active)</option>
                     <option value='false'>Chờ duyệt (Pending)</option>

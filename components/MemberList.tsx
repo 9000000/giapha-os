@@ -267,14 +267,14 @@ export default function MemberList({
   return (
     <>
       <div className='relative mb-8'>
-        <div className='relative z-10 flex w-full flex-col items-start justify-between gap-4 rounded-2xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-xl transition-all duration-300 sm:flex-row sm:items-center sm:p-5'>
+        <div className='relative z-10 flex w-full flex-col items-start justify-between gap-4 rounded-2xl border border-stone-200/60 bg-white/60 p-4 backdrop-blur-xl transition-all duration-300 sm:flex-row sm:items-center sm:p-5'>
           <div className='flex w-full flex-1 flex-col gap-4 sm:w-auto sm:flex-row'>
             <div className='group relative max-w-sm flex-1'>
               <Search className='absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-stone-400 transition-colors group-focus-within:text-amber-500' />
               <input
                 type='text'
                 placeholder='Tìm kiếm thành viên...'
-                className='w-full rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-4 pl-10 text-stone-900 placeholder-stone-400 shadow-sm transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none'
+                className='w-full rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-4 pl-10 text-stone-900 placeholder-stone-400 transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -283,7 +283,7 @@ export default function MemberList({
               <div className='relative w-full sm:w-auto'>
                 <Filter className='pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-stone-400' />
                 <select
-                  className='w-full appearance-none rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-8 pl-9 text-sm font-medium text-stone-700 shadow-sm transition-all hover:border-amber-300 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:outline-none sm:w-40'
+                  className='w-full appearance-none rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-8 pl-9 text-sm font-medium text-stone-700 transition-all hover:border-amber-300 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:outline-none sm:w-40'
                   value={filterOption}
                   onChange={(e) => setFilterOption(e.target.value)}>
                   <option value='all'>Tất cả</option>
@@ -312,7 +312,7 @@ export default function MemberList({
               <div className='relative w-full sm:w-auto'>
                 <ArrowUpDown className='pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-stone-400' />
                 <select
-                  className='w-full appearance-none rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-8 pl-9 text-sm font-medium text-stone-700 shadow-sm transition-all hover:border-amber-300 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:outline-none sm:w-52'
+                  className='w-full appearance-none rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-8 pl-9 text-sm font-medium text-stone-700 transition-all hover:border-amber-300 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:outline-none sm:w-52'
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}>
                   <option value='birth_asc'>Năm sinh (Tăng dần)</option>
@@ -387,7 +387,7 @@ export default function MemberList({
                   <div key={gen} className='space-y-6'>
                     <div className='flex items-center gap-3'>
                       <div className='h-px flex-1 bg-stone-200'></div>
-                      <h3 className='rounded-full border border-amber-200/50 bg-amber-50 px-4 py-1.5 font-serif text-lg font-bold text-amber-800 shadow-sm'>
+                      <h3 className='rounded-full border border-amber-200/50 bg-amber-50 px-4 py-1.5 font-serif text-lg font-semibold text-amber-800'>
                         {gen === '0' ? 'Chưa xác định đời' : `Đời thứ ${gen}`}
                       </h3>
                       <div className='h-px flex-1 bg-stone-200'></div>
@@ -397,7 +397,7 @@ export default function MemberList({
                         (famPersons, idx) => (
                           <div
                             key={idx}
-                            className='relative rounded-[2.5rem] border border-stone-300 bg-white p-5 shadow-sm sm:p-8'>
+                            className='relative rounded-[2.5rem] border border-stone-300 bg-white p-5 sm:p-8'>
                             {(() => {
                               const firstBloodline =
                                 famPersons.find((p) => !p.is_in_law) ||
@@ -428,7 +428,7 @@ export default function MemberList({
                               if (!label) return null
 
                               return (
-                                <div className='absolute -top-3 left-8 z-20 rounded-full border border-stone-300 bg-stone-100 px-3 py-0.5 text-xs font-bold tracking-widest text-stone-600 shadow-sm'>
+                                <div className='absolute -top-3 left-8 z-20 rounded-full border border-stone-300 bg-stone-100 px-3 py-0.5 text-sm font-medium text-stone-600'>
                                   {label}
                                 </div>
                               )
@@ -552,9 +552,9 @@ export default function MemberList({
                                       {isCouple && (
                                         <>
                                           {/* Desktop & Tablet background */}
-                                          <div className='absolute -inset-3 z-0 hidden rounded-4xl border border-amber-200/80 bg-amber-50/70 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] md:block lg:-inset-4'></div>
+                                          <div className='absolute -inset-3 z-0 hidden rounded-4xl border border-amber-200/80 bg-amber-50/70 md:block lg:-inset-4'></div>
                                           {/* Mobile background */}
-                                          <div className='absolute -inset-2 z-0 rounded-3xl border border-amber-200/80 bg-amber-50/70 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] md:hidden'></div>
+                                          <div className='absolute -inset-2 z-0 rounded-3xl border border-amber-200/80 bg-amber-50/70 md:hidden'></div>
                                         </>
                                       )}
                                       <div

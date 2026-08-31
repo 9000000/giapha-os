@@ -25,7 +25,7 @@ export default function CopyButton({ content }: { content: string }) {
     <div className='w-full'>
       <button
         onClick={handleCopy}
-        className={`flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold shadow-sm transition-all duration-300 ${
+        className={`flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium shadow-sm transition-all duration-300 ${
           copied
             ? 'bg-teal-500 text-white hover:bg-teal-600'
             : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md'

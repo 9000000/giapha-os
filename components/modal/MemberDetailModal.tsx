@@ -172,7 +172,7 @@ export default function MemberDetailModal() {
             exit={{ scale: 0.96, opacity: 0, y: 15 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             layoutDependency={false}
-            className='relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white/95 shadow-2xl backdrop-blur-2xl'>
+            className='relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white/95 backdrop-blur-2xl'>
             {/* Sticky Header Actions */}
             <div className='absolute top-4 right-4 z-20 flex items-center gap-2 sm:top-5 sm:right-5'>
               {isEditing ? (
@@ -181,7 +181,7 @@ export default function MemberDetailModal() {
                   onClick={() => {
                     setIsEditing(false)
                   }}
-                  className='inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-stone-200/50 bg-stone-100/80 px-3 py-2.5 text-sm font-medium text-stone-700 transition-all duration-300 hover:-translate-y-1 hover:bg-stone-200 hover:shadow-soft-hover'>
+                  className='inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-stone-200/50 bg-stone-100/80 px-3 py-2.5 text-sm font-medium text-stone-700 transition-all duration-300 hover:-translate-y-1 hover:bg-stone-200'>
                   <ArrowLeft className='size-4' />
                   <span className='hidden sm:inline'>Quay lại</span>
                 </button>
@@ -206,7 +206,7 @@ export default function MemberDetailModal() {
               )}
               <button
                 onClick={closeModal}
-                className='flex size-10 items-center justify-center rounded-full border border-stone-200/50 bg-stone-100/80 text-stone-600 shadow-sm transition-colors hover:bg-stone-200 hover:text-stone-900'
+                className='flex size-10 items-center justify-center rounded-full border border-stone-200/50 bg-stone-100/80 text-stone-600 transition-colors hover:bg-stone-200 hover:text-stone-900'
                 aria-label='Đóng'>
                 <X className='size-5' />
               </button>
@@ -235,7 +235,7 @@ export default function MemberDetailModal() {
                   <div className='mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-500 shadow-inner'>
                     <AlertCircle className='size-8' />
                   </div>
-                  <p className='text-lg font-medium text-red-600'>{error}</p>
+                  <p className='text-sm font-medium text-red-600'>{error}</p>
                   <button
                     onClick={closeModal}
                     className='btn mt-2 rounded-full'>
@@ -251,7 +251,7 @@ export default function MemberDetailModal() {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.2 }}
                   className='custom-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:px-8'>
-                  <h2 className='mb-6 font-serif text-xl font-bold text-stone-800'>
+                  <h2 className='mb-6 font-serif text-xl font-semibold text-stone-800'>
                     Chỉnh sửa thành viên
                   </h2>
                   <MemberForm
@@ -275,7 +275,7 @@ export default function MemberDetailModal() {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.2 }}
                   className='custom-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:px-8'>
-                  <h2 className='mb-6 font-serif text-xl font-bold text-stone-800'>
+                  <h2 className='mb-6 font-serif text-xl font-semibold text-stone-800'>
                     Thêm thành viên mới
                   </h2>
                   <MemberForm

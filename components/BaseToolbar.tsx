@@ -91,10 +91,10 @@ export default function BaseToolbar({
       <div className='relative'>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold shadow-sm transition-all duration-300 ${
+          className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all duration-300 ${
             showFilters
               ? 'border-amber-200 bg-amber-100/90 text-amber-800'
-              : 'border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md hover:bg-white hover:text-stone-900 hover:shadow-md'
+              : 'border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md hover:bg-white hover:text-stone-900'
           }`}>
           <Filter className='size-4' />
           <span className='hidden sm:inline'>Hiển thị</span>
@@ -107,8 +107,8 @@ export default function BaseToolbar({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className='absolute top-full right-0 z-50 mt-2 flex w-48 flex-col gap-3 rounded-3xl border border-border bg-surface/95 p-4 shadow-soft backdrop-blur-xl'>
-              <div className='mb-1 text-xs font-bold tracking-wider text-stone-400 uppercase'>
+              className='absolute top-full right-0 z-50 mt-2 flex w-48 flex-col gap-3 rounded-3xl border border-border bg-surface/95 p-4 backdrop-blur-xl'>
+              <div className='mb-1 text-sm font-medium text-stone-400'>
                 HIỂN THỊ
               </div>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
@@ -148,8 +148,8 @@ export default function BaseToolbar({
                 </label>
               )}
 
-              <div className='my-1 flex h-px w-full items-center gap-2 bg-stone-100 font-bold tracking-wider text-stone-400 uppercase'></div>
-              <div className='mb-1 text-xs font-bold tracking-wider text-stone-400 uppercase'>
+              <div className='my-1 flex h-px w-full items-center gap-2 bg-stone-100 font-medium text-stone-400'></div>
+              <div className='mb-1 text-sm font-medium text-stone-400'>
                 LỌC DỮ LIỆU
               </div>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>

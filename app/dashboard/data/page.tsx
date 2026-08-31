@@ -19,7 +19,7 @@ export default async function DataManagementPage() {
         <div className='mb-8 flex flex-col items-start justify-between sm:flex-row sm:items-center'>
           <div>
             <h1 className='title'>Sao lưu & Phục hồi</h1>
-            <p className='mt-2 max-w-2xl text-sm text-stone-500 sm:text-base'>
+            <p className='mt-2 max-w-2xl text-sm text-stone-500 sm:text-sm'>
               Quản lý dữ liệu an toàn. Bạn có thể tải xuống bản sao lưu để lưu
               trữ hoặc phục hồi lại dữ liệu từ file đã lưu. Tính năng này chỉ
               dành cho Quản trị viên.

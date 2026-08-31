@@ -227,7 +227,7 @@ export default function DataImportExport() {
     <div className='space-y-6'>
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
         {/* Export Card */}
-        <div className='group relative rounded-2xl border border-stone-200/60 bg-white/80 p-6 shadow-sm transition-shadow hover:shadow-md'>
+        <div className='group relative rounded-2xl border border-stone-200/60 bg-white/80 p-6 transition-shadow'>
           {/* Background Decor */}
           <div className='pointer-events-none absolute inset-0 overflow-hidden rounded-2xl'>
             <div className='absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full bg-amber-200/20 blur-2xl transition-colors group-hover:bg-amber-300/30' />
@@ -238,7 +238,7 @@ export default function DataImportExport() {
               <Download className='size-6' />
             </div>
             <div>
-              <h3 className='text-lg font-bold text-stone-800'>
+              <h3 className='text-lg font-semibold text-stone-800'>
                 Sao lưu dữ liệu
               </h3>
               <p className='mt-1 text-sm text-stone-500'>
@@ -299,7 +299,7 @@ export default function DataImportExport() {
         </div>
 
         {/* Import Card */}
-        <div className='group relative rounded-2xl border border-stone-200/60 bg-white/80 p-6 shadow-sm transition-shadow hover:shadow-md'>
+        <div className='group relative rounded-2xl border border-stone-200/60 bg-white/80 p-6 transition-shadow'>
           {/* Background Decor */}
           <div className='pointer-events-none absolute inset-0 overflow-hidden rounded-2xl'>
             <div className='absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full bg-rose-200/20 blur-2xl transition-colors group-hover:bg-rose-300/30' />
@@ -310,13 +310,13 @@ export default function DataImportExport() {
               <Upload className='size-6' />
             </div>
             <div>
-              <h3 className='text-lg font-bold text-stone-800'>
+              <h3 className='text-lg font-semibold text-stone-800'>
                 Phục hồi dữ liệu
               </h3>
               <p className='mt-1 text-sm text-stone-500'>
                 Khôi phục cây gia phả từ file đã sao lưu (.json, .ged, hoặc
                 .zip).
-                <span className='ml-1 font-semibold text-rose-600'>
+                <span className='ml-1 font-medium text-rose-600'>
                   Cảnh báo: Tác vụ này sẽ xoá toàn bộ dữ liệu hiện tại!
                 </span>
               </p>
@@ -354,13 +354,13 @@ export default function DataImportExport() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className='relative z-10 w-full max-w-md rounded-2xl border border-stone-200/60 bg-white p-6 shadow-xl'>
+              className='relative z-10 w-full max-w-md rounded-2xl border border-stone-200/60 bg-white p-6'>
               <div className='mb-5 flex items-start gap-4'>
                 <div className='mt-1 shrink-0 rounded-full bg-rose-100/50 p-3 text-rose-600'>
                   <AlertTriangle className='size-6' />
                 </div>
                 <div>
-                  <h3 className='text-lg font-bold text-stone-800'>
+                  <h3 className='text-lg font-semibold text-stone-800'>
                     Xác nhận phục hồi
                   </h3>
                   <p className='mt-2 text-sm leading-relaxed text-stone-600'>
@@ -370,12 +370,12 @@ export default function DataImportExport() {
                       tư và sự kiện hiện tại
                     </b>{' '}
                     để thay thế bằng dữ liệu từ file{' '}
-                    <span className='rounded bg-stone-100 px-1 font-mono text-xs'>
+                    <span className='rounded bg-stone-100 px-1 font-mono text-sm'>
                       {selectedFile?.name}
                     </span>
                     .
                   </p>
-                  <p className='mt-2 text-sm font-semibold text-rose-600'>
+                  <p className='mt-2 text-sm font-medium text-rose-600'>
                     Hành động này không thể hoàn tác. Bạn đã chắc chắn?
                   </p>
                 </div>
@@ -391,7 +391,7 @@ export default function DataImportExport() {
                 <button
                   onClick={handleConfirmImport}
                   disabled={isImporting}
-                  className='rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-rose-700 disabled:opacity-50'>
+                  className='rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-rose-700 disabled:opacity-50'>
                   {isImporting ? 'Đang phục hồi...' : 'Vẫn tiếp tục'}
                 </button>
               </div>

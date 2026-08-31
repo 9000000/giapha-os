@@ -20,7 +20,7 @@ export default function TreeToolbar({
   return (
     <BaseToolbar {...baseProps}>
       {/* Zoom Controls */}
-      <div className='flex h-10 items-center overflow-hidden rounded-full border border-stone-200/60 bg-white/80 shadow-sm backdrop-blur-md transition-opacity'>
+      <div className='flex h-10 items-center overflow-hidden rounded-full border border-stone-200/60 bg-white/80 backdrop-blur-md transition-opacity'>
         <button
           onClick={handleZoomOut}
           className='h-full px-3 text-stone-600 transition-colors hover:bg-stone-100/50 disabled:opacity-50'
@@ -30,7 +30,7 @@ export default function TreeToolbar({
         </button>
         <button
           onClick={handleResetZoom}
-          className='h-full min-w-12.5 border-x border-stone-200/50 px-2 text-center text-xs font-medium text-stone-600 transition-colors hover:bg-stone-100/50'
+          className='h-full min-w-12.5 border-x border-stone-200/50 px-2 text-center text-sm font-medium text-stone-600 transition-colors hover:bg-stone-100/50'
           title='Đặt lại'>
           {Math.round(scale * 100)}%
         </button>
@@ -46,7 +46,7 @@ export default function TreeToolbar({
       {/* Center Button */}
       <button
         onClick={handleCenter}
-        className='flex size-10 items-center justify-center rounded-full border border-stone-200/60 bg-white/80 text-stone-600 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:text-stone-900 hover:shadow-md'
+        className='flex size-10 items-center justify-center rounded-full border border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md transition-all hover:bg-white hover:text-stone-900'
         title='Căn giữa'>
         <Crosshair className='size-4' />
       </button>

@@ -38,7 +38,7 @@ export default function HeaderMenu() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className='flex items-center gap-2 rounded-full border border-transparent py-1.5 pr-4 pl-2 transition-all duration-200 hover:border-stone-200 hover:bg-stone-100'>
-        <div className='flex size-8 items-center justify-center rounded-full bg-linear-to-br from-amber-200 to-amber-100 font-bold text-amber-800 shadow-sm ring-1 ring-amber-300/50'>
+        <div className='flex size-8 items-center justify-center rounded-full bg-linear-to-br from-amber-200 to-amber-100 font-medium text-amber-800 shadow-sm ring-1 ring-amber-300/50'>
           {userEmail ? (
             userEmail.charAt(0).toUpperCase()
           ) : (
@@ -57,9 +57,9 @@ export default function HeaderMenu() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className='absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-3xl border border-border bg-surface py-2 shadow-soft'>
+            className='absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-3xl border border-border bg-surface py-2'>
             <div className='border-b border-stone-100 bg-stone-50/50 px-4 py-3'>
-              <p className='mb-0.5 text-xs font-semibold tracking-wider text-stone-400 uppercase'>
+              <p className='mb-0.5 text-sm font-medium text-stone-400'>
                 Tài khoản
               </p>
               <p className='truncate text-sm font-medium text-stone-900'>
@@ -103,7 +103,7 @@ export default function HeaderMenu() {
               {isAdmin && (
                 <>
                   <div className='mt-1 px-4 py-2'>
-                    <p className='text-[10px] font-bold tracking-wider text-rose-500 uppercase'>
+                    <p className='text-sm font-medium text-rose-500'>
                       Quản trị viên
                     </p>
                   </div>
@@ -113,7 +113,7 @@ export default function HeaderMenu() {
                     onClick={() => setIsOpen(false)}
                     className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-rose-50 hover:text-rose-700'>
                     <Users className='size-4' />
-                    Quản lý Người dùng
+                    Quản lý người dùng
                   </Link>
 
                   <Link

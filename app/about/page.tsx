@@ -19,7 +19,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           className='w-full max-w-3xl'>
-          <div className='mt-6 mb-8 rounded-3xl border border-stone-200 bg-white p-8 shadow-sm sm:p-12'>
+          <div className='mt-6 mb-8 rounded-3xl border border-stone-200 bg-white p-8 sm:p-12'>
             <div className='mb-6 flex items-center gap-3'>
               <div className='rounded-2xl bg-amber-100/50 p-3 text-amber-700'>
                 <Info className='size-6' />
@@ -28,7 +28,7 @@ export default function AboutPage() {
             </div>
 
             <div className='max-w-none'>
-              <p className='mb-8 text-[15px] leading-relaxed text-stone-600'>
+              <p className='mb-8 text-sm leading-relaxed text-stone-600'>
                 <strong className='text-stone-800'>Gia Phả OS</strong> là một
                 giải pháp mã nguồn mở được thiết kế giúp các dòng họ, gia đình
                 tự xây dựng và quản lý cây phả hệ của riêng mình. Dự án giúp bảo
@@ -40,13 +40,13 @@ export default function AboutPage() {
                 <div className='rounded-xl bg-rose-50 p-2.5 text-rose-600'>
                   <ShieldAlert className='size-5' />
                 </div>
-                <h2 className='text-xl font-bold text-stone-900'>
+                <h2 className='text-xl font-semibold text-stone-900'>
                   Tuyên bố từ chối trách nhiệm & Quyền riêng tư
                 </h2>
               </div>
 
-              <div className='rounded-2xl border border-stone-200/60 bg-stone-50 p-6 text-[14.5px] leading-relaxed'>
-                <p className='mb-4 inline-block rounded-lg border border-stone-200 bg-white px-3 py-2 font-bold text-stone-800 shadow-sm'>
+              <div className='rounded-2xl border border-stone-200/60 bg-stone-50 p-6 text-sm leading-relaxed'>
+                <p className='mb-4 inline-block rounded-lg border border-stone-200 bg-white px-3 py-2 font-medium text-stone-800'>
                   Dự án này chỉ cung cấp mã nguồn (source code). Không có bất kỳ
                   dữ liệu cá nhân nào được thu thập hay lưu trữ bởi tác giả.
                 </p>
@@ -82,7 +82,7 @@ export default function AboutPage() {
                   <li>
                     <strong className='text-stone-800'>Demo công khai:</strong>{' '}
                     Trang demo tại{' '}
-                    <code className='rounded border border-stone-200 bg-white px-1 py-0.5 text-[13px] text-amber-700'>
+                    <code className='rounded border border-stone-200 bg-white px-1 py-0.5 text-sm text-amber-700'>
                       giapha-os.homielab.com
                     </code>{' '}
                     sử dụng dữ liệu mẫu hư cấu, không chứa thông tin của người
@@ -95,18 +95,18 @@ export default function AboutPage() {
                 <div className='rounded-xl bg-blue-50 p-2.5 text-blue-600'>
                   <Mail className='size-5' />
                 </div>
-                <h2 className='text-xl font-bold text-stone-900'>
+                <h2 className='text-xl font-semibold text-stone-900'>
                   Liên hệ & Góp ý
                 </h2>
               </div>
 
-              <p className='mb-8 text-[15px] leading-relaxed text-stone-600'>
+              <p className='mb-8 text-sm leading-relaxed text-stone-600'>
                 Nếu bạn có bất kỳ thắc mắc, đề xuất tính năng, báo lỗi khi sử
                 dụng phần mềm, hoặc muốn thảo luận thì xin vui lòng gửi email về
                 địa chỉ:{` `}
                 <a
                   href='mailto:giaphaos@homielab.com'
-                  className='mt-2 inline-flex items-center gap-1.5 font-semibold text-amber-700 transition-colors hover:text-amber-600'>
+                  className='mt-2 inline-flex items-center gap-1.5 font-medium text-amber-700 transition-colors hover:text-amber-600'>
                   giaphaos@homielab.com
                 </a>
               </p>

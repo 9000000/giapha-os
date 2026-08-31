@@ -158,7 +158,7 @@ export default function LoginPage() {
 
       <div className='relative z-10 flex w-full flex-1 items-center justify-center px-4 py-12'>
         <motion.div
-          className='relative w-full max-w-md overflow-hidden rounded-3xl border border-white/80 bg-white/70 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl sm:p-10'
+          className='relative w-full max-w-md overflow-hidden rounded-3xl border border-white/80 bg-white/70 p-8 backdrop-blur-xl sm:p-10'
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}>
@@ -170,10 +170,10 @@ export default function LoginPage() {
               className='mb-5 inline-flex items-center justify-center rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-stone-100 transition-all duration-300 hover:scale-105 hover:shadow-md'>
               <Shield className='size-8 text-amber-600' />
             </Link>
-            <h2 className='font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl'>
+            <h2 className='font-serif text-3xl font-semibold text-stone-900 sm:text-4xl'>
               {isLogin ? 'Đăng nhập' : 'Đăng ký'}
             </h2>
-            <p className='mt-3 text-sm font-medium tracking-wide text-stone-500'>
+            <p className='mt-3 text-sm font-medium text-stone-500'>
               {isLogin
                 ? 'Đăng nhập để truy cập gia phả.'
                 : 'Tạo tài khoản thành viên mới.'}
@@ -183,7 +183,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className='mt-4 rounded-xl border border-amber-200/60 bg-amber-50 p-3'>
-                <p className='text-[13px] font-semibold text-amber-800'>
+                <p className='text-sm font-medium text-amber-800'>
                   Website Demo. Dữ liệu đều không có thật.
                 </p>
               </motion.div>
@@ -195,7 +195,7 @@ export default function LoginPage() {
               <div className='relative'>
                 <label
                   htmlFor='email-address'
-                  className='mb-1.5 ml-1 block text-[13px] font-semibold text-stone-600'>
+                  className='mb-1.5 ml-1 block text-sm font-medium text-stone-600'>
                   Email
                 </label>
                 <div className='group relative flex items-center'>
@@ -206,7 +206,7 @@ export default function LoginPage() {
                     type='email'
                     autoComplete='email'
                     required
-                    className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
+                    className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
                     placeholder='name@example.com'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -217,7 +217,7 @@ export default function LoginPage() {
               <div className='relative'>
                 <label
                   htmlFor='password'
-                  className='mb-1.5 ml-1 block text-[13px] font-semibold text-stone-600'>
+                  className='mb-1.5 ml-1 block text-sm font-medium text-stone-600'>
                   Mật khẩu
                 </label>
                 <div className='group relative flex items-center'>
@@ -228,7 +228,7 @@ export default function LoginPage() {
                     type='password'
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                     required
-                    className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
+                    className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
                     placeholder='Nhập mật khẩu'
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -246,7 +246,7 @@ export default function LoginPage() {
                     className='relative overflow-hidden'>
                     <label
                       htmlFor='confirmPassword'
-                      className='mb-1.5 ml-1 block text-[13px] font-semibold text-stone-600'>
+                      className='mb-1.5 ml-1 block text-sm font-medium text-stone-600'>
                       Xác nhận mật khẩu
                     </label>
                     <div className='group relative flex items-center'>
@@ -257,7 +257,7 @@ export default function LoginPage() {
                         type='password'
                         autoComplete='new-password'
                         required={!isLogin}
-                        className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
+                        className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
                         placeholder='Nhập lại mật khẩu'
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
@@ -274,7 +274,7 @@ export default function LoginPage() {
                   initial={{ opacity: 0, y: -10, height: 0 }}
                   animate={{ opacity: 1, y: 0, height: 'auto' }}
                   exit={{ opacity: 0, y: -10, height: 0 }}
-                  className='rounded-xl border border-red-100/50 bg-red-50 p-3 text-center text-[13px] font-medium text-red-700'>
+                  className='rounded-xl border border-red-100/50 bg-red-50 p-3 text-center text-sm font-medium text-red-700'>
                   {error}
                 </motion.div>
               )}
@@ -284,7 +284,7 @@ export default function LoginPage() {
                   initial={{ opacity: 0, y: -10, height: 0 }}
                   animate={{ opacity: 1, y: 0, height: 'auto' }}
                   exit={{ opacity: 0, y: -10, height: 0 }}
-                  className='rounded-xl border border-teal-100/50 bg-teal-50 p-3 text-center text-[13px] font-medium text-teal-700'>
+                  className='rounded-xl border border-teal-100/50 bg-teal-50 p-3 text-center text-sm font-medium text-teal-700'>
                   {successMessage}
                 </motion.div>
               )}
@@ -294,7 +294,7 @@ export default function LoginPage() {
               <motion.div
                 initial={{ opacity: 0, y: -10, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: 'auto' }}
-                className='rounded-xl border border-amber-200/70 bg-amber-50 p-3 text-center text-[13px] font-medium text-amber-800'>
+                className='rounded-xl border border-amber-200/70 bg-amber-50 p-3 text-center text-sm font-medium text-amber-800'>
                 <p>
                   {ssoError
                     ? 'SSO chưa được cấu hình đầy đủ. Vui lòng liên hệ quản trị viên hoặc xem hướng dẫn.'
@@ -304,7 +304,7 @@ export default function LoginPage() {
                   href={ssoGuideUrl}
                   target='_blank'
                   rel='noopener noreferrer'
-                  className='mt-2 inline-block font-bold text-amber-900 underline decoration-amber-400 underline-offset-2 hover:text-amber-700'>
+                  className='mt-2 inline-block font-medium text-amber-900 underline decoration-amber-400 underline-offset-2 hover:text-amber-700'>
                   Xem hướng dẫn cấu hình SSO
                 </a>
               </motion.div>
@@ -314,7 +314,7 @@ export default function LoginPage() {
               <button
                 type='submit'
                 disabled={loading}
-                className='group relative flex w-full items-center justify-center gap-2 rounded-xl border border-stone-800 bg-stone-900 px-4 py-4 text-[15px] font-bold text-white shadow-xl shadow-stone-900/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 hover:shadow-2xl hover:shadow-stone-900/20 focus:ring-2 focus:ring-stone-900 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-70'>
+                className='group relative flex w-full items-center justify-center gap-2 rounded-xl border border-stone-800 bg-stone-900 px-4 py-4 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 focus:ring-2 focus:ring-stone-900 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-70'>
                 {loading ? (
                   <span className='flex items-center gap-2.5'>
                     <svg
@@ -347,7 +347,7 @@ export default function LoginPage() {
                 <>
                   <div className='relative flex items-center py-2 opacity-60'>
                     <div className='grow border-t border-stone-200'></div>
-                    <span className='mx-4 shrink-0 text-[11px] font-bold tracking-wider text-stone-400 uppercase'>
+                    <span className='mx-4 shrink-0 text-sm font-medium text-stone-400'>
                       Hoặc
                     </span>
                     <div className='grow border-t border-stone-200'></div>
@@ -358,7 +358,7 @@ export default function LoginPage() {
                       type='button'
                       disabled={loading}
                       onClick={() => handleOAuthLogin('google')}
-                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-semibold text-stone-700 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
+                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-medium text-stone-700 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
                       <svg
                         aria-hidden='true'
                         className='size-4'
@@ -387,7 +387,7 @@ export default function LoginPage() {
                       type='button'
                       disabled={loading}
                       onClick={() => handleOAuthLogin('facebook')}
-                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-semibold text-stone-700 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
+                      className='flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-medium text-stone-700 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:outline-none disabled:cursor-wait disabled:opacity-60'>
                       <svg
                         aria-hidden='true'
                         className='size-4'
@@ -417,7 +417,7 @@ export default function LoginPage() {
                   setSuccessMessage(null)
                   setSsoError(false)
                 }}
-                className='w-full rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-semibold text-stone-600 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:outline-none'>
+                className='w-full rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-medium text-stone-600 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:outline-none'>
                 {isLogin
                   ? 'Chưa có tài khoản? Đăng ký ngay'
                   : 'Đã có tài khoản? Đăng nhập'}
@@ -429,14 +429,14 @@ export default function LoginPage() {
 
       <Link
         href='/'
-        className='group absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-semibold text-stone-500 shadow-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-900 hover:shadow-md'>
+        className='group absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <ArrowLeft className='size-4 transition-transform group-hover:-translate-x-1' />
         Trang chủ
       </Link>
 
       <Link
         href='/about'
-        className='group absolute top-6 right-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-semibold text-stone-500 shadow-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-900 hover:shadow-md'>
+        className='group absolute top-6 right-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <Info className='size-4 transition-transform group-hover:scale-110' />
         Giới thiệu
       </Link>

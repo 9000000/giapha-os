@@ -223,7 +223,7 @@ export default function FamilyTree({
           data-level={level}>
           {/* Main Person & Spouses Row */}
           <div
-            className={`relative z-10 flex items-stretch h-full${showAvatar ? 'rounded-2xl border border-stone-200/80 bg-white shadow-md transition-opacity' : ''}`}>
+            className={`relative z-10 flex items-stretch h-full${showAvatar ? 'rounded-2xl border border-stone-200/80 bg-white transition-opacity' : ''}`}>
             <FamilyNodeCard person={data.person} level={level} />
 
             {data.spouses.length > 0 &&
@@ -257,7 +257,7 @@ export default function FamilyTree({
                     toggleCollapse(personId)
                   }
                 }}
-                className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border border-stone-200/80 bg-white text-stone-500 shadow-md transition-colors hover:border-amber-300 hover:text-amber-600'
+                className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border border-stone-200/80 bg-white text-stone-500 transition-colors hover:border-amber-300 hover:text-amber-600'
                 title={isCollapsed ? 'Mở rộng' : 'Thu gọn'}>
                 {isCollapsed ? (
                   <Plus className='h-3.5 w-3.5' />

@@ -663,7 +663,7 @@ export default function RelationshipManager({
           <div
             key={group}
             className='border-b border-stone-100 pb-4 last:border-0'>
-            <h4 className='mb-3 flex items-center justify-between text-sm font-bold tracking-wide text-stone-700 uppercase'>
+            <h4 className='mb-3 flex items-center justify-between text-base font-semibold text-stone-700'>
               {title}
             </h4>
             {items.length > 0 ? (
@@ -676,7 +676,7 @@ export default function RelationshipManager({
                       onClick={() => handlePersonClick(rel.targetPerson.id)}
                       className='-mx-2.5 flex flex-1 items-center gap-3 rounded-xl p-2.5 text-left transition-all duration-200 hover:bg-stone-100'>
                       <div
-                        className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-xs text-white ${getAvatarBg(rel.targetPerson.gender)}`}>
+                        className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm text-white ${getAvatarBg(rel.targetPerson.gender)}`}>
                         {rel.targetPerson.avatar_url ? (
                           <Image
                             unoptimized
@@ -698,12 +698,12 @@ export default function RelationshipManager({
                           {rel.targetPerson.full_name}
                         </span>
                         {rel.note && (
-                          <span className='mt-0.5 text-xs font-medium text-amber-600 italic'>
+                          <span className='mt-0.5 text-sm font-medium text-amber-600 italic'>
                             ({rel.note})
                           </span>
                         )}
                         {rel.type === 'adopted_child' && (
-                          <span className='mt-0.5 text-xs text-stone-400 italic'>
+                          <span className='mt-0.5 text-sm text-stone-400 italic'>
                             (Con nuôi)
                           </span>
                         )}
@@ -737,7 +737,7 @@ export default function RelationshipManager({
                 ))}
               </ul>
             ) : (
-              <p className='text-xs text-stone-400 italic'>
+              <p className='text-sm text-stone-400 italic'>
                 Chưa có thông tin.
               </p>
             )}
@@ -806,16 +806,16 @@ export default function RelationshipManager({
 
       {/* Add Form (Admin) */}
       {canEdit && isAdding && (
-        <div className='mt-4 rounded-xl border border-stone-200 bg-stone-50/50 p-4 shadow-sm sm:p-5'>
-          <h4 className='mb-3 text-sm font-bold text-stone-800'>
-            Thêm Quan Hệ Mới
+        <div className='mt-4 rounded-xl border border-stone-200 bg-stone-50/50 p-4 sm:p-5'>
+          <h4 className='mb-3 text-base font-semibold text-stone-800'>
+            Thêm quan hệ mới
           </h4>
 
           <div className='space-y-3'>
             <div>
               <label
                 htmlFor='rel-note'
-                className='mb-1 block text-xs font-medium text-stone-600'>
+                className='mb-1 block text-sm font-medium text-stone-600'>
                 Ghi chú mối quan hệ (tuỳ chọn)
               </label>
               <input
@@ -825,14 +825,14 @@ export default function RelationshipManager({
                 placeholder='VD: Vợ cả, Vợ hai, Chồng trước...'
                 value={newRelNote}
                 onChange={(e) => setNewRelNote(e.target.value)}
-                className='mb-3 block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
+                className='mb-3 block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
               />
             </div>
 
             <div>
               <label
                 htmlFor='rel-direction'
-                className='mb-1 block text-xs font-medium text-stone-600'>
+                className='mb-1 block text-sm font-medium text-stone-600'>
                 Loại quan hệ
               </label>
               <select
@@ -844,7 +844,7 @@ export default function RelationshipManager({
                     e.target.value as 'parent' | 'child' | 'spouse'
                   )
                 }
-                className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 shadow-sm transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
+                className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
                 <option value='parent'>Người này là Con của...</option>
                 <option value='spouse'>Người này là Vợ/Chồng của...</option>
                 <option value='child'>Người này là Bố/Mẹ của...</option>
@@ -856,7 +856,7 @@ export default function RelationshipManager({
               <div>
                 <label
                   htmlFor='rel-type'
-                  className='mb-1 block text-xs font-medium text-stone-600'>
+                  className='mb-1 block text-sm font-medium text-stone-600'>
                   Chi tiết
                 </label>
                 <select
@@ -866,7 +866,7 @@ export default function RelationshipManager({
                   onChange={(e) =>
                     setNewRelType(e.target.value as RelationshipType)
                   }
-                  className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 shadow-sm transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
+                  className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'>
                   <option value='biological_child'>Con ruột</option>
                   <option value='adopted_child'>Con nuôi</option>
                 </select>
@@ -876,7 +876,7 @@ export default function RelationshipManager({
             <div>
               <label
                 htmlFor='rel-search'
-                className='mb-1 block text-xs font-medium text-stone-600'>
+                className='mb-1 block text-sm font-medium text-stone-600'>
                 Tìm người thân
               </label>
               <input
@@ -886,15 +886,15 @@ export default function RelationshipManager({
                 placeholder='Nhập tên để tìm...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-amber-500 sm:p-2.5'
               />
               {/* Search Results Dropdown */}
               {(searchResults.length > 0 ||
                 (searchTerm.length === 0 &&
                   !selectedTargetId &&
                   recentMembers.length > 0)) && (
-                <div className='mt-2 max-h-62.5 overflow-y-auto rounded-md border border-stone-200 bg-white shadow-lg'>
-                  <div className='sticky top-0 z-10 border-b border-stone-200 bg-stone-100 px-3 py-1.5 text-[10px] font-bold tracking-wide text-stone-500 uppercase'>
+                <div className='mt-2 max-h-62.5 overflow-y-auto rounded-md border border-stone-200 bg-white'>
+                  <div className='sticky top-0 z-10 border-b border-stone-200 bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-500'>
                     {searchResults.length > 0
                       ? 'Kết quả tìm kiếm'
                       : 'Thành viên vừa thêm gần đây'}
@@ -913,7 +913,7 @@ export default function RelationshipManager({
                       className='flex items-center justify-between border-b border-stone-100 px-3 py-2 text-sm last:border-0 hover:bg-amber-50'>
                       <div className='flex items-center gap-2'>
                         <span
-                          className={`flex size-3 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white ${
+                          className={`flex size-3 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white ${
                             p.gender === 'male'
                               ? 'bg-sky-500'
                               : p.gender === 'female'
@@ -930,7 +930,7 @@ export default function RelationshipManager({
                           {p.full_name}
                         </span>
                       </div>
-                      <span className='text-[10px] text-stone-400'>
+                      <span className='text-sm text-stone-400'>
                         {formatDisplayDate(
                           p.birth_year,
                           p.birth_month,
@@ -942,7 +942,7 @@ export default function RelationshipManager({
                 </div>
               )}
               {selectedTargetId && (
-                <p className='mt-1 text-xs text-green-600'>
+                <p className='mt-1 text-sm text-green-600'>
                   Đã chọn: {searchTerm}
                 </p>
               )}
@@ -972,16 +972,16 @@ export default function RelationshipManager({
 
       {/* Bulk Add Children Form (Admin) */}
       {canEdit && isAddingBulk && (
-        <div className='mt-4 rounded-xl border border-sky-200 bg-sky-50/50 p-4 shadow-sm sm:p-5'>
-          <h4 className='mb-3 text-sm font-bold text-sky-800'>
-            Thêm Nhanh Nhiều Con
+        <div className='mt-4 rounded-xl border border-sky-200 bg-sky-50/50 p-4 sm:p-5'>
+          <h4 className='mb-3 text-base font-semibold text-sky-800'>
+            Thêm nhanh nhiều con
           </h4>
 
           <div className='space-y-4'>
             <div>
               <label
                 htmlFor='bulk-spouse'
-                className='mb-1 block text-xs font-medium text-stone-600'>
+                className='mb-1 block text-sm font-medium text-stone-600'>
                 Chọn người mẹ/cha còn lại
               </label>
               <select
@@ -989,7 +989,7 @@ export default function RelationshipManager({
                 name='bulk-spouse'
                 value={selectedSpouseId}
                 onChange={(e) => setSelectedSpouseId(e.target.value)}
-                className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 shadow-sm transition-colors focus:border-sky-500 focus:ring-sky-500 sm:p-2.5'>
+                className='block w-full max-w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 transition-colors focus:border-sky-500 focus:ring-sky-500 sm:p-2.5'>
                 <option value='unknown'>
                   Không rõ (hoặc Vợ/Chồng khác chưa thêm)
                 </option>
@@ -1003,16 +1003,16 @@ export default function RelationshipManager({
             </div>
 
             <div className='space-y-3'>
-              <label className='mb-1 block text-xs font-medium text-stone-600'>
+              <label className='mb-1 block text-sm font-medium text-stone-600'>
                 Danh sách các con
               </label>
               {bulkChildren.map((child, index) => (
                 <div
                   key={index}
-                  className='rounded-xl border border-stone-200/80 bg-white p-3 shadow-xs sm:p-4'>
+                  className='rounded-xl border border-stone-200/80 bg-white p-3 sm:p-4'>
                   {/* Header: number + remove */}
                   <div className='mb-2.5 flex items-center justify-between'>
-                    <span className='rounded-md bg-sky-50 px-2 py-0.5 text-xs font-bold text-sky-600'>
+                    <span className='rounded-md bg-sky-50 px-2 py-0.5 text-sm font-medium text-sky-600'>
                       Con thứ {index + 1}
                     </span>
                     <button
@@ -1031,7 +1031,7 @@ export default function RelationshipManager({
                         }
                         setBulkChildren(newBulk)
                       }}
-                      className='rounded-lg p-1.5 text-xs text-stone-400 transition-colors hover:bg-red-50 hover:text-red-500'
+                      className='rounded-lg p-1.5 text-sm text-stone-400 transition-colors hover:bg-red-50 hover:text-red-500'
                       title='Xoá'>
                       ✕
                     </button>
@@ -1050,7 +1050,7 @@ export default function RelationshipManager({
                         newBulk[index].birthOrder = e.target.value
                         setBulkChildren(newBulk)
                       }}
-                      className='w-14 shrink-0 rounded-lg border border-stone-300 bg-stone-50 px-1 py-2 text-center text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-sky-500 focus:ring-sky-500'
+                      className='w-14 shrink-0 rounded-lg border border-stone-300 bg-stone-50 px-1 py-2 text-center text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-sky-500 focus:ring-sky-500'
                     />
                     <input
                       id={`child-name-${index}`}
@@ -1063,7 +1063,7 @@ export default function RelationshipManager({
                         newBulk[index].name = e.target.value
                         setBulkChildren(newBulk)
                       }}
-                      className='w-[calc(100%-4rem)] min-w-0 rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-sky-500 focus:ring-sky-500 sm:w-auto sm:flex-1'
+                      className='w-[calc(100%-4rem)] min-w-0 rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-sky-500 focus:ring-sky-500 sm:w-auto sm:flex-1'
                     />
                     <select
                       id={`child-gender-${index}`}
@@ -1075,7 +1075,7 @@ export default function RelationshipManager({
                           'male' | 'female' | 'other'
                         setBulkChildren(newBulk)
                       }}
-                      className='w-[calc(50%-0.25rem)] shrink-0 rounded-lg border border-stone-300 bg-stone-50 px-2 py-2 text-sm text-stone-900 shadow-sm transition-colors focus:border-sky-500 focus:ring-sky-500 sm:w-24'>
+                      className='w-[calc(50%-0.25rem)] shrink-0 rounded-lg border border-stone-300 bg-stone-50 px-2 py-2 text-sm text-stone-900 transition-colors focus:border-sky-500 focus:ring-sky-500 sm:w-24'>
                       <option value='male'>Nam</option>
                       <option value='female'>Nữ</option>
                       <option value='other'>Khác</option>
@@ -1091,7 +1091,7 @@ export default function RelationshipManager({
                         newBulk[index].birthYear = e.target.value
                         setBulkChildren(newBulk)
                       }}
-                      className='w-[calc(50%-0.25rem)] shrink-0 rounded-lg border border-stone-300 bg-stone-50 px-2 py-2 text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-sky-500 focus:ring-sky-500 sm:w-24'
+                      className='w-[calc(50%-0.25rem)] shrink-0 rounded-lg border border-stone-300 bg-stone-50 px-2 py-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-sky-500 focus:ring-sky-500 sm:w-24'
                     />
                   </div>
                 </div>
@@ -1111,7 +1111,7 @@ export default function RelationshipManager({
                     }
                   ])
                 }}
-                className='w-full rounded-xl border-2 border-dashed border-sky-200 bg-sky-50/50 py-2.5 text-xs font-semibold text-sky-600 transition-all hover:border-sky-300 hover:bg-sky-50'>
+                className='w-full rounded-xl border-2 border-dashed border-sky-200 bg-sky-50/50 py-2.5 text-sm font-medium text-sky-600 transition-all hover:border-sky-300 hover:bg-sky-50'>
                 + Thêm dòng
               </button>
             </div>
@@ -1149,16 +1149,16 @@ export default function RelationshipManager({
 
       {/* Quick Add Spouse Form (Admin) */}
       {canEdit && isAddingSpouse && (
-        <div className='mt-4 rounded-xl border border-rose-200 bg-rose-50/50 p-4 shadow-sm sm:p-5'>
-          <h4 className='mb-3 text-sm font-bold text-rose-800'>
-            Thêm Nhanh Vợ/Chồng
+        <div className='mt-4 rounded-xl border border-rose-200 bg-rose-50/50 p-4 sm:p-5'>
+          <h4 className='mb-3 text-base font-semibold text-rose-800'>
+            Thêm nhanh vợ/chồng
           </h4>
 
           <div className='space-y-3'>
             <div>
               <label
                 htmlFor='spouse-name'
-                className='mb-1 block text-xs font-medium text-stone-600'>
+                className='mb-1 block text-sm font-medium text-stone-600'>
                 Họ và Tên <span className='text-red-500'>*</span>
               </label>
               <input
@@ -1168,14 +1168,14 @@ export default function RelationshipManager({
                 placeholder='Nhập họ và tên...'
                 value={newSpouseName}
                 onChange={(e) => setNewSpouseName(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
               />
             </div>
 
             <div>
               <label
                 htmlFor='spouse-birth-year'
-                className='mb-1 block text-xs font-medium text-stone-600'>
+                className='mb-1 block text-sm font-medium text-stone-600'>
                 Năm sinh (Tuỳ chọn)
               </label>
               <input
@@ -1185,14 +1185,14 @@ export default function RelationshipManager({
                 placeholder='VD: 1980'
                 value={newSpouseBirthYear}
                 onChange={(e) => setNewSpouseBirthYear(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
               />
             </div>
 
             <div>
               <label
                 htmlFor='spouse-note'
-                className='mb-1 block text-xs font-medium text-stone-600'>
+                className='mb-1 block text-sm font-medium text-stone-600'>
                 Ghi chú mối quan hệ (Ví dụ: Vợ cả, Chồng thứ...)
               </label>
               <input
@@ -1202,11 +1202,11 @@ export default function RelationshipManager({
                 placeholder='Tuỳ chọn...'
                 value={newSpouseNote}
                 onChange={(e) => setNewSpouseNote(e.target.value)}
-                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 shadow-sm transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
+                className='block w-full rounded-lg border border-stone-300 bg-white p-2 text-sm text-stone-900 placeholder-stone-400 transition-colors focus:border-rose-500 focus:ring-rose-500 sm:p-2.5'
               />
             </div>
 
-            <p className='mt-1 text-xs text-stone-500 italic'>
+            <p className='mt-1 text-sm text-stone-500 italic'>
               * Giới tính sẽ tự động gán là{' '}
               {personGender === 'male'
                 ? 'Nữ'

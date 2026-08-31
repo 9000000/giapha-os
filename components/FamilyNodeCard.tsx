@@ -34,13 +34,13 @@ export default function FamilyNodeCard({
       className={`group relative flex h-full flex-col items-center justify-start rounded-3xl px-1 py-2 transition-all duration-300 hover:-translate-y-1 ${isDeceased ? 'opacity-80 grayscale-[0.4]' : ''} ${showAvatar ? 'w-20 bg-surface/70 backdrop-blur-xl hover:shadow-soft-hover sm:w-24 md:w-28' : 'px-3'} `}>
       {isRingVisible && (
         <div
-          className={`absolute top-[15%] -left-2.5 z-100 flex size-5 items-center justify-center rounded-full text-[10px] font-medium text-stone-500 sm:-left-3.5 sm:size-6 sm:text-sm ${showAvatar ? 'bg-white shadow-sm' : ''} `}>
+          className={`absolute top-[15%] -left-2.5 z-100 flex size-5 items-center justify-center rounded-full text-sm font-medium text-stone-500 sm:-left-3.5 sm:size-6 sm:text-sm ${showAvatar ? 'bg-white shadow-sm' : ''} `}>
           <span className='leading-none'>💍</span>
         </div>
       )}
       {isPlusVisible && (
         <div
-          className={`absolute top-[15%] -left-2.5 z-100 flex size-5 items-center justify-center rounded-full text-[10px] font-medium text-stone-500 sm:-left-3.5 sm:size-6 sm:text-sm ${showAvatar ? 'bg-white shadow-sm' : ''} `}>
+          className={`absolute top-[15%] -left-2.5 z-100 flex size-5 items-center justify-center rounded-full text-sm font-medium text-stone-500 sm:-left-3.5 sm:size-6 sm:text-sm ${showAvatar ? 'bg-white shadow-sm' : ''} `}>
           <span className='leading-none'>+</span>
         </div>
       )}
@@ -49,7 +49,7 @@ export default function FamilyNodeCard({
       {showAvatar && (
         <div className='relative z-10 mb-1.5 sm:mb-2'>
           <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-[10px] text-white shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:w-12 sm:text-xs md:h-14 md:w-14 md:text-sm ${getAvatarBg(person.gender)} `}>
+            className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm text-white shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:w-12 sm:text-sm md:h-14 md:w-14 md:text-sm ${getAvatarBg(person.gender)} `}>
             {person.avatar_url ? (
               <Image
                 unoptimized
@@ -69,7 +69,7 @@ export default function FamilyNodeCard({
       {/* 2. Gender Icon + Name */}
       <div className='relative z-10 flex w-full flex-col items-center justify-center gap-1 px-0.5 sm:px-1'>
         <div
-          className={`cursor-pointer text-center text-[10px] leading-tight font-bold transition-colors sm:text-[11px] md:text-xs ${onClickName ? 'text-stone-800 group-hover:text-amber-700 hover:underline' : 'text-stone-800 group-hover:text-amber-800'} `}
+          className={`cursor-pointer text-center text-sm leading-tight font-medium transition-colors sm:text-sm md:text-sm ${onClickName ? 'text-stone-800 group-hover:text-amber-700 hover:underline' : 'text-stone-800 group-hover:text-amber-800'} `}
           title={person.full_name}
           onClick={(e) => {
             if (onClickName) {

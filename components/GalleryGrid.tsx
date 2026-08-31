@@ -112,11 +112,11 @@ export default function GalleryGrid({
 
   if (!items || items.length === 0) {
     return (
-      <div className='flex flex-col items-center justify-center rounded-3xl border border-stone-100 bg-white px-4 py-20 text-center shadow-sm'>
+      <div className='flex flex-col items-center justify-center rounded-3xl border border-stone-100 bg-white px-4 py-20 text-center'>
         <div className='mb-4 flex size-20 items-center justify-center rounded-full border border-stone-100 bg-stone-50'>
           <Maximize2 className='size-8 text-stone-300' />
         </div>
-        <h3 className='mb-2 text-xl font-bold text-stone-700'>
+        <h3 className='mb-2 text-xl font-semibold text-stone-700'>
           Chưa có hình ảnh nào
         </h3>
         <p className='max-w-sm text-stone-500'>
@@ -150,7 +150,7 @@ export default function GalleryGrid({
               {/* Overlay */}
               <div className='absolute inset-0 flex flex-col justify-end bg-linear-to-t from-stone-900/80 via-stone-900/20 to-transparent p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100'>
                 <div className='translate-y-4 transform transition-transform duration-300 group-hover:translate-y-0'>
-                  <h3 className='mb-1 line-clamp-2 text-lg leading-tight font-bold text-white'>
+                  <h3 className='mb-1 line-clamp-2 text-lg leading-tight font-semibold text-white'>
                     {item.title}
                   </h3>
                   {item.event_date && (
@@ -178,10 +178,10 @@ export default function GalleryGrid({
             <div key={group.year} className='relative'>
               {/* Timeline Header Badge */}
               <div className='relative mb-6 flex items-center gap-3'>
-                <div className='absolute -left-7 z-10 flex size-6 items-center justify-center rounded-full border-4 border-stone-50 bg-amber-600 shadow-md sm:-left-11 sm:size-7'>
+                <div className='absolute -left-7 z-10 flex size-6 items-center justify-center rounded-full border-4 border-stone-50 bg-amber-600 sm:-left-11 sm:size-7'>
                   <Clock className='size-3 text-white' />
                 </div>
-                <h2 className='inline-block bg-stone-50/90 pr-4 font-serif text-2xl font-bold text-stone-900 backdrop-blur-xs sm:text-3xl'>
+                <h2 className='inline-block bg-stone-50/90 pr-4 font-serif text-2xl font-semibold text-stone-900 backdrop-blur-xs sm:text-3xl'>
                   {group.year}
                 </h2>
               </div>
@@ -192,7 +192,7 @@ export default function GalleryGrid({
                   <div
                     key={item.id}
                     onClick={() => setSelectedItem(item)}
-                    className='group flex cursor-pointer flex-col justify-between rounded-2xl border border-stone-200/80 bg-white/80 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)]'>
+                    className='group flex cursor-pointer flex-col justify-between rounded-2xl border border-stone-200/80 bg-white/80 p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1'>
                     <div>
                       <div className='relative mb-4 aspect-16/10 overflow-hidden rounded-xl bg-stone-100'>
                         <Image
@@ -210,13 +210,13 @@ export default function GalleryGrid({
                       </div>
 
                       {item.event_date && (
-                        <span className='mb-2 inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800'>
+                        <span className='mb-2 inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1 text-sm font-medium text-amber-800'>
                           <CalendarDays className='size-3' />
                           {dayjs(item.event_date).format('DD/MM/YYYY')}
                         </span>
                       )}
 
-                      <h3 className='line-clamp-2 text-lg leading-snug font-bold text-stone-900 transition-colors group-hover:text-amber-700'>
+                      <h3 className='line-clamp-2 text-lg leading-snug font-semibold text-stone-900 transition-colors group-hover:text-amber-700'>
                         {item.title}
                       </h3>
 
@@ -259,7 +259,7 @@ export default function GalleryGrid({
             {/* Content Section */}
             <div className='flex max-h-[40vh] w-full flex-col overflow-y-auto bg-white lg:max-h-none lg:w-96'>
               <div className='flex-1 p-6 sm:p-8'>
-                <h2 className='mb-4 text-2xl leading-tight font-bold text-stone-800'>
+                <h2 className='mb-4 text-2xl leading-tight font-semibold text-stone-800'>
                   {selectedItem.title}
                 </h2>
 
@@ -285,7 +285,7 @@ export default function GalleryGrid({
                 )}
               </div>
 
-              <div className='flex items-center justify-between border-t border-stone-100 bg-stone-50 p-6 text-xs font-medium text-stone-400'>
+              <div className='flex items-center justify-between border-t border-stone-100 bg-stone-50 p-6 text-sm font-medium text-stone-400'>
                 <span>
                   Đã thêm vào{' '}
                   {dayjs(selectedItem.created_at).format('DD/MM/YYYY')}

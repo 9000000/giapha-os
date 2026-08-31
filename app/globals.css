@@ -53,26 +53,26 @@ select {
   cursor: pointer;
 }
 
-/* Design System Buttons */
+/* Design system buttons */
 .btn-primary {
-  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-4 font-medium text-surface transition-all duration-300 hover:-translate-y-1 hover:bg-[#292524] hover:shadow-soft-hover;
+  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-4 text-sm font-medium text-surface transition-all duration-300 hover:-translate-y-1 hover:bg-[#292524] hover:shadow-soft-hover;
 }
 
 .btn-amber {
-  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-tertiary px-3 py-2.5 font-medium text-primary transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-hover;
+  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-tertiary px-3 py-2.5 text-sm font-medium text-primary transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-hover;
 }
 
 .btn-outline,
 .btn {
-  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border bg-transparent px-4 py-4 font-medium text-secondary transition-all duration-300 hover:-translate-y-1 hover:bg-neutral hover:shadow-soft-hover;
+  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border bg-transparent px-4 py-4 text-sm font-medium text-secondary transition-all duration-300 hover:-translate-y-1 hover:bg-neutral;
 }
 
 .btn-secondary {
-  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-secondary px-4 py-4 font-medium text-surface transition-all duration-300 hover:-translate-y-1 hover:bg-stone-700 hover:shadow-soft-hover;
+  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-secondary px-4 py-4 text-sm font-medium text-surface transition-all duration-300 hover:-translate-y-1 hover:bg-stone-700 hover:shadow-soft-hover;
 }
 
 .badge-error {
-  @apply inline-flex items-center rounded-sm bg-error px-2 py-1 text-xs font-medium text-surface;
+  @apply inline-flex items-center rounded-sm bg-error px-2 py-1 text-sm font-medium text-surface;
 }
 
 .card-feature {
@@ -80,31 +80,32 @@ select {
 }
 
 .title {
-  @apply font-serif text-2xl font-bold text-primary sm:text-3xl;
+  @apply font-serif text-2xl font-semibold text-primary;
 }
 
-/* Typography Overrides */
+/* Typography scale: content is 14px; 16px and above are headings. */
 .headline-display {
-  @apply font-serif text-[64px] leading-[1.1] font-bold tracking-[-0.02em];
+  @apply font-serif text-[64px] leading-[1.1] font-semibold;
 }
+
 .headline-lg {
-  @apply font-serif text-[30px] leading-[1.2] font-bold;
+  @apply font-serif text-[30px] leading-[1.2] font-semibold;
 }
+
 .headline-md {
   @apply font-serif text-[24px] leading-[1.3] font-semibold;
 }
-.body-lg {
-  @apply font-sans text-[18px] leading-[1.6] font-normal;
-}
-.body-md {
-  @apply font-sans text-[16px] leading-[1.5] font-normal;
-}
+
+.body-lg,
+.body-md,
 .body-sm {
-  @apply font-sans text-[14px] leading-[1.4] font-normal;
+  @apply font-sans text-sm leading-[1.5] font-normal;
 }
+
 .label-lg {
-  @apply font-sans text-[14px] leading-[1] font-semibold;
+  @apply font-sans text-sm leading-[1.4] font-semibold;
 }
+
 .label-md {
-  @apply font-sans text-[12px] leading-[1] font-medium;
+  @apply font-sans text-sm leading-[1.4] font-medium;
 }

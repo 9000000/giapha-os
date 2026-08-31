@@ -201,7 +201,7 @@ export default function CustomEventModal({
   }
 
   const inputClasses =
-    'bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300 shadow-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!'
+    'bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300  focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!'
 
   return (
     <AnimatePresence>
@@ -221,20 +221,20 @@ export default function CustomEventModal({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white/95 shadow-2xl backdrop-blur-2xl'>
+            className='relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white/95 backdrop-blur-2xl'>
             {/* Sticky Header Actions */}
             <div className='absolute top-4 right-4 z-20 flex items-center gap-2 sm:top-5 sm:right-5'>
               <button
                 type='button'
                 onClick={onClose}
-                className='flex size-10 items-center justify-center rounded-full border border-stone-200/50 bg-stone-100/80 text-stone-600 shadow-sm transition-colors hover:bg-stone-200 hover:text-stone-900'
+                className='flex size-10 items-center justify-center rounded-full border border-stone-200/50 bg-stone-100/80 text-stone-600 transition-colors hover:bg-stone-200 hover:text-stone-900'
                 aria-label='Đóng'>
                 <X className='size-5' />
               </button>
             </div>
 
             <div className='custom-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:px-8'>
-              <h2 className='mb-6 font-serif text-xl font-bold text-stone-800'>
+              <h2 className='mb-6 font-serif text-xl font-semibold text-stone-800'>
                 {eventToEdit ? 'Sửa Sự Kiện' : 'Thêm Sự Kiện Tuỳ Chỉnh'}
               </h2>
 
@@ -244,7 +244,7 @@ export default function CustomEventModal({
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className='mb-6 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700 shadow-sm'>
+                    className='mb-6 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-700'>
                     <AlertCircle className='mt-0.5 size-5 shrink-0' />
                     <p>{error}</p>
                   </motion.div>
@@ -256,9 +256,9 @@ export default function CustomEventModal({
                   variants={formSectionVariants}
                   initial='hidden'
                   animate='show'
-                  className='space-y-5 rounded-2xl border border-stone-200/80 bg-white/80 p-5 shadow-sm sm:p-6'>
+                  className='space-y-5 rounded-2xl border border-stone-200/80 bg-white/80 p-5 sm:p-6'>
                   <div>
-                    <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+                    <label className='mb-1.5 block text-sm font-medium text-stone-700'>
                       Tên sự kiện <span className='text-red-500'>*</span>
                     </label>
                     <input
@@ -273,7 +273,7 @@ export default function CustomEventModal({
 
                   <div>
                     <div className='mb-1.5 flex items-center justify-between'>
-                      <label className='block text-sm font-semibold text-stone-700'>
+                      <label className='block text-sm font-medium text-stone-700'>
                         Ngày diễn ra <span className='text-red-500'>*</span>
                       </label>
                       <button
@@ -284,7 +284,7 @@ export default function CustomEventModal({
                           )
                           setLunarConvertError(null)
                         }}
-                        className='flex items-center gap-1.5 rounded-lg border border-stone-200/60 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-500 transition-colors hover:bg-amber-50 hover:text-amber-700'>
+                        className='flex items-center gap-1.5 rounded-lg border border-stone-200/60 bg-stone-50 px-2.5 py-1 text-sm font-medium text-stone-500 transition-colors hover:bg-amber-50 hover:text-amber-700'>
                         {dateMode === 'solar' ? (
                           <>
                             <Moon className='size-3' />
@@ -352,16 +352,16 @@ export default function CustomEventModal({
                           />
                         </div>
                         {lunarConvertError && (
-                          <p className='flex items-center gap-1 text-xs font-medium text-rose-500'>
+                          <p className='flex items-center gap-1 text-sm font-medium text-rose-500'>
                             <AlertCircle className='size-3' />
                             {lunarConvertError}
                           </p>
                         )}
                         {eventDate && !lunarConvertError && (
-                          <p className='flex items-center gap-1.5 text-xs text-stone-500'>
+                          <p className='flex items-center gap-1.5 text-sm text-stone-500'>
                             <Sun className='size-3 text-amber-500' />
                             Dương lịch:{' '}
-                            <span className='font-semibold text-stone-700'>
+                            <span className='font-medium text-stone-700'>
                               {eventDate.split('-').reverse().join('/')}
                             </span>
                           </p>
@@ -371,7 +371,7 @@ export default function CustomEventModal({
                   </div>
 
                   <div>
-                    <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+                    <label className='mb-1.5 block text-sm font-medium text-stone-700'>
                       Địa điểm
                     </label>
                     <div className='relative'>
@@ -387,7 +387,7 @@ export default function CustomEventModal({
                   </div>
 
                   <div>
-                    <label className='mb-1.5 block text-sm font-semibold text-stone-700'>
+                    <label className='mb-1.5 block text-sm font-medium text-stone-700'>
                       Nội dung chi tiết
                     </label>
                     <div className='relative'>
@@ -414,7 +414,7 @@ export default function CustomEventModal({
                       type='button'
                       onClick={handleDelete}
                       disabled={loading}
-                      className='inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-rose-200/50 bg-rose-50 px-4 py-4 text-sm font-medium text-rose-600 transition-all duration-300 hover:-translate-y-1 hover:bg-rose-100 hover:shadow-soft-hover disabled:opacity-50 sm:w-auto'>
+                      className='inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-rose-200/50 bg-rose-50 px-4 py-4 text-sm font-medium text-rose-600 transition-all duration-300 hover:-translate-y-1 hover:bg-rose-100 disabled:opacity-50 sm:w-auto'>
                       Xoá sự kiện
                     </button>
                   ) : (

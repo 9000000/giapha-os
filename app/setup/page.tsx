@@ -25,13 +25,13 @@ export default async function SetupPage() {
       </div>
 
       <div className='relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center px-4 py-12'>
-        <div className='relative mb-8 w-full overflow-hidden rounded-3xl border border-stone-200 bg-white p-8 shadow-xl sm:p-10'>
+        <div className='relative mb-8 w-full overflow-hidden rounded-3xl border border-stone-200 bg-white p-8 sm:p-10'>
           <div className='mb-6 flex items-center gap-4'>
             <div className='rounded-2xl bg-indigo-50 p-4 text-indigo-600'>
               <Database className='size-8' />
             </div>
             <div>
-              <h2 className='text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl'>
+              <h2 className='text-2xl font-semibold text-stone-900 sm:text-3xl'>
                 Khởi tạo Cơ sở dữ liệu
               </h2>
               <p className='font-medium text-stone-500'>
@@ -61,7 +61,7 @@ export default async function SetupPage() {
                       href='https://supabase.com/dashboard/project/_/sql/new'
                       target='_blank'
                       rel='noopener noreferrer'
-                      className='font-semibold text-amber-600 hover:underline'>
+                      className='font-medium text-amber-600 hover:underline'>
                       Supabase SQL Editor
                     </a>{' '}
                     trong dự án của bạn.
@@ -88,12 +88,12 @@ export default async function SetupPage() {
 
             <div className='col-span-1 flex h-[400px] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#1e1e1e]'>
               <div className='flex items-center justify-between border-b border-stone-800 bg-[#2d2d2d] px-4 py-2'>
-                <span className='font-mono text-xs text-stone-400'>
+                <span className='font-mono text-sm text-stone-400'>
                   docs/schema.sql
                 </span>
               </div>
               <div className='custom-scrollbar w-full flex-grow overflow-y-auto p-4'>
-                <pre className='font-mono text-xs leading-relaxed whitespace-pre text-stone-300 sm:text-sm'>
+                <pre className='font-mono text-sm leading-relaxed whitespace-pre text-stone-300 sm:text-sm'>
                   <code>{schemaContent}</code>
                 </pre>
               </div>
@@ -104,7 +104,7 @@ export default async function SetupPage() {
 
       <Link
         href='/login'
-        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-semibold text-stone-500 shadow-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-900 hover:shadow-md'>
+        className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <ArrowLeft className='size-4' />
         Quay lại Đăng nhập
       </Link>

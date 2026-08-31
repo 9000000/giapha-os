@@ -512,7 +512,7 @@ export default function BubbleMapTree({
 
   if (error) {
     return (
-      <div className='absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl border border-stone-200/60 bg-stone-50 p-4 text-center shadow-inner'>
+      <div className='absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl border border-stone-200/60 bg-stone-50 p-4 text-center'>
         <span className='text-stone-500'>
           Tính năng này không được hỗ trợ trên trình duyệt của bạn (
           {error.message}). Vui lòng cập nhật hoặc sử dụng trình duyệt khác.
@@ -524,7 +524,7 @@ export default function BubbleMapTree({
   return (
     <div
       ref={fullscreenRef}
-      className={`absolute inset-0 overflow-hidden bg-stone-50 shadow-inner ${
+      className={`absolute inset-0 overflow-hidden bg-stone-50 ${
         isFullscreen
           ? 'rounded-none border-0'
           : 'rounded-2xl border border-stone-200/60'
@@ -533,7 +533,7 @@ export default function BubbleMapTree({
         id='tree-toolbar-portal'
         className='absolute top-4 left-4 z-50'></div>
 
-      <div className='absolute top-4 right-4 z-50 flex items-center gap-1 rounded-xl border border-stone-200/70 bg-white/85 p-1.5 shadow-sm backdrop-blur-md'>
+      <div className='absolute top-4 right-4 z-50 flex items-center gap-1 rounded-xl border border-stone-200/70 bg-white/85 p-1.5 backdrop-blur-md'>
         <button
           type='button'
           onClick={() => changeZoom(Math.max(0.1, zoomLevel - 0.1))}
@@ -553,7 +553,7 @@ export default function BubbleMapTree({
           aria-label='Mức phóng to sơ đồ'
           title='Mức phóng to'
         />
-        <span className='w-10 text-center text-[11px] font-semibold text-stone-500 tabular-nums'>
+        <span className='w-10 text-center text-sm font-medium text-stone-500 tabular-nums'>
           {Math.round(zoomLevel * 100)}%
         </span>
         <button

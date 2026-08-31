@@ -1,6 +1,6 @@
 {
   "name": "giapha-os",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -20,7 +20,7 @@
     "html-to-image": "^1.11.13",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",
-    "lucide-react": "^1.37.0",
+    "lucide-react": "^1.38.0",
     "lunar-javascript": "^1.7.7",
     "next": "^16.3.3",
     "papaparse": "^5.7.0",

@@ -12,8 +12,8 @@ export default async function EditMemberPage({ params }: PageProps) {
   const { id } = await params
 
   const profile = await getProfile()
-  const isAdmin = profile?.role === 'admin'
-  const isEditor = profile?.role === 'editor'
+  const isAdmin = profile?.role === 'admin' && profile.is_active
+  const isEditor = profile?.role === 'editor' && profile.is_active
   if (!isAdmin && !isEditor) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-stone-50'>

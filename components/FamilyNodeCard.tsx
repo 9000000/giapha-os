@@ -1,6 +1,7 @@
 'use client'
 
 import { Person } from '@/types'
+import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
 import Image from 'next/image'
 import { useMemberListView } from '@/context/MemberListContext'
@@ -50,10 +51,10 @@ export default function FamilyNodeCard({
         <div className='relative z-10 mb-1.5 sm:mb-2'>
           <div
             className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm text-white shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:w-12 sm:text-sm md:h-14 md:w-14 md:text-sm ${getAvatarBg(person.gender)} `}>
-            {person.avatar_url ? (
+            {getAvatarUrl(person.avatar_url) ? (
               <Image
                 unoptimized
-                src={person.avatar_url}
+                src={getAvatarUrl(person.avatar_url)!}
                 alt={person.full_name}
                 className='h-full w-full object-cover'
                 width={64}

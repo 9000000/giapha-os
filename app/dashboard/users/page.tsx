@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 
 export default async function AdminUsersPage() {
   const profile = await getProfile()
-  const isAdmin = profile?.role === 'admin'
+  const isAdmin = profile?.role === 'admin' && profile.is_active
 
   if (!isAdmin) {
     redirect('/dashboard')

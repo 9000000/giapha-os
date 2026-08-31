@@ -1,6 +1,7 @@
 'use client'
 
 import { computeKinship } from '@/utils/kinshipHelpers'
+import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
@@ -90,10 +91,10 @@ function PersonSelector({
           <div
             className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-sm ring-2 ring-white ${selected ? getAvatarBg(selected.gender) : 'bg-stone-100 text-stone-400'}`}>
             {selected ? (
-              selected.avatar_url ? (
+              getAvatarUrl(selected.avatar_url) ? (
                 <Image
                   unoptimized
-                  src={selected.avatar_url}
+                  src={getAvatarUrl(selected.avatar_url)!}
                   alt={selected.full_name}
                   width={40}
                   height={40}
@@ -166,10 +167,10 @@ function PersonSelector({
                     <div className='relative shrink-0'>
                       <div
                         className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-xs ring-1 ring-white ${getAvatarBg(p.gender)}`}>
-                        {p.avatar_url ? (
+                        {getAvatarUrl(p.avatar_url) ? (
                           <Image
                             unoptimized
-                            src={p.avatar_url}
+                            src={getAvatarUrl(p.avatar_url)!}
                             alt={p.full_name}
                             width={32}
                             height={32}

@@ -47,7 +47,7 @@ export default function MissingDBConfigPage() {
                 <li className='leading-relaxed'>
                   Đăng nhập vào{' '}
                   <a
-                    href='https://supabase.com/dashboard/project/_/settings/api'
+                    href='https://supabase.com/dashboard/project/_/settings/api-keys'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='font-medium text-amber-600 hover:underline'>
@@ -56,8 +56,9 @@ export default function MissingDBConfigPage() {
                   .
                 </li>
                 <li className='leading-relaxed'>
-                  Lấy thông tin <b>Project URL</b> và{' '}
-                  <b>Project API Keys (anon public)</b>.
+                  Lấy thông tin <b>Project URL</b> và <b>Publishable key</b>{' '}
+                  (project cũ có thể dùng key <b>anon</b> trong tab Legacy API
+                  Keys).
                 </li>
                 <li className='leading-relaxed'>
                   Tạo file <code>.env.local</code> ở thư mục gốc của dự án.

@@ -41,12 +41,20 @@ function htmlResponse(content: string, status = 200) {
       </html>`,
     {
       status,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      headers: {
+        'Cache-Control': 'no-store',
+        'Content-Type': 'text/html; charset=utf-8',
+        'Referrer-Policy': 'no-referrer',
+        'X-Content-Type-Options': 'nosniff'
+      }
     }
   )
 }
 
 async function getRequest(token: string) {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token))
+    return { supabase: null, request: null }
+
   const supabase = getAdminSupabase()
   const { data, error } = await supabase
     .from('user_approval_requests')
@@ -104,10 +112,23 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
 export async function POST(_request: Request, { params }: RouteContext) {
   try {
+    const requestOrigin = new URL(_request.url).origin
+    const requestOriginHeader = _request.headers.get('origin')
+    const requestReferer = _request.headers.get('referer')
+    if (
+      (requestOriginHeader && requestOriginHeader !== requestOrigin) ||
+      (requestReferer && !requestReferer.startsWith(`${requestOrigin}/`))
+    ) {
+      return htmlResponse(
+        '<h1 style="margin-top:0;color:#991b1b">Yêu cầu không hợp lệ</h1>',
+        403
+      )
+    }
+
     const { token } = await params
     const { supabase, request } = await getRequest(token)
 
-    if (!request) return invalidRequestResponse()
+    if (!request || !supabase) return invalidRequestResponse()
 
     if (request.used_at) {
       return htmlResponse(
@@ -117,6 +138,23 @@ export async function POST(_request: Request, { params }: RouteContext) {
 
     if (new Date(request.expires_at).getTime() <= Date.now()) {
       return invalidRequestResponse()
+    }
+
+    // Claim the one-time request first. The conditional update makes two
+    // concurrent clicks mutually exclusive even though this route is stateless.
+    const { data: claimedRequest, error: claimError } = await supabase
+      .from('user_approval_requests')
+      .update({ used_at: new Date().toISOString() })
+      .eq('id', request.id)
+      .is('used_at', null)
+      .select('id')
+      .maybeSingle()
+
+    if (claimError) throw claimError
+    if (!claimedRequest) {
+      return htmlResponse(
+        '<h1 style="margin-top:0;color:#166534">Đã xử lý</h1><p>Yêu cầu duyệt tài khoản này đã được sử dụng.</p>'
+      )
     }
 
     const { data: profile, error: profileError } = await supabase
@@ -141,14 +179,6 @@ export async function POST(_request: Request, { params }: RouteContext) {
 
       if (updateError) throw updateError
     }
-
-    const { error: usedError } = await supabase
-      .from('user_approval_requests')
-      .update({ used_at: new Date().toISOString() })
-      .eq('id', request.id)
-      .is('used_at', null)
-
-    if (usedError) throw usedError
 
     return htmlResponse(
       `<h1 style="margin-top:0;color:#166534">Duyệt thành công</h1><p>Tài khoản <strong>${escapeHtml(request.email)}</strong> đã được cấp quyền truy cập. Người dùng có thể đăng nhập ứng dụng ngay bây giờ.</p>`

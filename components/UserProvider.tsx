@@ -25,8 +25,9 @@ export function UserProvider({
   profile: Profile | null
 }) {
   const supabase = useMemo(() => createClient(), [])
-  const isAdmin = profile?.role === 'admin'
-  const isEditor = profile?.role === 'editor' || isAdmin
+  const isActive = profile?.is_active === true
+  const isAdmin = isActive && profile?.role === 'admin'
+  const isEditor = isActive && (profile?.role === 'editor' || isAdmin)
 
   return (
     <UserContext.Provider

@@ -19,6 +19,7 @@ import { Lunar, Solar } from 'lunar-javascript'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { updateDescendantGenerationsAction } from '@/app/actions/member'
+import { getAvatarStoragePath, getAvatarUrl } from '@/utils/avatar'
 
 interface MemberFormProps {
   initialData?: Person
@@ -369,11 +370,7 @@ export default function MemberForm({
 
         if (uploadError) throw uploadError
 
-        const {
-          data: { publicUrl }
-        } = supabase.storage.from('avatars').getPublicUrl(filePath)
-
-        currentAvatarUrl = publicUrl
+        currentAvatarUrl = filePath
 
         // Update the person with the final avatar URL
         const { error: updateAvatarError } = await supabase
@@ -654,7 +651,11 @@ export default function MemberForm({
                 {avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={avatarPreview}
+                    src={
+                      avatarPreview.startsWith('blob:')
+                        ? avatarPreview
+                        : getAvatarUrl(avatarPreview) || undefined
+                    }
                     alt='Avatar preview'
                     className='h-full w-full object-cover'
                   />
@@ -673,6 +674,23 @@ export default function MemberForm({
                       onChange={(e) => {
                         const file = e.target.files?.[0]
                         if (file) {
+                          if (
+                            ![
+                              'image/jpeg',
+                              'image/png',
+                              'image/gif',
+                              'image/webp'
+                            ].includes(file.type)
+                          ) {
+                            setError(
+                              'Ảnh phải có định dạng JPG, PNG, GIF hoặc WebP.'
+                            )
+                            return
+                          }
+                          if (file.size > 2 * 1024 * 1024) {
+                            setError('Ảnh không được vượt quá 2MB.')
+                            return
+                          }
                           setAvatarFile(file)
                           setAvatarPreview(URL.createObjectURL(file))
                         }
@@ -696,15 +714,14 @@ export default function MemberForm({
                           avatarUrl === initialData.avatar_url
                         ) {
                           try {
-                            // Extract just the filename from the end of the URL
-                            const fileName = initialData.avatar_url
-                              .split('/')
-                              .pop()
-                            if (fileName) {
+                            const filePath = getAvatarStoragePath(
+                              initialData.avatar_url
+                            )
+                            if (filePath) {
                               const { error: removeError } =
                                 await supabase.storage
                                   .from('avatars')
-                                  .remove([fileName])
+                                  .remove([filePath])
                               if (removeError) {
                                 console.error(
                                   'Error removing avatar from storage:',

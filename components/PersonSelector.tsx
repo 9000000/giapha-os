@@ -1,6 +1,7 @@
 'use client'
 
 import { Person } from '@/types'
+import { getAvatarUrl } from '@/utils/avatar'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, ChevronDown, Database, Search } from 'lucide-react'
 import Image from 'next/image'
@@ -88,10 +89,10 @@ export default function PersonSelector({
                   : 'bg-stone-100 text-stone-400'
             }`}>
             {currentPerson ? (
-              currentPerson.avatar_url ? (
+              getAvatarUrl(currentPerson.avatar_url) ? (
                 <Image
                   unoptimized
-                  src={currentPerson.avatar_url}
+                  src={getAvatarUrl(currentPerson.avatar_url)!}
                   alt={currentPerson.full_name}
                   width={32}
                   height={32}
@@ -205,10 +206,10 @@ export default function PersonSelector({
                         <div className='relative shrink-0'>
                           <div
                             className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-xs ring-1 ring-white ${getAvatarBg(person.gender)}`}>
-                            {person.avatar_url ? (
+                            {getAvatarUrl(person.avatar_url) ? (
                               <Image
                                 unoptimized
-                                src={person.avatar_url}
+                                src={getAvatarUrl(person.avatar_url)!}
                                 alt={person.full_name}
                                 width={32}
                                 height={32}

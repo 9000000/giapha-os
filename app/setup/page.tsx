@@ -6,14 +6,36 @@ import path from 'path'
 import CopyButton from './CopyButton'
 
 export default async function SetupPage() {
-  let schemaContent = ''
+  let sqlBundle = ''
   try {
     const schemaPath = path.join(process.cwd(), 'docs', 'schema.sql')
-    schemaContent = await fs.readFile(schemaPath, 'utf-8')
+    const migrationsPath = path.join(process.cwd(), 'docs', 'migrations')
+    const migrationFiles = (await fs.readdir(migrationsPath))
+      .filter((fileName) => fileName.endsWith('.sql'))
+      .sort()
+    const schemaContent = await fs.readFile(schemaPath, 'utf-8')
+    const migrationContents = await Promise.all(
+      migrationFiles.map((fileName) =>
+        fs.readFile(path.join(migrationsPath, fileName), 'utf-8')
+      )
+    )
+
+    sqlBundle = [
+      '-- GIAPHA-OS: schema + all migrations (idempotent bundle)',
+      '-- Run this entire script once in Supabase SQL Editor.',
+      '',
+      '-- docs/schema.sql',
+      schemaContent,
+      ...migrationContents.flatMap((content, index) => [
+        '',
+        `-- docs/migrations/${migrationFiles[index]}`,
+        content
+      ])
+    ].join('\n')
   } catch (error) {
-    console.error('Error reading schema.sql:', error)
-    schemaContent =
-      '-- Lỗi: Không thể đọc file docs/schema.sql. Vui lòng kiểm tra lại mã nguồn.'
+    console.error('Error reading database SQL bundle:', error)
+    sqlBundle =
+      '-- Lỗi: Không thể đọc bộ SQL khởi tạo database. Vui lòng kiểm tra lại mã nguồn.'
   }
 
   return (
@@ -52,8 +74,10 @@ export default async function SetupPage() {
                 <ol className='list-inside list-decimal space-y-4 text-stone-600'>
                   <li className='leading-relaxed'>
                     Bấm nút{' '}
-                    <strong className='text-indigo-600'>Copy Mã SQL</strong> ở
-                    bên dưới để sao chép toàn bộ cấu trúc cơ sở dữ liệu.
+                    <strong className='text-indigo-600'>
+                      Copy toàn bộ SQL
+                    </strong>{' '}
+                    ở bên dưới; bundle đã gồm schema và tất cả migration.
                   </li>
                   <li className='leading-relaxed'>
                     Mở{' '}
@@ -71,8 +95,8 @@ export default async function SetupPage() {
                     của Supabase.
                   </li>
                   <li className='leading-relaxed'>
-                    Bấm nút <strong>RUN</strong> (Chạy) ở góc phải dưới cùng màn
-                    hình Supabase.
+                    Dán toàn bộ mã vừa copy và bấm nút <strong>RUN</strong> một
+                    lần.
                   </li>
                   <li className='leading-relaxed'>
                     Quay lại đây và <strong>Tải lại trang</strong> (hoặc bấm
@@ -81,7 +105,7 @@ export default async function SetupPage() {
                 </ol>
 
                 <div className='mt-8'>
-                  <CopyButton content={schemaContent} />
+                  <CopyButton content={sqlBundle} />
                 </div>
               </div>
             </div>
@@ -89,12 +113,12 @@ export default async function SetupPage() {
             <div className='col-span-1 flex h-[400px] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#1e1e1e]'>
               <div className='flex items-center justify-between border-b border-stone-800 bg-[#2d2d2d] px-4 py-2'>
                 <span className='font-mono text-sm text-stone-400'>
-                  docs/schema.sql
+                  SQL bundle (schema + migrations)
                 </span>
               </div>
               <div className='custom-scrollbar w-full flex-grow overflow-y-auto p-4'>
                 <pre className='font-mono text-sm leading-relaxed whitespace-pre text-stone-300 sm:text-sm'>
-                  <code>{schemaContent}</code>
+                  <code>{sqlBundle}</code>
                 </pre>
               </div>
             </div>

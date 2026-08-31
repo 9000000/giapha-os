@@ -71,6 +71,125 @@ interface BackupPayload {
   custom_events?: CustomEventExport[]
 }
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const MAX_PERSONS = 10000
+const MAX_RELATIONSHIPS = 30000
+const MAX_PRIVATE_DETAILS = 10000
+const MAX_CUSTOM_EVENTS = 10000
+
+function isShortText(value: unknown, maxLength: number) {
+  return (
+    value === null ||
+    value === undefined ||
+    (typeof value === 'string' && value.length <= maxLength)
+  )
+}
+
+function validateImportPayload(input: unknown): string | null {
+  if (!input || typeof input !== 'object') return 'Dữ liệu không hợp lệ.'
+  const payload = input as Record<string, unknown>
+  const persons = payload.persons
+  const relationships = payload.relationships
+
+  if (!Array.isArray(persons) || !Array.isArray(relationships)) {
+    return 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại file JSON.'
+  }
+  if (persons.length === 0)
+    return 'File backup trống — không có thành viên nào để phục hồi.'
+  if (persons.length > MAX_PERSONS)
+    return `File vượt quá giới hạn ${MAX_PERSONS} thành viên.`
+  if (relationships.length > MAX_RELATIONSHIPS)
+    return `File vượt quá giới hạn ${MAX_RELATIONSHIPS} quan hệ.`
+
+  const personIds = new Set<string>()
+  for (const person of persons) {
+    if (!person || typeof person !== 'object')
+      return 'Có hồ sơ thành viên không hợp lệ.'
+    const row = person as Record<string, unknown>
+    if (typeof row.id !== 'string' || !UUID_PATTERN.test(row.id))
+      return 'ID thành viên không hợp lệ.'
+    if (personIds.has(row.id)) return 'File chứa ID thành viên bị trùng.'
+    personIds.add(row.id)
+    if (
+      typeof row.full_name !== 'string' ||
+      row.full_name.trim().length === 0 ||
+      row.full_name.length > 200
+    ) {
+      return 'Tên thành viên không hợp lệ.'
+    }
+    if (!['male', 'female', 'other'].includes(String(row.gender)))
+      return 'Giới tính không hợp lệ.'
+    for (const field of ['other_names', 'avatar_url', 'note']) {
+      if (!isShortText(row[field], 2000)) return `Trường ${field} quá dài.`
+    }
+  }
+
+  for (const relationship of relationships) {
+    if (!relationship || typeof relationship !== 'object')
+      return 'Có quan hệ không hợp lệ.'
+    const row = relationship as Record<string, unknown>
+    if (
+      typeof row.person_a !== 'string' ||
+      !personIds.has(row.person_a) ||
+      typeof row.person_b !== 'string' ||
+      !personIds.has(row.person_b) ||
+      row.person_a === row.person_b ||
+      !['marriage', 'biological_child', 'adopted_child'].includes(
+        String(row.type)
+      )
+    )
+      return 'Quan hệ chứa dữ liệu không hợp lệ.'
+    if (!isShortText(row.note, 2000)) return 'Ghi chú quan hệ quá dài.'
+  }
+
+  const privateDetails = payload.person_details_private
+  if (privateDetails !== undefined) {
+    if (
+      !Array.isArray(privateDetails) ||
+      privateDetails.length > MAX_PRIVATE_DETAILS
+    ) {
+      return 'Thông tin riêng tư vượt quá giới hạn cho phép.'
+    }
+    for (const detail of privateDetails) {
+      if (!detail || typeof detail !== 'object')
+        return 'Thông tin riêng tư không hợp lệ.'
+      const row = detail as Record<string, unknown>
+      if (typeof row.person_id !== 'string' || !personIds.has(row.person_id))
+        return 'Thông tin riêng tư trỏ tới hồ sơ không hợp lệ.'
+      for (const field of ['phone_number', 'occupation', 'current_residence']) {
+        if (!isShortText(row[field], 500)) return `Trường ${field} quá dài.`
+      }
+    }
+  }
+
+  const customEvents = payload.custom_events
+  if (customEvents !== undefined) {
+    if (
+      !Array.isArray(customEvents) ||
+      customEvents.length > MAX_CUSTOM_EVENTS
+    ) {
+      return 'Số lượng sự kiện vượt quá giới hạn cho phép.'
+    }
+    for (const event of customEvents) {
+      if (!event || typeof event !== 'object') return 'Sự kiện không hợp lệ.'
+      const row = event as Record<string, unknown>
+      if (typeof row.id !== 'string' || !UUID_PATTERN.test(row.id))
+        return 'ID sự kiện không hợp lệ.'
+      if (
+        typeof row.name !== 'string' ||
+        row.name.trim().length === 0 ||
+        row.name.length > 200
+      )
+        return 'Tên sự kiện không hợp lệ.'
+      for (const field of ['content', 'location']) {
+        if (!isShortText(row[field], 2000)) return `Trường ${field} quá dài.`
+      }
+    }
+  }
+  return null
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 // Các field được phép insert vào bảng persons (loại bỏ created_at/updated_at)
@@ -278,15 +397,8 @@ export async function importData(
 
   const supabase = await getSupabase()
 
-  if (!importPayload?.persons || !importPayload?.relationships) {
-    return { error: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại file JSON.' }
-  }
-
-  if (importPayload.persons.length === 0) {
-    return {
-      error: 'File backup trống — không có thành viên nào để phục hồi.'
-    }
-  }
+  const validationError = validateImportPayload(importPayload)
+  if (validationError) return { error: validationError }
 
   // 1. Xoá custom_events
   const { error: delEventsError } = await supabase

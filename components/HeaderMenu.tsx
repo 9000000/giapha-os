@@ -8,6 +8,7 @@ import {
   GitMerge,
   Info,
   Network,
+  RefreshCw,
   UserCircle,
   Users
 } from 'lucide-react'
@@ -114,6 +115,14 @@ export default function HeaderMenu() {
                     className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-rose-50 hover:text-rose-700'>
                     <Users className='size-4' />
                     Quản lý người dùng
+                  </Link>
+
+                  <Link
+                    href='/dashboard/upgrade'
+                    onClick={() => setIsOpen(false)}
+                    className='flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-700'>
+                    <RefreshCw className='size-4' />
+                    Nâng cấp hệ thống
                   </Link>
 
                   <Link

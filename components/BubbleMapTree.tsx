@@ -1,6 +1,7 @@
 'use client'
 
 import { Person, Relationship } from '@/types'
+import { getAvatarUrl } from '@/utils/avatar'
 import { buildAdjacencyLists, getFilteredTreeData } from '@/utils/treeHelpers'
 import * as d3 from 'd3'
 import { Maximize2, Minimize2, Minus, Plus, RotateCcw } from 'lucide-react'
@@ -363,7 +364,7 @@ export default function BubbleMapTree({
               .attr('preserveAspectRatio', 'xMidYMid slice')
               .attr(
                 'href',
-                person.avatar_url ||
+                getAvatarUrl(person.avatar_url) ||
                   (person.gender === 'male'
                     ? `/avatar/${AVATAR_VERSION}/male.svg`
                     : `/avatar/${AVATAR_VERSION}/female.svg`)

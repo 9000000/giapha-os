@@ -38,7 +38,7 @@ export default function CopyButton({ content }: { content: string }) {
         ) : (
           <>
             <ClipboardCopy className='size-5' />
-            Copy Mã SQL
+            Copy toàn bộ SQL
           </>
         )}
       </button>

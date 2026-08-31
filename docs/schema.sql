@@ -186,6 +186,8 @@ AS $$
     WHERE id = auth.uid() AND role = 'admin' AND is_active = true
   );
 $$;
+REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 
 -- Helper function to check if the current user has been approved.
 CREATE OR REPLACE FUNCTION public.is_active_user()
@@ -209,7 +211,7 @@ CREATE OR REPLACE FUNCTION PUBLIC.IS_EDITOR()
 RETURNS BOOLEAN
 LANGUAGE PLPGSQL
 SECURITY DEFINER
-SET SEARCH_PATH = PUBLIC
+SET SEARCH_PATH = ''
 AS $$
 BEGIN
   RETURN EXISTS (
@@ -230,12 +232,16 @@ CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING
 
 -- PERSONS POLICIES
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.persons;
+DROP POLICY IF EXISTS "Active users can view persons" ON public.persons;
 CREATE POLICY "Active users can view persons" ON public.persons FOR SELECT TO authenticated USING (public.is_active_user());
 
 DROP POLICY IF EXISTS "Admins can manage persons" ON public.persons;
 DROP POLICY IF EXISTS "Admins can insert persons" ON public.persons;
 DROP POLICY IF EXISTS "Admins can update persons" ON public.persons;
 DROP POLICY IF EXISTS "Admins can delete persons" ON public.persons;
+DROP POLICY IF EXISTS "Admins and Editors can insert persons" ON public.persons;
+DROP POLICY IF EXISTS "Admins and Editors can update persons" ON public.persons;
+DROP POLICY IF EXISTS "Admins and Editors can delete persons" ON public.persons;
 
 CREATE POLICY "Admins and Editors can insert persons" ON public.persons FOR INSERT TO authenticated WITH CHECK (public.is_admin() OR public.is_editor());
 CREATE POLICY "Admins and Editors can update persons" ON public.persons FOR UPDATE TO authenticated USING (public.is_admin() OR public.is_editor()) WITH CHECK (public.is_admin() OR public.is_editor());
@@ -246,16 +252,20 @@ DROP POLICY IF EXISTS "Admins can view private details" ON public.person_details
 CREATE POLICY "Admins can view private details" ON public.person_details_private FOR SELECT TO authenticated USING (public.is_admin());
 
 DROP POLICY IF EXISTS "Admins can manage private details" ON public.person_details_private;
-CREATE POLICY "Admins can manage private details" ON public.person_details_private FOR ALL TO authenticated USING (public.is_admin());
+CREATE POLICY "Admins can manage private details" ON public.person_details_private FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- RELATIONSHIPS POLICIES
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.relationships;
+DROP POLICY IF EXISTS "Active users can view relationships" ON public.relationships;
 CREATE POLICY "Active users can view relationships" ON public.relationships FOR SELECT TO authenticated USING (public.is_active_user());
 
 DROP POLICY IF EXISTS "Admins can manage relationships" ON public.relationships;
 DROP POLICY IF EXISTS "Admins can insert relationships" ON public.relationships;
 DROP POLICY IF EXISTS "Admins can update relationships" ON public.relationships;
 DROP POLICY IF EXISTS "Admins can delete relationships" ON public.relationships;
+DROP POLICY IF EXISTS "Admins and Editors can insert relationships" ON public.relationships;
+DROP POLICY IF EXISTS "Admins and Editors can update relationships" ON public.relationships;
+DROP POLICY IF EXISTS "Admins and Editors can delete relationships" ON public.relationships;
 
 CREATE POLICY "Admins and Editors can insert relationships" ON public.relationships FOR INSERT TO authenticated WITH CHECK (public.is_admin() OR public.is_editor());
 CREATE POLICY "Admins and Editors can update relationships" ON public.relationships FOR UPDATE TO authenticated USING (public.is_admin() OR public.is_editor()) WITH CHECK (public.is_admin() OR public.is_editor());
@@ -265,15 +275,19 @@ CREATE POLICY "Admins and Editors can delete relationships" ON public.relationsh
 ALTER TABLE public.custom_events ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.custom_events;
+DROP POLICY IF EXISTS "Active users can view custom events" ON public.custom_events;
 CREATE POLICY "Active users can view custom events" ON public.custom_events FOR SELECT TO authenticated USING (public.is_active_user());
 
 DROP POLICY IF EXISTS "Authenticated users can insert custom events" ON public.custom_events;
+DROP POLICY IF EXISTS "Active users can insert custom events" ON public.custom_events;
 CREATE POLICY "Active users can insert custom events" ON public.custom_events FOR INSERT TO authenticated WITH CHECK (public.is_active_user() AND auth.uid() = created_by);
 
 DROP POLICY IF EXISTS "Users can update own custom events" ON public.custom_events;
+DROP POLICY IF EXISTS "Active users can update own custom events" ON public.custom_events;
 CREATE POLICY "Active users can update own custom events" ON public.custom_events FOR UPDATE TO authenticated USING (public.is_active_user() AND (auth.uid() = created_by OR public.is_admin())) WITH CHECK (public.is_active_user() AND (auth.uid() = created_by OR public.is_admin()));
 
 DROP POLICY IF EXISTS "Users can delete own custom events" ON public.custom_events;
+DROP POLICY IF EXISTS "Active users can delete own custom events" ON public.custom_events;
 CREATE POLICY "Active users can delete own custom events" ON public.custom_events FOR DELETE TO authenticated USING (public.is_active_user() AND (auth.uid() = created_by OR public.is_admin()));
 
 -- ==========================================
@@ -305,8 +319,9 @@ AS $$
 DECLARE
   is_first_user boolean;
 BEGIN
-  -- Check if this is the first user (count will be 1 as this is AFTER INSERT)
-  SELECT count(*) = 1 FROM auth.users INTO is_first_user;
+  -- Serialize bootstrap so concurrent signups cannot create two administrators.
+  PERFORM pg_advisory_xact_lock(hashtext('giapha_os_first_user'));
+  SELECT NOT EXISTS (SELECT 1 FROM auth.users WHERE id <> NEW.id) INTO is_first_user;
 
   INSERT INTO public.profiles (id, role, is_active)
   VALUES (
@@ -326,8 +341,9 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = auth
 AS $$
 BEGIN
-  -- If no users exist yet, auto-confirm this first one
-  IF NOT EXISTS (SELECT 1 FROM auth.users) THEN
+  -- Serialize bootstrap so concurrent signups cannot create two administrators.
+  PERFORM pg_advisory_xact_lock(hashtext('giapha_os_first_user'));
+  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id <> NEW.id) THEN
     NEW.email_confirmed_at := NOW();
     NEW.last_sign_in_at := NOW();
   END IF;
@@ -352,21 +368,36 @@ CREATE TRIGGER on_auth_user_created_confirm
 -- ==========================================
 
 -- Initialize 'avatars' bucket
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('avatars', 'avatars', true) 
-ON CONFLICT (id) DO UPDATE SET public = true;
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'avatars', 'avatars', false, 2097152,
+  ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp']::text[]
+)
+ON CONFLICT (id) DO UPDATE SET
+  public = false,
+  file_size_limit = 2097152,
+  allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp']::text[];
 
 DROP POLICY IF EXISTS "Avatar images are publicly accessible." ON storage.objects;
-CREATE POLICY "Avatar images are publicly accessible." ON storage.objects FOR SELECT USING ( bucket_id = 'avatars' );
+DROP POLICY IF EXISTS "Active users can view avatars" ON storage.objects;
+CREATE POLICY "Active users can view avatars" ON storage.objects
+  FOR SELECT TO authenticated USING (bucket_id = 'avatars' AND public.is_active_user());
 
 DROP POLICY IF EXISTS "Users can upload avatars." ON storage.objects;
-CREATE POLICY "Users can upload avatars." ON storage.objects FOR INSERT WITH CHECK ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );
+DROP POLICY IF EXISTS "Admins and editors can upload avatars" ON storage.objects;
+CREATE POLICY "Admins and editors can upload avatars" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'avatars' AND (public.is_admin() OR public.is_editor()));
 
 DROP POLICY IF EXISTS "Users can update avatars." ON storage.objects;
-CREATE POLICY "Users can update avatars." ON storage.objects FOR UPDATE USING ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );
+DROP POLICY IF EXISTS "Admins and editors can update avatars" ON storage.objects;
+CREATE POLICY "Admins and editors can update avatars" ON storage.objects
+  FOR UPDATE TO authenticated USING (bucket_id = 'avatars' AND (public.is_admin() OR public.is_editor()))
+  WITH CHECK (bucket_id = 'avatars' AND (public.is_admin() OR public.is_editor()));
 
 DROP POLICY IF EXISTS "Users can delete avatars." ON storage.objects;
-CREATE POLICY "Users can delete avatars." ON storage.objects FOR DELETE USING ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );
+DROP POLICY IF EXISTS "Admins and editors can delete avatars" ON storage.objects;
+CREATE POLICY "Admins and editors can delete avatars" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'avatars' AND (public.is_admin() OR public.is_editor()));
 
 -- ==========================================
 -- ADMIN RPC FUNCTIONS
@@ -390,7 +421,7 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    IF NOT public.is_admin() THEN
         RAISE EXCEPTION 'Access denied.';
     END IF;
 
@@ -410,8 +441,18 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    IF NOT public.is_admin() THEN
         RAISE EXCEPTION 'Access denied.';
+    END IF;
+
+    IF target_user_id = auth.uid() THEN
+        RAISE EXCEPTION 'Cannot change your own role.';
+    END IF;
+
+    IF new_role::public.user_role_enum <> 'admin'::public.user_role_enum
+       AND (SELECT role FROM public.profiles WHERE id = target_user_id) = 'admin'::public.user_role_enum
+       AND (SELECT count(*) FROM public.profiles WHERE role = 'admin' AND is_active) <= 1 THEN
+        RAISE EXCEPTION 'Cannot remove the last active administrator.';
     END IF;
 
     UPDATE public.profiles
@@ -428,7 +469,7 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    IF NOT public.is_admin() THEN
         RAISE EXCEPTION 'Access denied.';
     END IF;
     
@@ -458,8 +499,15 @@ AS $function$
 DECLARE
     new_id uuid;
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    IF NOT public.is_admin() THEN
         RAISE EXCEPTION 'Access denied.';
+    END IF;
+
+    IF length(trim(new_email)) < 3 OR position('@' IN new_email) < 2 THEN
+        RAISE EXCEPTION 'Invalid email.';
+    END IF;
+    IF length(new_password) < 8 THEN
+        RAISE EXCEPTION 'Password must be at least 8 characters.';
     END IF;
 
     new_id := gen_random_uuid();
@@ -501,8 +549,18 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') THEN
+    IF NOT public.is_admin() THEN
         RAISE EXCEPTION 'Access denied.';
+    END IF;
+
+    IF target_user_id = auth.uid() THEN
+        RAISE EXCEPTION 'Cannot change your own active status.';
+    END IF;
+
+    IF new_status = false
+       AND (SELECT role FROM public.profiles WHERE id = target_user_id) = 'admin'::public.user_role_enum
+       AND (SELECT count(*) FROM public.profiles WHERE role = 'admin' AND is_active) <= 1 THEN
+        RAISE EXCEPTION 'Cannot deactivate the last active administrator.';
     END IF;
 
     UPDATE public.profiles
@@ -511,12 +569,23 @@ BEGIN
 END;
 $$;
 
+REVOKE ALL ON FUNCTION public.get_admin_users() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.set_user_role(uuid, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.delete_user(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.admin_create_user(text, text, text, boolean) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.set_user_active_status(uuid, boolean) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_admin_users() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.set_user_role(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.delete_user(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_create_user(text, text, text, boolean) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.set_user_active_status(uuid, boolean) TO authenticated;
+
 -- ========================================================
 -- 9. GALLERY MODULE
 -- ========================================================
 
 -- Add gallery table
-CREATE TABLE public.gallery_items (
+CREATE TABLE IF NOT EXISTS public.gallery_items (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   title text NOT NULL,
   description text,
@@ -534,39 +603,43 @@ DROP POLICY IF EXISTS "Enable read access for all users" ON public.gallery_items
 DROP POLICY IF EXISTS "Active users can view gallery" ON public.gallery_items;
 CREATE POLICY "Active users can view gallery" ON public.gallery_items FOR SELECT TO authenticated USING (public.is_active_user());
 
--- Policy: User đăng nhập mới được thêm
+-- Policy: chỉ admin quản lý file gallery; member/editor chỉ xem.
 DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.gallery_items;
 DROP POLICY IF EXISTS "Active users can insert gallery" ON public.gallery_items;
-CREATE POLICY "Active users can insert gallery" ON public.gallery_items FOR INSERT TO authenticated WITH CHECK (public.is_active_user() AND auth.uid() = created_by);
+DROP POLICY IF EXISTS "Admins can insert gallery" ON public.gallery_items;
+CREATE POLICY "Admins can insert gallery" ON public.gallery_items FOR INSERT TO authenticated WITH CHECK (public.is_admin() AND auth.uid() = created_by);
 
 -- Policy: Chỉ admin hoặc người tạo mới được sửa
 DROP POLICY IF EXISTS "Enable update for admin and owner" ON public.gallery_items;
 DROP POLICY IF EXISTS "Active users can update gallery" ON public.gallery_items;
-CREATE POLICY "Active users can update gallery" ON public.gallery_items FOR UPDATE TO authenticated USING (
-  public.is_active_user() AND (auth.uid() = created_by OR public.is_admin())
-) WITH CHECK (
-  public.is_active_user() AND (auth.uid() = created_by OR public.is_admin())
-);
+DROP POLICY IF EXISTS "Admins can update gallery" ON public.gallery_items;
+CREATE POLICY "Admins can update gallery" ON public.gallery_items FOR UPDATE TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Policy: Chỉ admin hoặc người tạo mới được xóa
 DROP POLICY IF EXISTS "Enable delete for admin and owner" ON public.gallery_items;
 DROP POLICY IF EXISTS "Active users can delete gallery" ON public.gallery_items;
-CREATE POLICY "Active users can delete gallery" ON public.gallery_items FOR DELETE TO authenticated USING (
-  public.is_active_user() AND (auth.uid() = created_by OR public.is_admin())
-);
+DROP POLICY IF EXISTS "Admins can delete gallery" ON public.gallery_items;
+CREATE POLICY "Admins can delete gallery" ON public.gallery_items FOR DELETE TO authenticated USING (public.is_admin());
 
 -- ========================================================
 -- 10. STORAGE BUCKETS
 -- ========================================================
 
 -- Create storage bucket for gallery
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('gallery', 'gallery', false)
-ON CONFLICT (id) DO UPDATE SET public = false;
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'gallery', 'gallery', false, 10485760,
+  ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp']::text[]
+)
+ON CONFLICT (id) DO UPDATE SET
+  public = false,
+  file_size_limit = 10485760,
+  allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp']::text[];
 
 -- Storage policies
 DROP POLICY IF EXISTS "Public Access" ON storage.objects;
 DROP POLICY IF EXISTS "Active users can view gallery files" ON storage.objects;
+DROP POLICY IF EXISTS "Admins can view gallery files" ON storage.objects;
 CREATE POLICY "Active users can view gallery files"
 ON storage.objects FOR SELECT
 TO authenticated
@@ -574,22 +647,25 @@ USING ( bucket_id = 'gallery' AND public.is_active_user() );
 
 DROP POLICY IF EXISTS "Authenticated users can upload" ON storage.objects;
 DROP POLICY IF EXISTS "Active users can upload gallery files" ON storage.objects;
-CREATE POLICY "Active users can upload gallery files"
+DROP POLICY IF EXISTS "Admins can upload gallery files" ON storage.objects;
+CREATE POLICY "Admins can upload gallery files"
 ON storage.objects FOR INSERT
 TO authenticated
-WITH CHECK ( bucket_id = 'gallery' AND public.is_active_user() );
+WITH CHECK ( bucket_id = 'gallery' AND public.is_admin() );
 
 DROP POLICY IF EXISTS "Admin and owner can update" ON storage.objects;
 DROP POLICY IF EXISTS "Active users can update gallery files" ON storage.objects;
-CREATE POLICY "Active users can update gallery files"
+DROP POLICY IF EXISTS "Admins can update gallery files" ON storage.objects;
+CREATE POLICY "Admins can update gallery files"
 ON storage.objects FOR UPDATE
 TO authenticated
-USING ( bucket_id = 'gallery' AND public.is_active_user() AND (auth.uid() = owner OR public.is_admin()) )
-WITH CHECK ( bucket_id = 'gallery' AND public.is_active_user() AND (auth.uid() = owner OR public.is_admin()) );
+USING ( bucket_id = 'gallery' AND public.is_admin() )
+WITH CHECK ( bucket_id = 'gallery' AND public.is_admin() );
 
 DROP POLICY IF EXISTS "Admin and owner can delete" ON storage.objects;
 DROP POLICY IF EXISTS "Active users can delete gallery files" ON storage.objects;
-CREATE POLICY "Active users can delete gallery files"
+DROP POLICY IF EXISTS "Admins can delete gallery files" ON storage.objects;
+CREATE POLICY "Admins can delete gallery files"
 ON storage.objects FOR DELETE
 TO authenticated
-USING ( bucket_id = 'gallery' AND public.is_active_user() AND (auth.uid() = owner OR public.is_admin()) );
+USING ( bucket_id = 'gallery' AND public.is_admin() );

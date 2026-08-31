@@ -6,8 +6,10 @@ import Link from 'next/link'
 export default async function NewMemberPage() {
   const profile = await getProfile()
 
-  const isAdmin = profile?.role === 'admin'
-  const canEdit = profile?.role === 'admin' || profile?.role === 'editor'
+  const isAdmin = profile?.role === 'admin' && profile.is_active
+  const canEdit =
+    profile?.is_active === true &&
+    (profile.role === 'admin' || profile.role === 'editor')
 
   // If user cannot edit, reject access
   if (!canEdit) {

@@ -107,10 +107,6 @@ export default function LoginPage() {
           }
 
           setError(error.message)
-        } else if (data.user?.identities && data.user.identities.length === 0) {
-          setError(
-            'Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.'
-          )
         } else {
           if (data.session) {
             router.push('/dashboard')

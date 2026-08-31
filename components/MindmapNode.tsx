@@ -1,6 +1,7 @@
 'use client'
 
 import { Person, Relationship } from '@/types'
+import { getAvatarUrl } from '@/utils/avatar'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
@@ -134,10 +135,10 @@ export const MindmapNode = memo(
                       <div className='relative shrink-0'>
                         <div
                           className={`flex size-10 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-md ring-2 ring-white transition-transform duration-300 group-hover/card:scale-105 ${getAvatarBg(data.person.gender)}`}>
-                          {data.person.avatar_url ? (
+                          {getAvatarUrl(data.person.avatar_url) ? (
                             <Image
                               unoptimized
-                              src={data.person.avatar_url}
+                              src={getAvatarUrl(data.person.avatar_url)!}
                               alt={data.person.full_name}
                               width={40}
                               height={40}
@@ -219,10 +220,12 @@ export const MindmapNode = memo(
                             {ctx.showAvatar && (
                               <div
                                 className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-sm ring-2 ring-white transition-transform duration-300 group-hover/spouse:scale-105 ${getAvatarBg(spouseData.person.gender)}`}>
-                                {spouseData.person.avatar_url ? (
+                                {getAvatarUrl(spouseData.person.avatar_url) ? (
                                   <Image
                                     unoptimized
-                                    src={spouseData.person.avatar_url}
+                                    src={getAvatarUrl(
+                                      spouseData.person.avatar_url
+                                    )!}
                                     alt={spouseData.person.full_name}
                                     width={32}
                                     height={32}

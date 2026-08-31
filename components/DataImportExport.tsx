@@ -116,6 +116,13 @@ export default function DataImportExport() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      if (file.size > 25 * 1024 * 1024) {
+        setImportStatus({
+          type: 'error',
+          message: 'File phục hồi không được vượt quá 25MB.'
+        })
+        return
+      }
       const fileName = file.name.toLowerCase()
       if (fileName.endsWith('.csv')) {
         setImportStatus({

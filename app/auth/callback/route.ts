@@ -38,8 +38,7 @@ export async function GET(request: Request) {
       if (profile?.role === 'member' && !profile.is_active) {
         await notifyAdminOfPendingUser({
           id: user.id,
-          email: user.email,
-          origin: requestUrl.origin
+          email: user.email
         })
       }
     }

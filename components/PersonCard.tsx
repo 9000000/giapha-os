@@ -1,6 +1,7 @@
 'use client'
 
 import { Person } from '@/types'
+import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
 import Image from 'next/image'
 import { useMemberListView } from '@/context/MemberListContext'
@@ -35,10 +36,10 @@ export default function PersonCard({ person }: PersonCardProps) {
         <div className='relative'>
           <div
             className={`flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-medium text-white shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105 sm:size-16 ${getAvatarBg(person.gender)}`}>
-            {person.avatar_url ? (
+            {getAvatarUrl(person.avatar_url) ? (
               <Image
                 unoptimized
-                src={person.avatar_url}
+                src={getAvatarUrl(person.avatar_url)!}
                 alt={person.full_name}
                 width={32}
                 height={32}

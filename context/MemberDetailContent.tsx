@@ -3,6 +3,7 @@
 import DefaultAvatar from '@/components/DefaultAvatar'
 import RelationshipManager from '@/components/RelationshipManager'
 import { Person } from '@/types'
+import { getAvatarUrl } from '@/utils/avatar'
 import {
   calculateAge,
   formatDisplayDate,
@@ -122,10 +123,10 @@ export default function MemberDetailContent({
                   ? 'bg-linear-to-br from-rose-400 to-rose-700'
                   : 'bg-linear-to-br from-stone-400 to-stone-600'
             }`}>
-            {person.avatar_url ? (
+            {getAvatarUrl(person.avatar_url) ? (
               <Image
                 unoptimized
-                src={person.avatar_url}
+                src={getAvatarUrl(person.avatar_url)!}
                 alt={person.full_name}
                 width={128}
                 height={128}

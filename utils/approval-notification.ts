@@ -8,7 +8,6 @@ import { getAdminSupabase } from '@/utils/supabase/admin'
 interface PendingUser {
   id: string
   email: string
-  origin: string
 }
 
 interface NotificationResult {
@@ -64,12 +63,27 @@ async function getAdminEmails(supabase: ReturnType<typeof getAdminSupabase>) {
 
 export async function notifyAdminOfPendingUser({
   id,
-  email,
-  origin
+  email
 }: PendingUser): Promise<NotificationResult> {
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.RESEND_FROM_EMAIL
-  const appUrl = process.env.APP_URL || origin
+  // Never derive an approval URL from the request Host header. APP_URL must be
+  // an explicitly configured trusted origin to prevent poisoned email links.
+  const configuredAppUrl = process.env.APP_URL?.trim()
+  let appUrl: string | null = null
+  if (configuredAppUrl) {
+    try {
+      const parsedAppUrl = new URL(configuredAppUrl)
+      if (
+        parsedAppUrl.protocol === 'https:' ||
+        parsedAppUrl.protocol === 'http:'
+      ) {
+        appUrl = parsedAppUrl.origin
+      }
+    } catch {
+      appUrl = null
+    }
+  }
 
   if (!apiKey || !from || !appUrl) {
     console.warn(
@@ -141,7 +155,7 @@ export async function notifyAdminOfPendingUser({
     return { sent: false, configured: true, reason: 'database_insert_failed' }
   }
 
-  const approveUrl = `${appUrl.replace(/\/$/, '')}/api/admin/approve/${token}`
+  const approveUrl = `${appUrl}/api/admin/approve/${token}`
   const safeEmail = escapeHtml(email)
   const subject = `Có tài khoản mới đang chờ duyệt: ${email}`
   const html = `
@@ -150,7 +164,7 @@ export async function notifyAdminOfPendingUser({
       <p>Có người dùng vừa xác nhận email và đang chờ được duyệt để truy cập dữ liệu gia phả:</p>
       <p><strong>${safeEmail}</strong></p>
       <p>
-        <a href="${approveUrl}" style="display:inline-block;background:#d97706;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none">
+        <a href="${escapeHtml(approveUrl)}" style="display:inline-block;background:#d97706;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none">
           Xem và duyệt tài khoản
         </a>
       </p>

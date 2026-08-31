@@ -4,11 +4,21 @@ import { getProfile, getSupabase } from '@/utils/supabase/queries'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 export async function deleteMemberProfile(memberId: string) {
+  if (!UUID_PATTERN.test(memberId)) {
+    return { error: 'Hồ sơ không hợp lệ.' }
+  }
+
   const profile = await getProfile()
   const supabase = await getSupabase()
 
-  if (profile?.role !== 'admin' && profile?.role !== 'editor') {
+  if (
+    !profile?.is_active ||
+    (profile.role !== 'admin' && profile.role !== 'editor')
+  ) {
     return {
       error: 'Từ chối truy cập. Chỉ Admin hoặc Editor mới có quyền xoá hồ sơ.'
     }
@@ -53,12 +63,27 @@ export async function updateDescendantGenerationsAction(
   personId: string,
   generationDelta: number
 ) {
-  if (generationDelta === 0) return { success: true }
+  if (!UUID_PATTERN.test(personId)) {
+    return { error: 'Hồ sơ không hợp lệ.' }
+  }
+
+  if (
+    generationDelta === 0 ||
+    !Number.isInteger(generationDelta) ||
+    Math.abs(generationDelta) > 100
+  ) {
+    return generationDelta === 0
+      ? { success: true }
+      : { error: 'Giá trị thay đổi thế hệ không hợp lệ.' }
+  }
 
   const profile = await getProfile()
   const supabase = await getSupabase()
 
-  if (profile?.role !== 'admin' && profile?.role !== 'editor') {
+  if (
+    !profile?.is_active ||
+    (profile.role !== 'admin' && profile.role !== 'editor')
+  ) {
     return {
       error: 'Từ chối truy cập. Chỉ Admin hoặc Editor mới có quyền chỉnh sửa.'
     }

@@ -5,6 +5,7 @@ import {
   useMemberListView
 } from '@/context/MemberListContext'
 import { Person, RelationshipType } from '@/types'
+import { getAvatarUrl } from '@/utils/avatar'
 import { formatDisplayDate } from '@/utils/dateHelpers'
 import { getAvatarBg } from '@/utils/styleHelprs'
 import { createClient } from '@/utils/supabase/client'
@@ -677,10 +678,10 @@ export default function RelationshipManager({
                       className='-mx-2.5 flex flex-1 items-center gap-3 rounded-xl p-2.5 text-left transition-all duration-200 hover:bg-stone-100'>
                       <div
                         className={`flex size-8 items-center justify-center overflow-hidden rounded-full text-sm text-white ${getAvatarBg(rel.targetPerson.gender)}`}>
-                        {rel.targetPerson.avatar_url ? (
+                        {getAvatarUrl(rel.targetPerson.avatar_url) ? (
                           <Image
                             unoptimized
-                            src={rel.targetPerson.avatar_url}
+                            src={getAvatarUrl(rel.targetPerson.avatar_url)!}
                             alt={rel.targetPerson.full_name}
                             className='h-full w-full object-cover'
                             width={32}

@@ -15,7 +15,9 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   const initialShowAvatar = avatar !== 'hide'
 
   const profile = await getProfile()
-  const canEdit = profile?.role === 'admin' || profile?.role === 'editor'
+  const canEdit =
+    profile?.is_active === true &&
+    (profile.role === 'admin' || profile.role === 'editor')
 
   // If view is list, we only need persons, not relationships.
   // We fetch persons for all views to pass down as a prop if we want, or let components fetch.

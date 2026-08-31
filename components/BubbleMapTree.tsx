@@ -3,6 +3,7 @@
 import { Person, Relationship } from '@/types'
 import { buildAdjacencyLists, getFilteredTreeData } from '@/utils/treeHelpers'
 import * as d3 from 'd3'
+import { Maximize2, Minimize2, Minus, Plus, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AVATAR_VERSION } from './DefaultAvatar'
 
@@ -34,8 +35,13 @@ export default function BubbleMapTree({
   roots
 }: BubbleMapTreeProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const fullscreenRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
   const [error, setError] = useState<Error | null>(null)
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+  const [zoomLevel, setZoomLevel] = useState(1)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   // const { showAvatar } = useMemberListView();
 
   const adj = useMemo(
@@ -107,6 +113,58 @@ export default function BubbleMapTree({
     return { nodes: Array.from(nodeMap.values()), links: linkArray }
   }, [roots, personsMap, adj])
 
+  const effectiveSelectedNodeId =
+    selectedNodeId && nodes.some((node) => node.id === selectedNodeId)
+      ? selectedNodeId
+      : null
+
+  // Resolve descendants from the raw relationships. D3 mutates link
+  // endpoints into GraphNode objects once the simulation starts.
+  const highlightedNodeIds = useMemo(() => {
+    if (!effectiveSelectedNodeId) return null
+
+    const childrenByParent = new Map<string, string[]>()
+    relationships.forEach((relationship) => {
+      if (
+        relationship.type !== 'biological_child' &&
+        relationship.type !== 'adopted_child'
+      ) {
+        return
+      }
+
+      const children = childrenByParent.get(relationship.person_a) || []
+      children.push(relationship.person_b)
+      childrenByParent.set(relationship.person_a, children)
+    })
+
+    const descendantIds = new Set<string>([effectiveSelectedNodeId])
+    const queue = [effectiveSelectedNodeId]
+
+    while (queue.length > 0) {
+      const parentId = queue.shift()!
+      const children = childrenByParent.get(parentId) || []
+
+      children.forEach((childId) => {
+        if (!descendantIds.has(childId)) {
+          descendantIds.add(childId)
+          queue.push(childId)
+        }
+      })
+    }
+
+    return descendantIds
+  }, [effectiveSelectedNodeId, relationships])
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === fullscreenRef.current)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () =>
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
+
   useEffect(() => {
     if (!svgRef.current || !containerRef.current) return
 
@@ -157,12 +215,20 @@ export default function BubbleMapTree({
         .scaleExtent([0.1, 4])
         .on('zoom', (event) => {
           g.attr('transform', event.transform)
+          setZoomLevel(event.transform.k)
         })
+      zoomRef.current = zoom
       svg.call(
         zoom as unknown as (
           selection: d3.Selection<SVGSVGElement, unknown, null, undefined>
         ) => void
       )
+
+      svg.on('click', (event) => {
+        if (event.target === svgRef.current) {
+          setSelectedNodeId(null)
+        }
+      })
 
       // Initial center transform
       svg.call(
@@ -202,6 +268,7 @@ export default function BubbleMapTree({
         .selectAll('line')
         .data(links)
         .join('line')
+        .attr('class', 'bubble-link')
         .attr('stroke', '#d6d3d1')
         .attr('stroke-width', 2)
 
@@ -211,6 +278,17 @@ export default function BubbleMapTree({
         .selectAll('g')
         .data(nodes)
         .join('g')
+        .attr('class', 'bubble-node')
+        .style('cursor', 'pointer')
+        .on('click', (event, d) => {
+          if (event.defaultPrevented) return
+
+          if (d.x != null && d.y != null) {
+            svg.transition().duration(450).call(zoom.translateTo, d.x, d.y)
+          }
+
+          setSelectedNodeId((currentId) => (currentId === d.id ? null : d.id))
+        })
         .call(
           d3
             .drag<SVGGElement, GraphNode>()
@@ -319,6 +397,7 @@ export default function BubbleMapTree({
 
       return () => {
         simulation.stop()
+        zoomRef.current = null
       }
     } catch (err) {
       console.error('D3 rendering error:', err)
@@ -326,7 +405,110 @@ export default function BubbleMapTree({
         err instanceof Error ? err : new Error('Unknown error')
       requestAnimationFrame(() => setError(errorToDisplay))
     }
-  }, [nodes, links])
+  }, [isFullscreen, nodes, links])
+
+  // Update visual emphasis without rebuilding the force simulation.
+  useEffect(() => {
+    if (!svgRef.current) return
+
+    const getNodeId = (endpoint: string | GraphNode) =>
+      typeof endpoint === 'string' ? endpoint : endpoint.id
+
+    const svg = d3.select(svgRef.current)
+    const nodeSelection = svg.selectAll<SVGGElement, GraphNode>('.bubble-node')
+    const linkSelection = svg.selectAll<SVGLineElement, GraphLink>(
+      '.bubble-link'
+    )
+
+    nodeSelection
+      .transition()
+      .duration(250)
+      .style('opacity', (node) =>
+        highlightedNodeIds && !highlightedNodeIds.has(node.id) ? 0.16 : 1
+      )
+
+    nodeSelection
+      .select<SVGRectElement>('rect')
+      .transition()
+      .duration(250)
+      .attr('fill', (node) =>
+        effectiveSelectedNodeId === node.id ? '#fffbeb' : 'white'
+      )
+      .attr('stroke', (node) => {
+        if (effectiveSelectedNodeId === node.id) return '#d97706'
+        return node.people[0].gender === 'male' ? '#3b82f6' : '#ec4899'
+      })
+      .attr('stroke-width', (node) => {
+        if (effectiveSelectedNodeId === node.id) return node.isRoot ? 6 : 4
+        return node.isRoot ? 4 : 2
+      })
+
+    linkSelection
+      .transition()
+      .duration(250)
+      .attr('stroke-opacity', (link) => {
+        if (!highlightedNodeIds) return 0.6
+
+        const sourceId = getNodeId(link.source as string | GraphNode)
+        const targetId = getNodeId(link.target as string | GraphNode)
+        const isHighlighted =
+          highlightedNodeIds.has(sourceId) && highlightedNodeIds.has(targetId)
+
+        return isHighlighted ? 0.9 : 0.08
+      })
+      .attr('stroke', (link) => {
+        if (!highlightedNodeIds) return '#d6d3d1'
+
+        const sourceId = getNodeId(link.source as string | GraphNode)
+        const targetId = getNodeId(link.target as string | GraphNode)
+        const isHighlighted =
+          highlightedNodeIds.has(sourceId) && highlightedNodeIds.has(targetId)
+
+        return isHighlighted ? '#d97706' : '#d6d3d1'
+      })
+      .attr('stroke-width', (link) => {
+        if (!highlightedNodeIds) return 2
+
+        const sourceId = getNodeId(link.source as string | GraphNode)
+        const targetId = getNodeId(link.target as string | GraphNode)
+        const isHighlighted =
+          highlightedNodeIds.has(sourceId) && highlightedNodeIds.has(targetId)
+
+        return isHighlighted ? 3 : 2
+      })
+  }, [effectiveSelectedNodeId, highlightedNodeIds])
+
+  const changeZoom = (nextLevel: number) => {
+    if (!svgRef.current || !zoomRef.current) return
+
+    d3.select(svgRef.current)
+      .transition()
+      .duration(180)
+      .call(zoomRef.current.scaleTo, nextLevel)
+  }
+
+  const resetZoom = () => {
+    if (!svgRef.current || !zoomRef.current) return
+
+    d3.select(svgRef.current)
+      .transition()
+      .duration(220)
+      .call(zoomRef.current.transform, d3.zoomIdentity)
+  }
+
+  const toggleFullscreen = async () => {
+    if (!fullscreenRef.current) return
+
+    try {
+      if (document.fullscreenElement === fullscreenRef.current) {
+        await document.exitFullscreen()
+      } else if (!document.fullscreenElement) {
+        await fullscreenRef.current.requestFullscreen()
+      }
+    } catch (fullscreenError) {
+      console.error('Fullscreen error:', fullscreenError)
+    }
+  }
 
   if (error) {
     return (
@@ -340,10 +522,72 @@ export default function BubbleMapTree({
   }
 
   return (
-    <div className='absolute inset-0 overflow-hidden rounded-2xl border border-stone-200/60 bg-stone-50 shadow-inner'>
+    <div
+      ref={fullscreenRef}
+      className={`absolute inset-0 overflow-hidden bg-stone-50 shadow-inner ${
+        isFullscreen
+          ? 'rounded-none border-0'
+          : 'rounded-2xl border border-stone-200/60'
+      }`}>
       <div
         id='tree-toolbar-portal'
         className='absolute top-4 left-4 z-50'></div>
+
+      <div className='absolute top-4 right-4 z-50 flex items-center gap-1 rounded-xl border border-stone-200/70 bg-white/85 p-1.5 shadow-sm backdrop-blur-md'>
+        <button
+          type='button'
+          onClick={() => changeZoom(Math.max(0.1, zoomLevel - 0.1))}
+          className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
+          aria-label='Thu nhỏ sơ đồ'
+          title='Thu nhỏ'>
+          <Minus className='size-4' />
+        </button>
+        <input
+          type='range'
+          min='0.1'
+          max='4'
+          step='0.1'
+          value={zoomLevel}
+          onChange={(event) => changeZoom(Number(event.currentTarget.value))}
+          className='h-1.5 w-20 cursor-pointer accent-amber-600 sm:w-28'
+          aria-label='Mức phóng to sơ đồ'
+          title='Mức phóng to'
+        />
+        <span className='w-10 text-center text-[11px] font-semibold text-stone-500 tabular-nums'>
+          {Math.round(zoomLevel * 100)}%
+        </span>
+        <button
+          type='button'
+          onClick={() => changeZoom(Math.min(4, zoomLevel + 0.1))}
+          className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
+          aria-label='Phóng to sơ đồ'
+          title='Phóng to'>
+          <Plus className='size-4' />
+        </button>
+        <div className='mx-0.5 h-5 w-px bg-stone-200' aria-hidden='true' />
+        <button
+          type='button'
+          onClick={resetZoom}
+          className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
+          aria-label='Đặt lại mức zoom'
+          title='Đặt lại zoom'>
+          <RotateCcw className='size-4' />
+        </button>
+        <div className='mx-0.5 h-5 w-px bg-stone-200' aria-hidden='true' />
+        <button
+          type='button'
+          onClick={toggleFullscreen}
+          className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
+          aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+          aria-pressed={isFullscreen}
+          title={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}>
+          {isFullscreen ? (
+            <Minimize2 className='size-4' />
+          ) : (
+            <Maximize2 className='size-4' />
+          )}
+        </button>
+      </div>
 
       <div ref={containerRef} className='h-full w-full'>
         <svg ref={svgRef} className='block h-full w-full' />

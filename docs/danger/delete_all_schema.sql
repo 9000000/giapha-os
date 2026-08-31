@@ -15,6 +15,7 @@ DROP TRIGGER IF EXISTS on_auth_user_created_confirm ON auth.users CASCADE;
 DROP TABLE IF EXISTS public.relationships CASCADE;
 DROP TABLE IF EXISTS public.person_details_private CASCADE;
 DROP TABLE IF EXISTS public.persons CASCADE;
+DROP TABLE IF EXISTS public.user_approval_requests CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
 
 -- 3. DROP FUNCTIONS

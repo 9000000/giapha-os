@@ -79,7 +79,7 @@ Chỉ cần khoảng 10 -> 15 phút là bạn có thể tự dựng hệ thống
 
 ## Cách 1: Deploy nhanh lên Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhomielab%2Fgiapha-os&env=SITE_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,NEXT_PUBLIC_DISABLE_SSO)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhomielab%2Fgiapha-os&env=SITE_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,NEXT_PUBLIC_DISABLE_SSO,APP_URL,SUPABASE_SERVICE_ROLE_KEY,RESEND_API_KEY,RESEND_FROM_EMAIL,ADMIN_NOTIFICATION_EMAIL)
 
 1. Tạo tài khoản miễn phí tại https://vercel.com nếu chưa có (khuyên dùng đăng ký bằng tài khoản GitHub cho nhanh).
 2. Nhấn nút Deploy bên trên.
@@ -87,11 +87,16 @@ Chỉ cần khoảng 10 -> 15 phút là bạn có thể tự dựng hệ thống
    - `NEXT_PUBLIC_SUPABASE_URL` = `Project URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` = `Project API Keys`
    - `NEXT_PUBLIC_DISABLE_SSO` = `false` để bật SSO; đặt `true` để ẩn SSO khi chưa cấu hình
+   - `APP_URL` = URL public của ứng dụng, ví dụ `https://giapha-os.vercel.app`
+   - `SUPABASE_SERVICE_ROLE_KEY` = service role key trong **Project Settings → API** (chỉ lưu ở Vercel server environment)
+   - `RESEND_API_KEY` = API key của [Resend](https://resend.com)
+   - `RESEND_FROM_EMAIL` = địa chỉ gửi đã xác minh domain trên Resend, ví dụ `Gia Phả OS <no-reply@your-domain.com>`
+   - `ADMIN_NOTIFICATION_EMAIL` = tuỳ chọn; email nhận thông báo. Nếu bỏ trống, hệ thống tự gửi tới email của các admin đang hoạt động
 4. Nhấn **Deploy** và chờ 2 -> 3 phút.
 
 Bạn sẽ có một đường link website để sử dụng ngay.
 
-> **Nếu đang nâng cấp hệ thống đã có dữ liệu:** hãy mở Supabase Dashboard → SQL Editor và chạy file [`docs/migrations/20260831_fix_member_access.sql`](docs/migrations/20260831_fix_member_access.sql). Migration sẽ khóa các tài khoản `member` hiện có để chờ admin duyệt lại, đồng thời giới hạn RLS theo trạng thái `is_active`.
+> **Nếu đang nâng cấp hệ thống đã có dữ liệu:** hãy mở Supabase Dashboard → SQL Editor và chạy file [`docs/migrations/20260831_fix_member_access.sql`](docs/migrations/20260831_fix_member_access.sql) để giới hạn RLS theo trạng thái `is_active`, sau đó chạy [`docs/migrations/20260831_user_approval_notifications.sql`](docs/migrations/20260831_user_approval_notifications.sql) để bắt buộc tài khoản mới chờ duyệt và tạo bảng token duyệt qua email. Migration đầu tiên sẽ khóa các tài khoản `member` hiện có; admin có thể duyệt lại trong mục Quản lý người dùng.
 
 ---
 
@@ -129,6 +134,12 @@ Mở trình duyệt và truy cập: `http://localhost:3000`
 - Đăng ký tài khoản mới khi vào web lần đầu.
 - Người đăng ký đầu tiên sẽ tự động có quyền **admin**.
 - Các tài khoản đăng ký sau sẽ mặc định là **member** và ở trạng thái **chờ admin duyệt**.
+
+### Thông báo và duyệt tài khoản mới
+
+Sau khi người dùng xác nhận email, tài khoản vẫn giữ trạng thái **chờ duyệt**. Hệ thống gửi email cho admin kèm liên kết duyệt một lần, có hiệu lực 7 ngày. Admin cũng có thể đăng nhập ứng dụng và duyệt tại **Quản lý người dùng**.
+
+Để bật email thông báo trên Vercel, khai báo `APP_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY` và `RESEND_FROM_EMAIL`. `ADMIN_NOTIFICATION_EMAIL` là tuỳ chọn; nếu không khai báo, hệ thống sẽ tự lấy email từ các tài khoản admin đang hoạt động. Service role key là secret, không được đặt tên với tiền tố `NEXT_PUBLIC_`.
 
 ## Xử lý lỗi khi đăng ký
 

@@ -53,6 +53,19 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- One-time approval links sent to the administrator.
+-- The raw token is never stored in the database.
+CREATE TABLE IF NOT EXISTS public.user_approval_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  email TEXT NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  notified_at TIMESTAMPTZ,
+  used_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
 -- PERSONS (Core entity for family tree)
 CREATE TABLE IF NOT EXISTS public.persons (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -142,6 +155,9 @@ CREATE INDEX IF NOT EXISTS idx_persons_birth_year ON public.persons(birth_year);
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
 CREATE INDEX IF NOT EXISTS idx_profiles_is_active ON public.profiles(is_active);
 
+CREATE INDEX IF NOT EXISTS idx_user_approval_requests_expires_at
+  ON public.user_approval_requests(expires_at);
+
 -- Custom events lookups
 CREATE INDEX IF NOT EXISTS idx_custom_events_date ON public.custom_events(event_date);
 CREATE INDEX IF NOT EXISTS idx_custom_events_created_by ON public.custom_events(created_by);
@@ -151,6 +167,7 @@ CREATE INDEX IF NOT EXISTS idx_custom_events_created_by ON public.custom_events(
 -- ==========================================
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_approval_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.persons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.person_details_private ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.relationships ENABLE ROW LEVEL SECURITY;
@@ -295,7 +312,7 @@ BEGIN
   VALUES (
     new.id, 
     CASE WHEN is_first_user THEN 'admin'::public.user_role_enum ELSE 'member'::public.user_role_enum END,
-    is_first_user
+    CASE WHEN is_first_user THEN true ELSE false END
   );
 
   RETURN new;

@@ -12,11 +12,13 @@ import {
   X
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 
 export default function ExportButton() {
   const [isExporting, setIsExporting] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useI18n()
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export default function ExportButton() {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       const element = document.getElementById('export-container')
-      if (!element) throw new Error('Không tìm thấy vùng dữ liệu để xuất.')
+      if (!element) throw new Error(t('exportError'))
 
       element.classList.add('exporting')
 
@@ -85,7 +87,7 @@ export default function ExportButton() {
       }
     } catch (err) {
       console.error('Export error:', err)
-      setError('Đã xảy ra lỗi khi xuất file. Vui lòng thử lại.')
+      setError(t('exportError'))
       setTimeout(() => setError(null), 5000)
     } finally {
       const element = document.getElementById('export-container')
@@ -112,7 +114,7 @@ export default function ExportButton() {
           <Download className='size-4 shrink-0' />
         )}
         <span className='hidden min-w-max sm:inline'>
-          {isExporting ? 'Đang xuất...' : 'Xuất file'}
+          {isExporting ? t('exporting') : t('exportFile')}
         </span>
       </button>
 
@@ -128,13 +130,13 @@ export default function ExportButton() {
               onClick={() => handleExport('png')}
               className='flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-700'>
               <FileImage className='size-4' />
-              Lưu thành Ảnh (PNG)
+              {t('saveAsImage')}
             </button>
             <button
               onClick={() => handleExport('pdf')}
               className='flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-700'>
               <FileText className='size-4' />
-              Lưu thành PDF
+              {t('saveAsPdf')}
             </button>
           </motion.div>
         )}

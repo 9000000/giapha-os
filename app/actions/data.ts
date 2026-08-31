@@ -1,5 +1,7 @@
 'use server'
 
+import { getServerTranslations } from '@/lib/i18n/server'
+import type { TranslationKey, TranslationValues } from '@/lib/i18n/messages'
 import { Relationship } from '@/types'
 import { getIsAdmin, getSupabase } from '@/utils/supabase/queries'
 import { revalidatePath } from 'next/cache'
@@ -86,48 +88,48 @@ function isShortText(value: unknown, maxLength: number) {
   )
 }
 
-function validateImportPayload(input: unknown): string | null {
-  if (!input || typeof input !== 'object') return 'Dữ liệu không hợp lệ.'
+type Translator = (key: TranslationKey, values?: TranslationValues) => string
+
+function validateImportPayload(input: unknown, t: Translator): string | null {
+  if (!input || typeof input !== 'object') return t('invalidData')
   const payload = input as Record<string, unknown>
   const persons = payload.persons
   const relationships = payload.relationships
 
   if (!Array.isArray(persons) || !Array.isArray(relationships)) {
-    return 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại file JSON.'
+    return t('invalidDataStructure')
   }
-  if (persons.length === 0)
-    return 'File backup trống — không có thành viên nào để phục hồi.'
+  if (persons.length === 0) return t('emptyBackup')
   if (persons.length > MAX_PERSONS)
-    return `File vượt quá giới hạn ${MAX_PERSONS} thành viên.`
+    return t('tooManyPersons', { count: MAX_PERSONS })
   if (relationships.length > MAX_RELATIONSHIPS)
-    return `File vượt quá giới hạn ${MAX_RELATIONSHIPS} quan hệ.`
+    return t('tooManyRelationships', { count: MAX_RELATIONSHIPS })
 
   const personIds = new Set<string>()
   for (const person of persons) {
-    if (!person || typeof person !== 'object')
-      return 'Có hồ sơ thành viên không hợp lệ.'
+    if (!person || typeof person !== 'object') return t('invalidPersonRecord')
     const row = person as Record<string, unknown>
     if (typeof row.id !== 'string' || !UUID_PATTERN.test(row.id))
-      return 'ID thành viên không hợp lệ.'
-    if (personIds.has(row.id)) return 'File chứa ID thành viên bị trùng.'
+      return t('invalidPersonId')
+    if (personIds.has(row.id)) return t('duplicatePersonId')
     personIds.add(row.id)
     if (
       typeof row.full_name !== 'string' ||
       row.full_name.trim().length === 0 ||
       row.full_name.length > 200
     ) {
-      return 'Tên thành viên không hợp lệ.'
+      return t('invalidPersonName')
     }
     if (!['male', 'female', 'other'].includes(String(row.gender)))
-      return 'Giới tính không hợp lệ.'
+      return t('invalidGender')
     for (const field of ['other_names', 'avatar_url', 'note']) {
-      if (!isShortText(row[field], 2000)) return `Trường ${field} quá dài.`
+      if (!isShortText(row[field], 2000)) return t('fieldTooLong', { field })
     }
   }
 
   for (const relationship of relationships) {
     if (!relationship || typeof relationship !== 'object')
-      return 'Có quan hệ không hợp lệ.'
+      return t('invalidRelationship')
     const row = relationship as Record<string, unknown>
     if (
       typeof row.person_a !== 'string' ||
@@ -139,8 +141,8 @@ function validateImportPayload(input: unknown): string | null {
         String(row.type)
       )
     )
-      return 'Quan hệ chứa dữ liệu không hợp lệ.'
-    if (!isShortText(row.note, 2000)) return 'Ghi chú quan hệ quá dài.'
+      return t('invalidRelationshipData')
+    if (!isShortText(row.note, 2000)) return t('relationshipNoteTooLong')
   }
 
   const privateDetails = payload.person_details_private
@@ -149,16 +151,16 @@ function validateImportPayload(input: unknown): string | null {
       !Array.isArray(privateDetails) ||
       privateDetails.length > MAX_PRIVATE_DETAILS
     ) {
-      return 'Thông tin riêng tư vượt quá giới hạn cho phép.'
+      return t('privateDetailsLimit')
     }
     for (const detail of privateDetails) {
       if (!detail || typeof detail !== 'object')
-        return 'Thông tin riêng tư không hợp lệ.'
+        return t('invalidPrivateDetails')
       const row = detail as Record<string, unknown>
       if (typeof row.person_id !== 'string' || !personIds.has(row.person_id))
-        return 'Thông tin riêng tư trỏ tới hồ sơ không hợp lệ.'
+        return t('invalidPrivateDetailsPerson')
       for (const field of ['phone_number', 'occupation', 'current_residence']) {
-        if (!isShortText(row[field], 500)) return `Trường ${field} quá dài.`
+        if (!isShortText(row[field], 500)) return t('fieldTooLong', { field })
       }
     }
   }
@@ -169,21 +171,21 @@ function validateImportPayload(input: unknown): string | null {
       !Array.isArray(customEvents) ||
       customEvents.length > MAX_CUSTOM_EVENTS
     ) {
-      return 'Số lượng sự kiện vượt quá giới hạn cho phép.'
+      return t('eventsLimit')
     }
     for (const event of customEvents) {
-      if (!event || typeof event !== 'object') return 'Sự kiện không hợp lệ.'
+      if (!event || typeof event !== 'object') return t('invalidEvent')
       const row = event as Record<string, unknown>
       if (typeof row.id !== 'string' || !UUID_PATTERN.test(row.id))
-        return 'ID sự kiện không hợp lệ.'
+        return t('invalidEventId')
       if (
         typeof row.name !== 'string' ||
         row.name.trim().length === 0 ||
         row.name.length > 200
       )
-        return 'Tên sự kiện không hợp lệ.'
+        return t('invalidEventName')
       for (const field of ['content', 'location']) {
-        if (!isShortText(row[field], 2000)) return `Trường ${field} quá dài.`
+        if (!isShortText(row[field], 2000)) return t('fieldTooLong', { field })
       }
     }
   }
@@ -247,9 +249,10 @@ function sanitizeCustomEvent(
 export async function exportData(
   exportRootId?: string
 ): Promise<BackupPayload | { error: string }> {
+  const { t } = await getServerTranslations()
   const isAdmin = await getIsAdmin()
   if (!isAdmin) {
-    return { error: 'Từ chối truy cập. Chỉ admin mới có quyền này.' }
+    return { error: t('dataAccessDenied') }
   }
 
   const supabase = await getSupabase()
@@ -307,7 +310,7 @@ export async function exportData(
     )
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error)
-    return { error: 'Lỗi tải dữ liệu: ' + message }
+    return { error: t('loadDataError', { error: message }) }
   }
 
   let exportPersons = allPersons
@@ -390,14 +393,15 @@ export async function importData(
         custom_events?: CustomEventExport[]
       }
 ) {
+  const { t } = await getServerTranslations()
   const isAdmin = await getIsAdmin()
   if (!isAdmin) {
-    return { error: 'Từ chối truy cập. Chỉ admin mới có quyền này.' }
+    return { error: t('dataAccessDenied') }
   }
 
   const supabase = await getSupabase()
 
-  const validationError = validateImportPayload(importPayload)
+  const validationError = validateImportPayload(importPayload, t)
   if (validationError) return { error: validationError }
 
   // 1. Xoá custom_events
@@ -408,7 +412,7 @@ export async function importData(
 
   if (delEventsError)
     return {
-      error: 'Lỗi khi xoá custom_events cũ: ' + delEventsError.message
+      error: t('deleteEventsError', { error: delEventsError.message })
     }
 
   // 2. Xoá relationships (FK constraint)
@@ -418,7 +422,9 @@ export async function importData(
     .neq('id', '00000000-0000-0000-0000-000000000000')
 
   if (delRelError)
-    return { error: 'Lỗi khi xoá relationships cũ: ' + delRelError.message }
+    return {
+      error: t('deleteRelationshipsError', { error: delRelError.message })
+    }
 
   // 3. Xoá person_details_private (FK constraint on persons)
   const { error: delPrivateError } = await supabase
@@ -428,7 +434,9 @@ export async function importData(
 
   if (delPrivateError)
     return {
-      error: 'Lỗi khi xoá person_details_private cũ: ' + delPrivateError.message
+      error: t('deletePrivateDetailsError', {
+        error: delPrivateError.message
+      })
     }
 
   // 4. Xoá persons
@@ -438,7 +446,9 @@ export async function importData(
     .neq('id', '00000000-0000-0000-0000-000000000000')
 
   if (delPersonsError)
-    return { error: 'Lỗi khi xoá persons cũ: ' + delPersonsError.message }
+    return {
+      error: t('deletePersonsError', { error: delPersonsError.message })
+    }
 
   // 5. Insert persons (sanitized — chỉ giữ các field schema hiện tại)
   const CHUNK = 200
@@ -449,7 +459,10 @@ export async function importData(
     const { error } = await supabase.from('persons').insert(chunk)
     if (error)
       return {
-        error: `Lỗi khi import persons (chunk ${i / CHUNK + 1}): ${error.message}`
+        error: t('importPersonsError', {
+          chunk: i / CHUNK + 1,
+          error: error.message
+        })
       }
   }
 
@@ -464,7 +477,10 @@ export async function importData(
     const { error } = await supabase.from('relationships').insert(chunk)
     if (error)
       return {
-        error: `Lỗi khi import relationships (chunk ${i / CHUNK + 1}): ${error.message}`
+        error: t('importRelationshipsError', {
+          chunk: i / CHUNK + 1,
+          error: error.message
+        })
       }
   }
 
@@ -479,7 +495,10 @@ export async function importData(
         .insert(chunk)
       if (error)
         return {
-          error: `Lỗi khi import person_details_private (chunk ${i / CHUNK + 1}): ${error.message}`
+          error: t('importPrivateDetailsError', {
+            chunk: i / CHUNK + 1,
+            error: error.message
+          })
         }
     }
     privateDetailsCount = privateDetails.length
@@ -496,7 +515,10 @@ export async function importData(
       const { error } = await supabase.from('custom_events').insert(chunk)
       if (error)
         return {
-          error: `Lỗi khi import custom_events (chunk ${i / CHUNK + 1}): ${error.message}`
+          error: t('importEventsError', {
+            chunk: i / CHUNK + 1,
+            error: error.message
+          })
         }
     }
     customEventsCount = customEvents.length

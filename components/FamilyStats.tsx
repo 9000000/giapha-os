@@ -2,6 +2,7 @@
 
 import { Person, Relationship } from '@/types'
 import { getZodiacAnimal, getZodiacSign } from '@/utils/dateHelpers'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { motion } from 'framer-motion'
 import {
   Crown,
@@ -91,11 +92,12 @@ function GenerationRow({
   max: number
   delay: number
 }) {
+  const { t } = useI18n()
   const pct = max > 0 ? (count / max) * 100 : 0
   return (
     <div className='flex items-center gap-3'>
       <span className='w-14 shrink-0 text-sm font-medium text-stone-500'>
-        Đời {gen}
+        {t('generationLabel', { generation: gen })}
       </span>
       <div className='h-2 flex-1 overflow-hidden rounded-full bg-stone-100'>
         <motion.div
@@ -116,6 +118,7 @@ export default function FamilyStats({
   persons,
   relationships
 }: FamilyStatsProps) {
+  const { t } = useI18n()
   const stats = useMemo(() => {
     const total = persons.length
 
@@ -209,55 +212,55 @@ export default function FamilyStats({
 
   const cards = [
     {
-      label: 'Tổng thành viên',
+      label: t('totalMembers'),
       value: stats.total,
       icon: <Users className='size-5 text-stone-600' />,
       color: 'bg-stone-400'
     },
     {
-      label: 'Nam',
+      label: t('male'),
       value: stats.male,
       icon: <Mars className='size-5 text-blue-600' />,
       color: 'bg-blue-400'
     },
     {
-      label: 'Nữ',
+      label: t('female'),
       value: stats.female,
       icon: <Venus className='size-5 text-pink-500' />,
       color: 'bg-pink-400'
     },
     {
-      label: 'Con dâu',
+      label: t('daughterInLawChild'),
       value: stats.daughtersInLaw,
       icon: <Flower2 className='size-5 text-rose-500' />,
       color: 'bg-rose-400'
     },
     {
-      label: 'Con rể',
+      label: t('sonInLawChild'),
       value: stats.sonsInLaw,
       icon: <Users className='size-5 text-indigo-500' />,
       color: 'bg-indigo-400'
     },
     {
-      label: 'Đã kết hôn',
+      label: t('married'),
       value: stats.married,
       icon: <Heart className='size-5 text-red-500' />,
       color: 'bg-red-400'
     },
     {
-      label: 'Chưa kết hôn',
+      label: t('unmarried'),
       value: stats.unmarried,
       icon: <HeartOff className='size-5 text-stone-400' />,
       color: 'bg-stone-300'
     },
     {
-      label: 'Đã mất',
+      label: t('deceased'),
       value: stats.deceased,
       icon: <Skull className='size-5 text-stone-500' />,
       color: 'bg-stone-400'
     },
     {
-      label: 'Con trưởng',
+      label: t('firstChild'),
       value: stats.firstBorn,
       icon: <Crown className='size-5 text-amber-500' />,
       color: 'bg-amber-400'
@@ -290,7 +293,7 @@ export default function FamilyStats({
           className='card-feature'>
           <h2 className='mb-5 flex items-center gap-2 text-base font-semibold text-stone-700'>
             <Crown className='size-4 text-amber-500' />
-            Phân bố theo thế hệ
+            {t('generationDistribution')}
           </h2>
           <div className='space-y-3'>
             {stats.generationBreakdown.map(({ gen, count }, i) => (
@@ -304,7 +307,7 @@ export default function FamilyStats({
             ))}
           </div>
           <p className='mt-4 text-sm text-stone-400 italic'>
-            * Chỉ tính các thành viên đã được gán số thế hệ
+            {t('generationAssignedHint')}
           </p>
         </motion.div>
       )}
@@ -317,7 +320,7 @@ export default function FamilyStats({
         className='rounded-2xl border border-stone-200/60 bg-white/80 p-6'>
         <h2 className='mb-5 flex items-center gap-2 text-base font-semibold text-stone-700'>
           <Users className='size-4 text-stone-500' />
-          Tỉ lệ giới tính
+          {t('genderRatio')}
         </h2>
         <div className='flex h-5 gap-px overflow-hidden rounded-full'>
           {stats.total > 0 && (
@@ -327,14 +330,14 @@ export default function FamilyStats({
                 animate={{ flex: stats.male }}
                 transition={{ duration: 0.7, delay: 0.7 }}
                 className='flex items-center justify-center bg-blue-400'
-                title={`Nam: ${stats.male}`}
+                title={`${t('male')}: ${stats.male}`}
               />
               <motion.div
                 initial={{ flex: 0 }}
                 animate={{ flex: stats.female }}
                 transition={{ duration: 0.7, delay: 0.7 }}
                 className='flex items-center justify-center bg-pink-400'
-                title={`Nữ: ${stats.female}`}
+                title={`${t('female')}: ${stats.female}`}
               />
             </>
           )}
@@ -342,13 +345,13 @@ export default function FamilyStats({
         <div className='mt-3 flex gap-6 text-sm'>
           <span className='flex items-center gap-2 text-stone-600'>
             <span className='inline-block size-3 rounded-full bg-blue-400' />
-            Nam — {stats.male} người (
+            {t('male')} — {t('peopleCount', { count: stats.male })} (
             {stats.total > 0 ? Math.round((stats.male / stats.total) * 100) : 0}
             %)
           </span>
           <span className='flex items-center gap-2 text-stone-600'>
             <span className='inline-block size-3 rounded-full bg-pink-400' />
-            Nữ — {stats.female} người (
+            {t('female')} — {t('peopleCount', { count: stats.female })} (
             {stats.total > 0
               ? Math.round((stats.female / stats.total) * 100)
               : 0}
@@ -368,7 +371,7 @@ export default function FamilyStats({
             className='card-feature'>
             <h2 className='mb-5 flex items-center gap-2 text-base font-semibold text-stone-700'>
               <Star className='size-4 text-purple-500' />
-              Cung hoàng đạo
+              {t('zodiacSigns')}
             </h2>
             <div className='space-y-3'>
               {stats.zodiacBreakdown.map(({ name, count }, i) => {
@@ -398,7 +401,7 @@ export default function FamilyStats({
               })}
             </div>
             <p className='mt-4 text-sm text-stone-400 italic'>
-              * Dự toán dựa trên ngày/tháng sinh dương lịch
+              {t('zodiacSolarHint')}
             </p>
           </motion.div>
         )}
@@ -412,7 +415,7 @@ export default function FamilyStats({
             className='card-feature'>
             <h2 className='mb-5 flex items-center gap-2 text-base font-semibold text-stone-700'>
               <Moon className='size-4 text-orange-500' />
-              Con giáp
+              {t('chineseZodiac')}
             </h2>
             <div className='space-y-3'>
               {stats.chineseZodiacBreakdown.map(({ name, count }, i) => {
@@ -442,7 +445,7 @@ export default function FamilyStats({
               })}
             </div>
             <p className='mt-4 text-sm text-stone-400 italic'>
-              * Dự toán dựa trên năm sinh âm lịch
+              {t('chineseZodiacLunarHint')}
             </p>
           </motion.div>
         )}

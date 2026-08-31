@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { CustomEventRecord } from '@/utils/eventHelpers'
 import { createClient } from '@/utils/supabase/client'
 import { AnimatePresence, motion, Variants } from 'framer-motion'
@@ -29,6 +30,7 @@ export default function CustomEventModal({
   onSuccess,
   eventToEdit
 }: CustomEventModalProps) {
+  const { t } = useI18n()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -99,12 +101,12 @@ export default function CustomEventModal({
           setEventDate(`${y}-${m}-${d}`)
           setLunarConvertError(null)
         } catch {
-          setLunarConvertError('Ngày âm lịch không hợp lệ.')
+          setLunarConvertError(t('lunarDateInvalid'))
         }
       })
       return () => cancelAnimationFrame(frame)
     }
-  }, [dateMode, lunarDay, lunarMonth, lunarYear])
+  }, [dateMode, lunarDay, lunarMonth, lunarYear, t])
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -153,9 +155,9 @@ export default function CustomEventModal({
     } catch (err) {
       console.error(err)
       if (err instanceof Error) {
-        setError(err.message || 'Đã xảy ra lỗi khi lưu sự kiện.')
+        setError(err.message || t('saveEventError'))
       } else {
-        setError('Đã xảy ra lỗi khi lưu sự kiện.')
+        setError(t('saveEventError'))
       }
     } finally {
       setLoading(false)
@@ -164,7 +166,7 @@ export default function CustomEventModal({
 
   const handleDelete = async () => {
     if (!eventToEdit) return
-    if (!window.confirm('Bạn có chắc chắn muốn xoá sự kiện này?')) return
+    if (!window.confirm(t('confirmDeleteEvent'))) return
 
     setLoading(true)
     setError(null)
@@ -182,9 +184,9 @@ export default function CustomEventModal({
     } catch (err) {
       console.error(err)
       if (err instanceof Error) {
-        setError(err.message || 'Đã xảy ra lỗi khi xoá sự kiện.')
+        setError(err.message || t('deleteEventError'))
       } else {
-        setError('Đã xảy ra lỗi khi xoá sự kiện.')
+        setError(t('deleteEventError'))
       }
     } finally {
       setLoading(false)
@@ -228,14 +230,14 @@ export default function CustomEventModal({
                 type='button'
                 onClick={onClose}
                 className='flex size-10 items-center justify-center rounded-full border border-stone-200/50 bg-stone-100/80 text-stone-600 transition-colors hover:bg-stone-200 hover:text-stone-900'
-                aria-label='Đóng'>
+                aria-label={t('close')}>
                 <X className='size-5' />
               </button>
             </div>
 
             <div className='custom-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:px-8'>
               <h2 className='mb-6 font-serif text-xl font-semibold text-stone-800'>
-                {eventToEdit ? 'Sửa Sự Kiện' : 'Thêm Sự Kiện Tuỳ Chỉnh'}
+                {eventToEdit ? t('editEvent') : t('addCustomEvent')}
               </h2>
 
               <AnimatePresence>
@@ -259,13 +261,13 @@ export default function CustomEventModal({
                   className='space-y-5 rounded-2xl border border-stone-200/80 bg-white/80 p-5 sm:p-6'>
                   <div>
                     <label className='mb-1.5 block text-sm font-medium text-stone-700'>
-                      Tên sự kiện <span className='text-red-500'>*</span>
+                      {t('eventName')} <span className='text-red-500'>*</span>
                     </label>
                     <input
                       required
                       type='text'
                       className={inputClasses}
-                      placeholder='VD: Lễ Tảo Mộ Kỷ Tỵ'
+                      placeholder={t('eventNamePlaceholder')}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
@@ -274,7 +276,7 @@ export default function CustomEventModal({
                   <div>
                     <div className='mb-1.5 flex items-center justify-between'>
                       <label className='block text-sm font-medium text-stone-700'>
-                        Ngày diễn ra <span className='text-red-500'>*</span>
+                        {t('eventDate')} <span className='text-red-500'>*</span>
                       </label>
                       <button
                         type='button'
@@ -288,12 +290,12 @@ export default function CustomEventModal({
                         {dateMode === 'solar' ? (
                           <>
                             <Moon className='size-3' />
-                            Nhập Âm lịch
+                            {t('enterLunar')}
                           </>
                         ) : (
                           <>
                             <Sun className='size-3' />
-                            Nhập Dương lịch
+                            {t('enterSolar')}
                           </>
                         )}
                       </button>
@@ -315,7 +317,7 @@ export default function CustomEventModal({
                         <div className='grid grid-cols-3 gap-3'>
                           <input
                             type='number'
-                            placeholder='Ngày'
+                            placeholder={t('day')}
                             min='1'
                             max='30'
                             value={lunarDay}
@@ -328,7 +330,7 @@ export default function CustomEventModal({
                           />
                           <input
                             type='number'
-                            placeholder='Tháng'
+                            placeholder={t('month')}
                             min='1'
                             max='12'
                             value={lunarMonth}
@@ -341,7 +343,7 @@ export default function CustomEventModal({
                           />
                           <input
                             type='number'
-                            placeholder='Năm'
+                            placeholder={t('year')}
                             value={lunarYear}
                             onChange={(e) =>
                               setLunarYear(
@@ -360,7 +362,7 @@ export default function CustomEventModal({
                         {eventDate && !lunarConvertError && (
                           <p className='flex items-center gap-1.5 text-sm text-stone-500'>
                             <Sun className='size-3 text-amber-500' />
-                            Dương lịch:{' '}
+                            {t('solarDate')}:{' '}
                             <span className='font-medium text-stone-700'>
                               {eventDate.split('-').reverse().join('/')}
                             </span>
@@ -372,14 +374,14 @@ export default function CustomEventModal({
 
                   <div>
                     <label className='mb-1.5 block text-sm font-medium text-stone-700'>
-                      Địa điểm
+                      {t('location')}
                     </label>
                     <div className='relative'>
                       <MapPin className='absolute top-1/2 left-4 size-4 -translate-y-1/2 text-stone-400' />
                       <input
                         type='text'
                         className={`${inputClasses} pl-11`}
-                        placeholder='VD: Nhà từ đường'
+                        placeholder={t('locationPlaceholder')}
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                       />
@@ -388,14 +390,14 @@ export default function CustomEventModal({
 
                   <div>
                     <label className='mb-1.5 block text-sm font-medium text-stone-700'>
-                      Nội dung chi tiết
+                      {t('details')}
                     </label>
                     <div className='relative'>
                       <AlignLeft className='absolute top-4 left-4 size-4 text-stone-400' />
                       <textarea
                         rows={3}
                         className={`${inputClasses} custom-scrollbar resize-none pl-11`}
-                        placeholder='Ghi chú thêm về sự kiện...'
+                        placeholder={t('detailsPlaceholder')}
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                       />
@@ -415,7 +417,7 @@ export default function CustomEventModal({
                       onClick={handleDelete}
                       disabled={loading}
                       className='inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-rose-200/50 bg-rose-50 px-4 py-4 text-sm font-medium text-rose-600 transition-all duration-300 hover:-translate-y-1 hover:bg-rose-100 disabled:opacity-50 sm:w-auto'>
-                      Xoá sự kiện
+                      {t('deleteEvent')}
                     </button>
                   ) : (
                     <div className='hidden sm:block' /> /* Empty div to push right buttons to end on desktop */
@@ -427,14 +429,14 @@ export default function CustomEventModal({
                       onClick={onClose}
                       disabled={loading}
                       className='btn w-full sm:w-auto'>
-                      Huỷ bỏ
+                      {t('restoreCancel')}
                     </button>
                     <button
                       type='submit'
                       disabled={loading}
                       className='btn-primary w-full sm:w-auto'>
                       {loading && <Loader2 className='size-4 animate-spin' />}
-                      {loading ? 'Đang lưu...' : 'Lưu sự kiện'}
+                      {loading ? t('savingEvent') : t('saveEvent')}
                     </button>
                   </div>
                 </motion.div>

@@ -4,10 +4,12 @@ import { createClient } from '@/utils/supabase/client'
 import { LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 
 export default function LogoutButton() {
   const router = useRouter()
   const supabase = createClient()
+  const { t } = useI18n()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
@@ -28,7 +30,7 @@ export default function LogoutButton() {
       disabled={isLoggingOut}
       className='flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-rose-50 hover:text-rose-700'>
       <LogOut className='size-4' />
-      {isLoggingOut ? 'Đang xử lý...' : 'Đăng xuất'}
+      {isLoggingOut ? t('processing') : t('logout')}
     </button>
   )
 }

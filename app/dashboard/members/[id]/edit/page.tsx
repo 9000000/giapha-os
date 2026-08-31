@@ -1,4 +1,5 @@
 import MemberForm from '@/components/MemberForm'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -9,6 +10,7 @@ interface PageProps {
 }
 
 export default async function EditMemberPage({ params }: PageProps) {
+  const { t } = await getServerTranslations()
   const { id } = await params
 
   const profile = await getProfile()
@@ -19,11 +21,9 @@ export default async function EditMemberPage({ params }: PageProps) {
       <div className='flex min-h-screen items-center justify-center bg-stone-50'>
         <div className='text-center'>
           <h1 className='text-2xl font-semibold text-stone-800'>
-            Truy cập bị từ chối
+            {t('accessDenied')}
           </h1>
-          <p className='mt-2 text-stone-600'>
-            Bạn không có quyền chỉnh sửa thành viên.
-          </p>
+          <p className='mt-2 text-stone-600'>{t('noEditMemberPermission')}</p>
         </div>
       </div>
     )
@@ -66,10 +66,10 @@ export default async function EditMemberPage({ params }: PageProps) {
           <Link
             href={`/dashboard/members/${id}`}
             className='-ml-2 rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600'
-            title='Quay lại danh sách'>
+            title={t('backToMembers')}>
             <ArrowLeft className='size-5' />
           </Link>
-          <h1 className='title'>Chỉnh sửa thành viên</h1>
+          <h1 className='title'>{t('editMember')}</h1>
         </div>
       </div>
 

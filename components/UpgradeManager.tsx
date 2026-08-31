@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import {
   getMigrationStatus,
   runPendingMigrations,
@@ -20,6 +21,7 @@ export default function UpgradeManager({
 }: {
   initialStatus: MigrationStatus
 }) {
+  const { t } = useI18n()
   const [status, setStatus] = useState(initialStatus)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
@@ -46,7 +48,7 @@ export default function UpgradeManager({
     try {
       setStatus(await getMigrationStatus())
     } catch {
-      setMessage('Không thể kiểm tra trạng thái nâng cấp lúc này.')
+      setMessage(t('upgradeRefreshError'))
     } finally {
       setIsRefreshing(false)
     }
@@ -61,12 +63,12 @@ export default function UpgradeManager({
       const result = await runPendingMigrations()
       setMessage(
         result.success
-          ? result.message || 'Database đã được cập nhật.'
-          : result.error || 'Không thể cập nhật database.'
+          ? result.message || t('databaseUpdated')
+          : result.error || t('databaseUpdateError')
       )
       setStatus(await getMigrationStatus())
     } catch {
-      setMessage('Không thể cập nhật database. Vui lòng kiểm tra log server.')
+      setMessage(t('databaseUpdateFailed'))
     } finally {
       setIsRunning(false)
     }
@@ -74,10 +76,10 @@ export default function UpgradeManager({
 
   const sourceStatusLabel =
     status.source.state === 'current'
-      ? 'Source code đã được cập nhật'
+      ? t('sourceUpdated')
       : status.source.state === 'outdated'
-        ? 'Cần cập nhật source code trước khi tiếp tục'
-        : 'Chưa thể kiểm tra version source code'
+        ? t('sourceOutdated')
+        : t('sourceUnknown')
 
   return (
     <div className='space-y-5'>
@@ -89,11 +91,10 @@ export default function UpgradeManager({
             </div>
             <div>
               <h2 className='font-serif text-xl font-semibold text-stone-900'>
-                Kiểm tra và nâng cấp
+                {t('upgradeCheckTitle')}
               </h2>
               <p className='mt-1 max-w-2xl text-sm text-stone-500'>
-                Kiểm tra source code và database trước khi áp dụng các thay đổi
-                cần thiết.
+                {t('upgradeCheckDescription')}
               </p>
             </div>
           </div>
@@ -105,7 +106,7 @@ export default function UpgradeManager({
             <RefreshCw
               className={`size-4 ${isRefreshing ? 'animate-spin' : ''}`}
             />
-            Kiểm tra lại
+            {t('checkAgain')}
           </button>
         </div>
       </section>
@@ -129,13 +130,13 @@ export default function UpgradeManager({
                 {sourceStatusLabel}
               </h3>
               <p className='mt-2 text-sm text-stone-600'>
-                Đang chạy:{' '}
+                {t('runningVersion')}{' '}
                 <span className='font-mono text-stone-800'>
-                  {status.source.currentVersion || 'không xác định'}
+                  {status.source.currentVersion || t('unknownVersion')}
                 </span>{' '}
-                · GitHub:{' '}
+                · {t('latestVersion')}{' '}
                 <span className='font-mono text-stone-800'>
-                  {status.source.latestVersion || 'không xác định'}
+                  {status.source.latestVersion || t('unknownVersion')}
                 </span>
               </p>
               {status.source.error && (
@@ -149,7 +150,7 @@ export default function UpgradeManager({
                   target='_blank'
                   rel='noreferrer'
                   className='mt-3 inline-flex text-sm font-medium text-stone-800 underline underline-offset-2 hover:text-amber-800'>
-                  Xem hướng dẫn cập nhật source code
+                  {t('sourceUpdateGuide')}
                 </a>
               )}
             </div>
@@ -169,18 +170,20 @@ export default function UpgradeManager({
               <ServerCog className='mt-0.5 size-5 shrink-0 text-amber-700' />
             )}
             <div>
-              <p className='text-sm font-medium text-stone-600'>Database</p>
+              <p className='text-sm font-medium text-stone-600'>
+                {t('database')}
+              </p>
               <h3 className='mt-1 text-base font-semibold text-stone-900'>
                 {status.databaseReachable
-                  ? 'Đã kết nối thành công'
-                  : 'Chưa thể kết nối'}
+                  ? t('databaseConnected')
+                  : t('databaseUnavailable')}
               </h3>
               <p className='mt-2 text-sm text-stone-600'>
                 {status.databaseReachable
-                  ? 'Có thể kiểm tra và áp dụng thay đổi database.'
+                  ? t('databaseCanUpdate')
                   : status.configured
-                    ? 'Kiểm tra lại kết nối database trên server.'
-                    : 'Cần cấu hình SUPABASE_DB_URL trên server.'}
+                    ? t('databaseRetryConnection')
+                    : t('databaseNeedsConfig')}
               </p>
             </div>
           </div>
@@ -199,17 +202,16 @@ export default function UpgradeManager({
             <AlertTriangle className='mt-0.5 size-5 shrink-0 text-amber-700' />
             <div>
               <h2 className='text-base font-semibold text-stone-900'>
-                Chưa thể kiểm tra migration
+                {t('migrationUnavailable')}
               </h2>
               <p className='mt-1 text-sm text-stone-600'>
-                {status.error ||
-                  'Hãy cấu hình kết nối database rồi bấm “Kiểm tra lại”.'}
+                {status.error || t('migrationConfigureRetry')}
               </p>
               {!status.configured && (
                 <a
                   href='/setup'
                   className='mt-3 inline-flex text-sm font-medium text-stone-800 underline underline-offset-2 hover:text-amber-800'>
-                  Xem hướng dẫn cấu hình database
+                  {t('databaseSetupGuide')}
                 </a>
               )}
             </div>
@@ -223,11 +225,10 @@ export default function UpgradeManager({
             </div>
             <div>
               <h2 className='text-base font-semibold text-stone-900'>
-                Có thay đổi cần áp dụng
+                {t('pendingChanges')}
               </h2>
               <p className='mt-1 text-sm text-stone-500'>
-                {pendingMigrations.length} migration đang chờ được áp dụng. Các
-                migration đã chạy được ẩn khỏi danh sách.
+                {t('pendingMigrations', { count: pendingMigrations.length })}
               </p>
             </div>
           </div>
@@ -241,7 +242,7 @@ export default function UpgradeManager({
                   {migration.file.split('/').pop()}
                 </span>
                 <span className='shrink-0 text-sm font-medium text-amber-700'>
-                  Chưa chạy
+                  {t('notRun')}
                 </span>
               </div>
             ))}
@@ -249,8 +250,7 @@ export default function UpgradeManager({
 
           {sourceNeedsUpdate ? (
             <p className='mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800'>
-              Hãy cập nhật source code lên version mới nhất trước khi áp dụng
-              các thay đổi database.
+              {t('updateSourceFirst')}
             </p>
           ) : (
             <button
@@ -263,7 +263,7 @@ export default function UpgradeManager({
               ) : (
                 <ArrowUpCircle className='size-4' />
               )}
-              {isRunning ? 'Đang nâng cấp...' : 'Áp dụng thay đổi'}
+              {isRunning ? t('upgrading') : t('applyChanges')}
             </button>
           )}
         </section>
@@ -273,12 +273,9 @@ export default function UpgradeManager({
             <CheckCircle2 className='mt-0.5 size-5 shrink-0 text-emerald-700' />
             <div>
               <h2 className='text-base font-semibold text-stone-900'>
-                Hệ thống đã được cập nhật
+                {t('systemUpdated')}
               </h2>
-              <p className='mt-1 text-sm text-stone-600'>
-                Source code và database đang đồng bộ. Hiện không có thay đổi nào
-                cần áp dụng.
-              </p>
+              <p className='mt-1 text-sm text-stone-600'>{t('systemSynced')}</p>
             </div>
           </div>
         </section>

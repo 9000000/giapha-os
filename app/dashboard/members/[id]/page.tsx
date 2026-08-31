@@ -1,5 +1,6 @@
 import DeleteMemberButton from '@/components/DeleteMemberButton'
 import MemberDetailContent from '@/context/MemberDetailContent'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -10,6 +11,7 @@ interface PageProps {
 }
 
 export default async function MemberDetailPage({ params }: PageProps) {
+  const { t } = await getServerTranslations()
   const { id } = await params
 
   const profile = await getProfile()
@@ -54,17 +56,17 @@ export default async function MemberDetailPage({ params }: PageProps) {
           <Link
             href='/dashboard/members'
             className='-ml-2 rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600'
-            title='Quay lại danh sách'>
+            title={t('backToMembers')}>
             <ArrowLeft className='size-5' />
           </Link>
-          <h1 className='title'>Chi tiết thành viên</h1>
+          <h1 className='title'>{t('memberDetails')}</h1>
         </div>
         {canEdit && (
           <div className='flex w-full items-center gap-2.5 sm:w-auto'>
             <Link
               href={`/dashboard/members/${id}/edit`}
               className='btn w-full flex-1 sm:w-auto sm:flex-none'>
-              Chỉnh sửa
+              {t('editMember')}
             </Link>
             <DeleteMemberButton memberId={id} className='flex-1 sm:flex-none' />
           </div>

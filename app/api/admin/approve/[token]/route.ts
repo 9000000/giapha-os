@@ -1,3 +1,10 @@
+import {
+  getLocale,
+  getMessages,
+  Locale,
+  TranslationKey,
+  TranslationValues
+} from '@/lib/i18n/messages'
 import { hashApprovalToken } from '@/utils/approval'
 import { getAdminSupabase } from '@/utils/supabase/admin'
 import { NextResponse } from 'next/server'
@@ -22,14 +29,43 @@ function escapeHtml(value: string) {
   )
 }
 
-function htmlResponse(content: string, status = 200) {
+function getRequestTranslations(request: Request) {
+  const localeCookie = request.headers
+    .get('cookie')
+    ?.split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith('locale='))
+    ?.slice('locale='.length)
+
+  const locale = getLocale(localeCookie)
+  const dictionary = getMessages(locale)
+
+  return {
+    locale,
+    t: (key: TranslationKey, values?: TranslationValues) => {
+      let value: string = dictionary[key]
+      if (values) {
+        Object.entries(values).forEach(([name, replacement]) => {
+          value = value.replace(`{${name}}`, String(replacement))
+        })
+      }
+      return value
+    }
+  }
+}
+
+type Translator = (key: TranslationKey, values?: TranslationValues) => string
+
+function htmlResponse(content: string, status = 200, locale: Locale = 'vi') {
+  const title = getMessages(locale).approvalTitle
+
   return new NextResponse(
     `<!doctype html>
-      <html lang="vi">
+      <html lang="${locale}">
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>Gia Phả OS - Duyệt tài khoản</title>
+          <title>Gia Phả OS - ${title}</title>
         </head>
         <body style="margin:0;background:#fafaf9;font-family:Arial,sans-serif;color:#292524">
           <main style="box-sizing:border-box;max-width:560px;margin:0 auto;padding:48px 20px">
@@ -66,51 +102,64 @@ async function getRequest(token: string) {
   return { supabase, request: data }
 }
 
-function invalidRequestResponse() {
+function invalidRequestResponse(locale: Locale, t: Translator) {
   return htmlResponse(
-    '<h1 style="margin-top:0;color:#991b1b">Liên kết không hợp lệ</h1><p>Liên kết duyệt tài khoản không tồn tại hoặc đã hết hạn.</p>',
-    404
+    `<h1 style="margin-top:0;color:#991b1b">${t('approvalInvalidTitle')}</h1><p>${t('approvalInvalidText')}</p>`,
+    404,
+    locale
+  )
+}
+
+function processedResponse(locale: Locale, t: Translator) {
+  return htmlResponse(
+    `<h1 style="margin-top:0;color:#166534">${t('approvalProcessedTitle')}</h1><p>${t('approvalProcessedText')}</p>`,
+    200,
+    locale
   )
 }
 
 export async function GET(_request: Request, { params }: RouteContext) {
+  const { locale, t } = getRequestTranslations(_request)
   try {
     const { token } = await params
     const { request } = await getRequest(token)
 
-    if (!request) return invalidRequestResponse()
+    if (!request) return invalidRequestResponse(locale, t)
 
     if (request.used_at) {
-      return htmlResponse(
-        '<h1 style="margin-top:0;color:#166534">Đã xử lý</h1><p>Yêu cầu duyệt tài khoản này đã được sử dụng.</p>'
-      )
+      return processedResponse(locale, t)
     }
 
     if (new Date(request.expires_at).getTime() <= Date.now()) {
-      return invalidRequestResponse()
+      return invalidRequestResponse(locale, t)
     }
 
-    return htmlResponse(`
-      <h1 style="margin-top:0;color:#b45309">Duyệt tài khoản</h1>
-      <p>Tài khoản sau đang chờ được cấp quyền truy cập dữ liệu gia phả:</p>
+    return htmlResponse(
+      `<h1 style="margin-top:0;color:#b45309">${t('approvalTitle')}</h1>
+      <p>${t('approvalPendingText')}</p>
       <p style="font-weight:700">${escapeHtml(request.email)}</p>
       <form method="post">
         <button type="submit" style="border:0;border-radius:8px;background:#d97706;color:#fff;cursor:pointer;font-size:16px;padding:11px 18px">
-          Xác nhận duyệt
+          ${t('approvalConfirm')}
         </button>
       </form>
-      <p style="color:#78716c;font-size:13px;margin-bottom:0">Nếu không nhận ra tài khoản này, bạn có thể đóng trang.</p>
-    `)
+      <p style="color:#78716c;font-size:13px;margin-bottom:0">${t('approvalIgnore')}</p>
+    `,
+      200,
+      locale
+    )
   } catch (error) {
     console.error('Cannot open the pending-user approval link:', error)
     return htmlResponse(
-      '<h1 style="margin-top:0;color:#991b1b">Không thể xử lý</h1><p>Hệ thống chưa được cấu hình để duyệt tài khoản qua email. Vui lòng đăng nhập ứng dụng để duyệt.</p>',
-      503
+      `<h1 style="margin-top:0;color:#991b1b">${t('approvalConfigErrorTitle')}</h1><p>${t('approvalConfigErrorText')}</p>`,
+      503,
+      locale
     )
   }
 }
 
 export async function POST(_request: Request, { params }: RouteContext) {
+  const { locale, t } = getRequestTranslations(_request)
   try {
     const requestOrigin = new URL(_request.url).origin
     const requestOriginHeader = _request.headers.get('origin')
@@ -120,24 +169,23 @@ export async function POST(_request: Request, { params }: RouteContext) {
       (requestReferer && !requestReferer.startsWith(`${requestOrigin}/`))
     ) {
       return htmlResponse(
-        '<h1 style="margin-top:0;color:#991b1b">Yêu cầu không hợp lệ</h1>',
-        403
+        `<h1 style="margin-top:0;color:#991b1b">${t('approvalInvalidRequestTitle')}</h1>`,
+        403,
+        locale
       )
     }
 
     const { token } = await params
     const { supabase, request } = await getRequest(token)
 
-    if (!request || !supabase) return invalidRequestResponse()
+    if (!request || !supabase) return invalidRequestResponse(locale, t)
 
     if (request.used_at) {
-      return htmlResponse(
-        '<h1 style="margin-top:0;color:#166534">Đã xử lý</h1><p>Yêu cầu duyệt tài khoản này đã được sử dụng.</p>'
-      )
+      return processedResponse(locale, t)
     }
 
     if (new Date(request.expires_at).getTime() <= Date.now()) {
-      return invalidRequestResponse()
+      return invalidRequestResponse(locale, t)
     }
 
     // Claim the one-time request first. The conditional update makes two
@@ -152,9 +200,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
 
     if (claimError) throw claimError
     if (!claimedRequest) {
-      return htmlResponse(
-        '<h1 style="margin-top:0;color:#166534">Đã xử lý</h1><p>Yêu cầu duyệt tài khoản này đã được sử dụng.</p>'
-      )
+      return processedResponse(locale, t)
     }
 
     const { data: profile, error: profileError } = await supabase
@@ -165,8 +211,9 @@ export async function POST(_request: Request, { params }: RouteContext) {
 
     if (profileError || !profile) {
       return htmlResponse(
-        '<h1 style="margin-top:0;color:#991b1b">Không tìm thấy tài khoản</h1><p>Tài khoản có thể đã bị xóa.</p>',
-        404
+        `<h1 style="margin-top:0;color:#991b1b">${t('approvalNotFoundTitle')}</h1><p>${t('approvalNotFoundText')}</p>`,
+        404,
+        locale
       )
     }
 
@@ -181,13 +228,16 @@ export async function POST(_request: Request, { params }: RouteContext) {
     }
 
     return htmlResponse(
-      `<h1 style="margin-top:0;color:#166534">Duyệt thành công</h1><p>Tài khoản <strong>${escapeHtml(request.email)}</strong> đã được cấp quyền truy cập. Người dùng có thể đăng nhập ứng dụng ngay bây giờ.</p>`
+      `<h1 style="margin-top:0;color:#166534">${t('approvalSuccessTitle')}</h1><p>${t('approvalSuccessText', { email: `<strong>${escapeHtml(request.email)}</strong>` })}</p>`,
+      200,
+      locale
     )
   } catch (error) {
     console.error('Cannot approve pending user:', error)
     return htmlResponse(
-      '<h1 style="margin-top:0;color:#991b1b">Duyệt thất bại</h1><p>Đã xảy ra lỗi khi cập nhật trạng thái. Vui lòng thử lại hoặc duyệt trong ứng dụng.</p>',
-      500
+      `<h1 style="margin-top:0;color:#991b1b">${t('approvalFailureTitle')}</h1><p>${t('approvalFailureText')}</p>`,
+      500,
+      locale
     )
   }
 }

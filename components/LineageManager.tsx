@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person, Relationship } from '@/types'
 import { createClient } from '@/utils/supabase/client'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -269,6 +270,7 @@ export default function LineageManager({
   persons,
   relationships
 }: LineageManagerProps) {
+  const { t } = useI18n()
   const supabase = createClient()
 
   const [updates, setUpdates] = useState<ComputedUpdate[] | null>(null)
@@ -323,7 +325,7 @@ export default function LineageManager({
 
       setUpdates(result)
     } catch (err) {
-      setError((err as Error).message || 'Lỗi tính toán.')
+      setError((err as Error).message || t('lineageComputeError'))
     } finally {
       setComputing(false)
     }
@@ -356,7 +358,7 @@ export default function LineageManager({
       }
       setApplied(true)
     } catch (err) {
-      setError((err as Error).message || 'Lỗi khi cập nhật dữ liệu.')
+      setError((err as Error).message || t('lineageUpdateError'))
     } finally {
       setApplying(false)
     }
@@ -378,7 +380,7 @@ export default function LineageManager({
           ) : (
             <Sparkles className='size-4' />
           )}
-          {computing ? 'Đang tính...' : 'Tính toán'}
+          {computing ? t('calculating') : t('calculate')}
         </button>
 
         {updates && changedCount > 0 && !applied && (
@@ -392,8 +394,8 @@ export default function LineageManager({
               <RefreshCw className='size-4' />
             )}
             {applying
-              ? 'Đang cập nhật...'
-              : `Áp dụng (${changedCount} thay đổi)`}
+              ? t('updating')
+              : t('applyChangesCount', { count: changedCount })}
           </button>
         )}
       </div>
@@ -421,8 +423,7 @@ export default function LineageManager({
             exit={{ opacity: 0 }}
             className='flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700'>
             <CheckCircle2 className='size-5 shrink-0' />
-            Đã áp dụng thành công {changedCount} thay đổi! Tải lại trang để xem
-            kết quả.
+            {t('lineageApplied', { count: changedCount })}
           </motion.div>
         )}
       </AnimatePresence>
@@ -433,11 +434,11 @@ export default function LineageManager({
           <div className='mb-3 flex items-center justify-between'>
             <p className='text-sm font-medium text-stone-500'>
               <span className='font-medium text-stone-800'>{changedCount}</span>{' '}
-              thành viên sẽ được cập nhật /&nbsp;
+              {t('membersWillUpdate')} /&nbsp;
               <span className='font-medium text-stone-800'>
                 {updates.length}
               </span>{' '}
-              tổng
+              {t('total')}
             </p>
           </div>
 
@@ -447,19 +448,19 @@ export default function LineageManager({
                 <thead>
                   <tr className='border-b border-stone-200/80 bg-stone-50'>
                     <th className='px-4 py-3 text-left font-medium whitespace-nowrap text-stone-600'>
-                      Tên
+                      {t('name')}
                     </th>
                     <th className='px-4 py-3 text-center font-medium whitespace-nowrap text-stone-600'>
-                      Thế hệ
+                      {t('generationColumn')}
                     </th>
                     <th className='px-4 py-3 text-center font-medium whitespace-nowrap text-stone-600'>
-                      Thứ tự
+                      {t('orderColumn')}
                     </th>
                     <th className='px-4 py-3 text-center font-medium whitespace-nowrap text-stone-600'>
-                      Dâu/Rể
+                      {t('inLawColumn')}
                     </th>
                     <th className='px-4 py-3 text-center font-medium text-stone-600'>
-                      Trạng thái
+                      {t('status')}
                     </th>
                   </tr>
                 </thead>
@@ -508,8 +509,8 @@ export default function LineageManager({
                           }>
                           {u.old_is_in_law
                             ? u.gender === 'male'
-                              ? 'Rể'
-                              : 'Dâu'
+                              ? t('inLawMale')
+                              : t('inLawFemale')
                             : '—'}
                         </span>
                         {u.old_is_in_law !== u.new_is_in_law && (
@@ -518,9 +519,9 @@ export default function LineageManager({
                             <span className='font-medium text-amber-700'>
                               {u.new_is_in_law
                                 ? u.gender === 'male'
-                                  ? 'Rể'
-                                  : 'Dâu'
-                                : 'Máu thịt'}
+                                  ? t('inLawMale')
+                                  : t('inLawFemale')
+                                : t('bloodline')}
                             </span>
                           </>
                         )}
@@ -528,11 +529,11 @@ export default function LineageManager({
                       <td className='px-4 py-3 text-center'>
                         {u.changed ? (
                           <span className='inline-block rounded-full border border-amber-200/60 bg-amber-100 px-2 py-0.5 text-sm font-medium text-amber-700'>
-                            Cập nhật
+                            {t('updated')}
                           </span>
                         ) : (
                           <span className='inline-block rounded-full border border-stone-200/60 bg-stone-100 px-2 py-0.5 text-sm font-medium text-stone-400'>
-                            Không đổi
+                            {t('unchanged')}
                           </span>
                         )}
                       </td>
@@ -549,12 +550,12 @@ export default function LineageManager({
               className='mx-auto mt-3 flex items-center gap-1.5 text-sm font-medium text-stone-500 transition-colors hover:text-amber-700'>
               {showAll ? (
                 <>
-                  <ChevronUp className='size-4' /> Thu gọn
+                  <ChevronUp className='size-4' /> {t('collapse')}
                 </>
               ) : (
                 <>
-                  <ChevronDown className='size-4' /> Xem tất cả {updates.length}{' '}
-                  thành viên
+                  <ChevronDown className='size-4' />{' '}
+                  {t('showAllMembers', { count: updates.length })}
                 </>
               )}
             </button>

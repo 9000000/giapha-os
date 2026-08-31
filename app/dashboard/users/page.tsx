@@ -1,9 +1,11 @@
 import AdminUserList from '@/components/AdminUserList'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { AdminUserData } from '@/types'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 import { redirect } from 'next/navigation'
 
 export default async function AdminUsersPage() {
+  const { t } = await getServerTranslations()
   const profile = await getProfile()
   const isAdmin = profile?.role === 'admin' && profile.is_active
 
@@ -31,9 +33,9 @@ export default async function AdminUsersPage() {
       <div className='relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8'>
         <div className='mb-8 flex flex-col items-start justify-between sm:flex-row sm:items-center'>
           <div>
-            <h1 className='title'>Quản lý người dùng</h1>
+            <h1 className='title'>{t('manageUsers')}</h1>
             <p className='mt-2 text-sm text-stone-500 sm:text-sm'>
-              Danh sách các tài khoản đang tham gia vào hệ thống.
+              {t('manageUsersDescription')}
             </p>
           </div>
         </div>

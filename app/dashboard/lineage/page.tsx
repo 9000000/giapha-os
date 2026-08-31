@@ -1,8 +1,10 @@
 import LineageManager from '@/components/LineageManager'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 import { redirect } from 'next/navigation'
 
 export default async function LineagePage() {
+  const { t } = await getServerTranslations()
   const profile = await getProfile()
 
   if (profile?.role !== 'admin' || !profile.is_active) {
@@ -27,13 +29,9 @@ export default async function LineagePage() {
       <div className='relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8'>
         {/* Header */}
         <div className='mb-8'>
-          <h1 className='title'>Thứ tự gia phả</h1>
+          <h1 className='title'>{t('lineagePageTitle')}</h1>
           <p className='mt-2 max-w-2xl text-sm text-stone-500 sm:text-sm'>
-            Tự động tính toán và cập nhật{' '}
-            <strong className='text-stone-700'>thế hệ</strong>,{' '}
-            <strong className='text-stone-700'>thứ tự sinh</strong> và{' '}
-            <strong className='text-stone-700'>trạng thái Dâu/Rể</strong> cho
-            tất cả thành viên. Xem preview trước khi áp dụng.
+            {t('lineagePageDescription')}
           </p>
         </div>
 
@@ -44,12 +42,10 @@ export default async function LineagePage() {
               <span className='text-sm'>🌳</span>
               <div>
                 <h3 className='mb-1 text-base font-semibold text-stone-800'>
-                  Thế hệ (Generation)
+                  {t('lineageGenerationCardTitle')}
                 </h3>
                 <p className='text-sm leading-relaxed text-stone-500'>
-                  Dùng thuật toán BFS từ các tổ tiên gốc (người chưa có thông
-                  tin bố/mẹ trong hệ thống). Tổ tiên = Đời 1, con = Đời 2, cháu
-                  = Đời 3... Con dâu/rể kế thừa đời của người bạn đời.
+                  {t('lineageGenerationCardText')}
                 </p>
               </div>
             </div>
@@ -59,12 +55,10 @@ export default async function LineagePage() {
               <span className='text-sm'>👶</span>
               <div>
                 <h3 className='mb-1 text-base font-semibold text-stone-800'>
-                  Thứ tự sinh (Birth Order)
+                  {t('lineageBirthOrderCardTitle')}
                 </h3>
                 <p className='text-sm leading-relaxed text-stone-500'>
-                  Trong danh sách anh/chị/em cùng cha, sắp xếp theo năm sinh
-                  tăng dần và gán số thứ tự 1, 2, 3... Con dâu/rể không được
-                  tính thứ tự.
+                  {t('lineageBirthOrderCardText')}
                 </p>
               </div>
             </div>
@@ -72,12 +66,10 @@ export default async function LineagePage() {
               <span className='text-sm'>💍</span>
               <div>
                 <h3 className='mb-1 text-base font-semibold text-stone-800'>
-                  Dâu / Rể (In-Law Status)
+                  {t('lineageInLawCardTitle')}
                 </h3>
                 <p className='text-sm leading-relaxed text-stone-500'>
-                  Tự động xác định là dâu/rể nếu thành viên có vợ/chồng trong hệ
-                  thống nhưng không có thông tin bố/mẹ. Giúp hiển thị đúng thẻ
-                  phân loại ngoài danh sách.
+                  {t('lineageInLawCardText')}
                 </p>
               </div>
             </div>

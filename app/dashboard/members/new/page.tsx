@@ -1,9 +1,11 @@
 import MemberForm from '@/components/MemberForm'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getProfile } from '@/utils/supabase/queries'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function NewMemberPage() {
+  const { t } = await getServerTranslations()
   const profile = await getProfile()
 
   const isAdmin = profile?.role === 'admin' && profile.is_active
@@ -17,11 +19,9 @@ export default async function NewMemberPage() {
       <div className='flex min-h-screen items-center justify-center bg-stone-50'>
         <div className='text-center'>
           <h1 className='text-2xl font-semibold text-stone-800'>
-            Truy cập bị từ chối
+            {t('accessDenied')}
           </h1>
-          <p className='mt-2 text-stone-600'>
-            Bạn không có quyền thêm thành viên.
-          </p>
+          <p className='mt-2 text-stone-600'>{t('noAddMemberPermission')}</p>
         </div>
       </div>
     )
@@ -38,15 +38,15 @@ export default async function NewMemberPage() {
           <Link
             href='/dashboard/members'
             className='-ml-2 rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600'
-            title='Quay lại danh sách'>
+            title={t('backToMembers')}>
             <ArrowLeft className='size-5' />
           </Link>
-          <h1 className='title'>Thêm thành viên mới</h1>
+          <h1 className='title'>{t('newMember')}</h1>
         </div>
         <Link
           href='/dashboard/members'
           className='rounded-lg bg-stone-100/80 px-4 py-2 text-sm font-medium text-stone-700 shadow-sm transition-all hover:bg-stone-200 hover:text-stone-900'>
-          Hủy
+          {t('cancel')}
         </Link>
       </div>
 

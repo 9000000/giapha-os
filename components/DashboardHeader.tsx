@@ -1,5 +1,6 @@
 import config from '@/app/config'
 import HeaderMenu from '@/components/HeaderMenu'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -26,6 +27,7 @@ export default function DashboardHeader() {
           </Link>
         </div>
         <div className='flex items-center gap-4'>
+          <LanguageSwitcher />
           <HeaderMenu />
         </div>
       </div>

@@ -2,6 +2,8 @@
 
 import config from '@/app/config'
 import Footer from '@/components/Footer'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { createClient } from '@/utils/supabase/client'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Info, KeyRound, Mail, Shield, UserPlus } from 'lucide-react'
@@ -13,6 +15,7 @@ const ssoGuideUrl =
   'https://github.com/homielab/giapha-os#đăng-nhập-bằng-google-và-facebook'
 
 export default function LoginPage() {
+  const { t } = useI18n()
   const isDemo =
     typeof window !== 'undefined' &&
     window.location.hostname === config.demoDomain
@@ -33,9 +36,7 @@ export default function LoginPage() {
 
   const handleOAuthLogin = async (provider: 'google' | 'facebook') => {
     if (isDemo) {
-      setError(
-        'Đây là trang demo, vui lòng sử dụng tài khoản demo để truy cập.'
-      )
+      setError(t('demoOAuthNotice'))
       return
     }
 
@@ -54,7 +55,9 @@ export default function LoginPage() {
     if (error) {
       setSsoError(true)
       setError(
-        `Đăng nhập với ${provider === 'google' ? 'Google' : 'Facebook'} chưa được cấu hình trên hệ thống.`
+        t('oauthNotConfigured', {
+          provider: provider === 'google' ? 'Google' : 'Facebook'
+        })
       )
       setLoading(false)
     }
@@ -82,7 +85,7 @@ export default function LoginPage() {
         }
       } else {
         if (password !== confirmPassword) {
-          setError('Mật khẩu xác nhận không khớp.')
+          setError(t('passwordMismatch'))
           setLoading(false)
           return
         }
@@ -123,9 +126,7 @@ export default function LoginPage() {
               router.push('/dashboard')
               router.refresh()
             } else {
-              setSuccessMessage(
-                'Đăng ký thành công! Vui lòng chờ admin kích hoạt tài khoản để xem nội dung.'
-              )
+              setSuccessMessage(t('signupSuccess'))
               setIsLogin(true) // Switch back to login view
               setConfirmPassword('') // clear confirm password
               setPassword('') // clear password
@@ -134,7 +135,7 @@ export default function LoginPage() {
         }
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      setError(t('unexpectedError'))
       console.error(err)
     } finally {
       setLoading(false)
@@ -152,6 +153,10 @@ export default function LoginPage() {
         <div className='absolute bottom-[0%] left-[-10%] h-[60vw] max-h-[800px] w-[60vw] max-w-[800px] rounded-full bg-rose-200/20 mix-blend-multiply blur-[120px]' />
       </div>
 
+      <div className='absolute top-6 right-6 z-20'>
+        <LanguageSwitcher />
+      </div>
+
       <div className='relative z-10 flex w-full flex-1 items-center justify-center px-4 py-12'>
         <motion.div
           className='relative w-full max-w-md overflow-hidden rounded-3xl border border-white/80 bg-white/70 p-8 backdrop-blur-xl sm:p-10'
@@ -167,12 +172,10 @@ export default function LoginPage() {
               <Shield className='size-8 text-amber-600' />
             </Link>
             <h2 className='font-serif text-3xl font-semibold text-stone-900 sm:text-4xl'>
-              {isLogin ? 'Đăng nhập' : 'Đăng ký'}
+              {isLogin ? t('login') : t('signUp')}
             </h2>
             <p className='mt-3 text-sm font-medium text-stone-500'>
-              {isLogin
-                ? 'Đăng nhập để truy cập gia phả.'
-                : 'Tạo tài khoản thành viên mới.'}
+              {isLogin ? t('loginDescription') : t('signUpDescription')}
             </p>
             {isDemo && (
               <motion.div
@@ -180,7 +183,7 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className='mt-4 rounded-xl border border-amber-200/60 bg-amber-50 p-3'>
                 <p className='text-sm font-medium text-amber-800'>
-                  Website Demo. Dữ liệu đều không có thật.
+                  {t('demoNotice')}
                 </p>
               </motion.div>
             )}
@@ -214,7 +217,7 @@ export default function LoginPage() {
                 <label
                   htmlFor='password'
                   className='mb-1.5 ml-1 block text-sm font-medium text-stone-600'>
-                  Mật khẩu
+                  {t('password')}
                 </label>
                 <div className='group relative flex items-center'>
                   <KeyRound className='absolute left-3.5 size-5 text-stone-400 transition-colors group-focus-within:text-amber-500' />
@@ -225,7 +228,7 @@ export default function LoginPage() {
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                     required
                     className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
-                    placeholder='Nhập mật khẩu'
+                    placeholder={t('passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -243,7 +246,7 @@ export default function LoginPage() {
                     <label
                       htmlFor='confirmPassword'
                       className='mb-1.5 ml-1 block text-sm font-medium text-stone-600'>
-                      Xác nhận mật khẩu
+                      {t('confirmPassword')}
                     </label>
                     <div className='group relative flex items-center'>
                       <KeyRound className='absolute left-3.5 size-5 text-stone-400 transition-colors group-focus-within:text-amber-500' />
@@ -254,7 +257,7 @@ export default function LoginPage() {
                         autoComplete='new-password'
                         required={!isLogin}
                         className='block w-full rounded-xl border border-stone-200/80 bg-white/50 py-3.5 pr-4 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 outline-none focus:border-amber-400 focus:bg-white focus:ring-amber-400'
-                        placeholder='Nhập lại mật khẩu'
+                        placeholder={t('confirmPasswordPlaceholder')}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                       />
@@ -291,17 +294,13 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: -10, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: 'auto' }}
                 className='rounded-xl border border-amber-200/70 bg-amber-50 p-3 text-center text-sm font-medium text-amber-800'>
-                <p>
-                  {ssoError
-                    ? 'SSO chưa được cấu hình đầy đủ. Vui lòng liên hệ quản trị viên hoặc xem hướng dẫn.'
-                    : 'Đăng nhập bằng Google/Facebook hiện chưa được bật.'}
-                </p>
+                <p>{ssoError ? t('ssoError') : t('ssoDisabled')}</p>
                 <a
                   href={ssoGuideUrl}
                   target='_blank'
                   rel='noopener noreferrer'
                   className='mt-2 inline-block font-medium text-amber-900 underline decoration-amber-400 underline-offset-2 hover:text-amber-700'>
-                  Xem hướng dẫn cấu hình SSO
+                  {t('ssoGuide')}
                 </a>
               </motion.div>
             )}
@@ -329,11 +328,11 @@ export default function LoginPage() {
                         fill='currentColor'
                         d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'></path>
                     </svg>
-                    Đang xử lý...
+                    {t('loading')}
                   </span>
                 ) : (
                   <>
-                    {isLogin ? 'Đăng nhập' : 'Tạo tài khoản'}
+                    {isLogin ? t('login') : t('createAccount')}
                     {!isLogin && <UserPlus className='ml-1 size-4' />}
                   </>
                 )}
@@ -344,7 +343,7 @@ export default function LoginPage() {
                   <div className='relative flex items-center py-2 opacity-60'>
                     <div className='grow border-t border-stone-200'></div>
                     <span className='mx-4 shrink-0 text-sm font-medium text-stone-400'>
-                      Hoặc
+                      {t('or')}
                     </span>
                     <div className='grow border-t border-stone-200'></div>
                   </div>
@@ -403,9 +402,7 @@ export default function LoginPage() {
                 type='button'
                 onClick={() => {
                   if (isLogin && isDemo) {
-                    setError(
-                      'Đây là trang demo, bạn không cần phải tạo tài khoản. Hãy sử dụng tài khoản demo để truy cập với toàn bộ quyền.'
-                    )
+                    setError(t('demoLoginNotice'))
                     return
                   }
                   setIsLogin(!isLogin)
@@ -414,9 +411,7 @@ export default function LoginPage() {
                   setSsoError(false)
                 }}
                 className='w-full rounded-xl border border-stone-200/80 bg-white py-3.5 text-sm font-medium text-stone-600 transition-all duration-200 hover:bg-stone-50 hover:text-stone-900 focus:outline-none'>
-                {isLogin
-                  ? 'Chưa có tài khoản? Đăng ký ngay'
-                  : 'Đã có tài khoản? Đăng nhập'}
+                {isLogin ? t('noAccount') : t('hasAccount')}
               </button>
             </div>
           </form>
@@ -427,14 +422,14 @@ export default function LoginPage() {
         href='/'
         className='group absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <ArrowLeft className='size-4 transition-transform group-hover:-translate-x-1' />
-        Trang chủ
+        {t('home')}
       </Link>
 
       <Link
         href='/about'
         className='group absolute top-6 right-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <Info className='size-4 transition-transform group-hover:scale-110' />
-        Giới thiệu
+        {t('about')}
       </Link>
 
       <Footer className='relative z-10 mt-auto border-none bg-transparent' />

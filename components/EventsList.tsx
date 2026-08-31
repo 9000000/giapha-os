@@ -21,6 +21,8 @@ import {
 } from 'lucide-react'
 import { Solar } from 'lunar-javascript'
 import { useRouter } from 'next/navigation'
+import { useI18n } from '@/lib/i18n/I18nProvider'
+import type { TranslationKey, TranslationValues } from '@/lib/i18n/messages'
 import { useMemo, useState } from 'react'
 
 interface EventsListProps {
@@ -41,23 +43,24 @@ interface EventsListProps {
   customEvents?: CustomEventRecord[]
 }
 
-const DAY_LABELS: Record<string, string> = {
-  '-1': 'Hôm qua',
-  '0': 'Hôm nay',
-  '1': 'Ngày mai'
-}
+const SPECIAL_DAY_OFFSETS = new Set([-1, 0, 1])
 
-function daysUntilLabel(days: number): string {
-  if (days.toString() in DAY_LABELS) return DAY_LABELS[days.toString()]
+function daysUntilLabel(
+  days: number,
+  t: (key: TranslationKey, values?: TranslationValues) => string
+): string {
+  if (SPECIAL_DAY_OFFSETS.has(days)) {
+    return t(days === -1 ? 'yesterday' : days === 0 ? 'today' : 'tomorrow')
+  }
   if (days < 0) {
     const abs = Math.abs(days)
-    if (abs <= 30) return `${abs} ngày trước`
-    if (abs <= 60) return `${Math.ceil(abs / 7)} tuần trước`
-    return `${Math.ceil(abs / 30)} tháng trước`
+    if (abs <= 30) return t('daysAgo', { count: abs })
+    if (abs <= 60) return t('weeksAgo', { count: Math.ceil(abs / 7) })
+    return t('monthsAgo', { count: Math.ceil(abs / 30) })
   }
-  if (days <= 30) return `${days} ngày nữa`
-  if (days <= 60) return `${Math.ceil(days / 7)} tuần nữa`
-  return `${Math.ceil(days / 30)} tháng nữa`
+  if (days <= 30) return t('daysFromNow', { count: days })
+  if (days <= 60) return t('weeksFromNow', { count: Math.ceil(days / 7) })
+  return t('monthsFromNow', { count: Math.ceil(days / 30) })
 }
 
 function EventCard({
@@ -69,6 +72,7 @@ function EventCard({
   index: number
   onEditCustomEvent: (e: FamilyEvent) => void
 }) {
+  const { t } = useI18n()
   const isBirthday = event.type === 'birthday'
   const isCustom = event.type === 'custom_event'
   const isToday = event.daysUntil === 0
@@ -91,20 +95,21 @@ function EventCard({
     const now = new Date().getFullYear()
     const diff = now - event.originYear
     if (diff <= 0) return null
-    if (isBirthday) return `${diff} tuổi`
-    if (event.type === 'death_anniversary') return `${diff} năm`
+    if (isBirthday) return t('yearsOld', { count: diff })
+    if (event.type === 'death_anniversary')
+      return t('yearsSince', { count: diff })
     return null
   })()
 
   const dateLabel = (() => {
     const weekdays = [
-      'Chủ nhật',
-      'Thứ hai',
-      'Thứ ba',
-      'Thứ tư',
-      'Thứ năm',
-      'Thứ sáu',
-      'Thứ bảy'
+      t('weekdaySunday'),
+      t('weekdayMonday'),
+      t('weekdayTuesday'),
+      t('weekdayWednesday'),
+      t('weekdayThursday'),
+      t('weekdayFriday'),
+      t('weekdaySaturday')
     ]
     const d = event.nextOccurrence
     const dayOfWeek = weekdays[d.getDay()]
@@ -112,12 +117,14 @@ function EventCard({
     const month = (d.getMonth() + 1).toString().padStart(2, '0')
     const year = d.getFullYear()
 
-    let label = `${dayOfWeek}, ngày ${day}/${month}`
-    if (event.type === 'custom_event') {
-      label += `/${year}`
-    }
+    let label = t(
+      event.type === 'custom_event' ? 'calendarDateWithYear' : 'calendarDate',
+      { weekday: dayOfWeek, day, month, year }
+    )
     if (event.type === 'death_anniversary') {
-      label += ` (Âm lịch: ${event.eventDateLabel.replace(' ÂL', '')})`
+      label += t('lunarDateSuffix', {
+        date: event.eventDateLabel.replace(' ÂL', '').replace(' L', '')
+      })
     }
     return label
   })()
@@ -199,7 +206,7 @@ function EventCard({
               </span>
             )}
             {!isToday && <Clock className='size-2.5' />}
-            {daysUntilLabel(event.daysUntil)}
+            {daysUntilLabel(event.daysUntil, t)}
           </span>
         </div>
 
@@ -234,6 +241,7 @@ export default function EventsList({
   customEvents = []
 }: EventsListProps) {
   const router = useRouter()
+  const { t } = useI18n()
   const [filter, setFilter] = useState<
     'all' | 'birthday' | 'death_anniversary' | 'custom_event' | 'past'
   >('all')
@@ -265,16 +273,21 @@ export default function EventsList({
   const [todayDate] = useState(() => {
     const today = new Date()
     const weekdays = [
-      'Chủ nhật',
-      'Thứ hai',
-      'Thứ ba',
-      'Thứ tư',
-      'Thứ năm',
-      'Thứ sáu',
-      'Thứ bảy'
+      t('weekdaySunday'),
+      t('weekdayMonday'),
+      t('weekdayTuesday'),
+      t('weekdayWednesday'),
+      t('weekdayThursday'),
+      t('weekdayFriday'),
+      t('weekdaySaturday')
     ]
     const dayOfWeek = weekdays[today.getDay()]
-    const solarStr = `${dayOfWeek}, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`
+    const solarStr = t('todaySolarDate', {
+      weekday: dayOfWeek,
+      day: today.getDate(),
+      month: today.getMonth() + 1,
+      year: today.getFullYear()
+    })
     let lunarStr = ''
     try {
       const solar = Solar.fromYmd(
@@ -287,7 +300,7 @@ export default function EventsList({
       const isLeap = lMonthRaw < 0
       const lMonth = Math.abs(lMonthRaw).toString().padStart(2, '0')
       const lDay = lunar.getDay().toString().padStart(2, '0')
-      lunarStr = `${lDay}/${lMonth}${isLeap ? ' nhuận' : ''} ÂL`
+      lunarStr = `${lDay}/${lMonth}${isLeap ? t('leapMonth') : ''}${t('lunarSuffix')}`
     } catch (e) {
       console.error(e)
     }
@@ -345,7 +358,7 @@ export default function EventsList({
             {todayDate.lunar && (
               <div className='mt-2.5 inline-flex flex-wrap items-center gap-2 rounded-full border border-stone-100 bg-stone-50 px-3.5 py-1'>
                 <span className='text-sm font-medium text-stone-500'>
-                  Âm lịch:
+                  {t('lunarCalendar')}
                 </span>
                 <span className='text-sm font-medium text-stone-700'>
                   {todayDate.lunar}
@@ -361,14 +374,14 @@ export default function EventsList({
                 <span className='flex flex-wrap items-center gap-1.5'>
                   {todayCount > 0 && (
                     <span className='font-medium text-stone-700'>
-                      {todayCount} sự kiện hôm nay
+                      {t('eventsToday', { count: todayCount })}
                     </span>
                   )}
                   {todayCount > 0 && soonCount > 0 && (
                     <span className='hidden sm:inline'>·</span>
                   )}
                   {soonCount > 0 && (
-                    <span>{soonCount} sự kiện trong 7 ngày tới</span>
+                    <span>{t('eventsNext7Days', { count: soonCount })}</span>
                   )}
                 </span>
               </p>
@@ -380,7 +393,7 @@ export default function EventsList({
           onClick={handleOpenCreateModal}
           className='btn-primary relative z-10 w-full sm:w-auto'>
           <Plus className='size-5 text-stone-300' />
-          <span>Thêm sự kiện</span>
+          <span>{t('addEvent')}</span>
         </button>
       </motion.div>
 
@@ -390,11 +403,11 @@ export default function EventsList({
         <div className='flex flex-wrap items-center gap-2'>
           {(
             [
-              { key: 'all', label: 'Tất cả' },
-              { key: 'birthday', label: 'Sinh nhật' },
-              { key: 'death_anniversary', label: 'Ngày giỗ' },
-              { key: 'custom_event', label: 'Tuỳ chỉnh' },
-              { key: 'past', label: 'Đã qua' }
+              { key: 'all', label: t('eventAll') },
+              { key: 'birthday', label: t('eventBirthdays') },
+              { key: 'death_anniversary', label: t('eventDeaths') },
+              { key: 'custom_event', label: t('eventCustom') },
+              { key: 'past', label: t('eventPast') }
             ] as const
           ).map((tab) => (
             <button
@@ -414,7 +427,8 @@ export default function EventsList({
             </button>
           ))}
           <span className='ml-auto self-center text-sm text-stone-400'>
-            {filtered.length} sự kiện{filter === 'past' ? ' trong năm qua' : ''}
+            {t('eventCount', { count: filtered.length })}
+            {filter === 'past' ? t('eventPastYear') : ''}
           </span>
         </div>
 
@@ -428,7 +442,7 @@ export default function EventsList({
                 onChange={(e) => setShowDeceasedBirthdays(e.target.checked)}
                 className='size-4 rounded-md border-stone-300 text-amber-500 transition-all focus:ring-amber-500'
               />
-              Hiển thị sinh nhật của người đã mất
+              {t('showDeceasedBirthdays')}
             </label>
           </div>
         )}
@@ -438,10 +452,8 @@ export default function EventsList({
       {visible.length === 0 ? (
         <div className='py-16 text-center text-stone-400'>
           <CalendarDays className='mx-auto mb-3 size-10 opacity-40' />
-          <p className='font-medium'>Không có sự kiện nào</p>
-          <p className='mt-1 text-sm'>
-            Hãy bổ sung ngày sinh hoặc ngày mất cho thành viên
-          </p>
+          <p className='font-medium'>{t('noEvents')}</p>
+          <p className='mt-1 text-sm'>{t('noEventsHint')}</p>
         </div>
       ) : (
         <div className='space-y-2.5'>
@@ -461,7 +473,7 @@ export default function EventsList({
         <button
           onClick={() => setShowCount((n) => n + 20)}
           className='btn w-full'>
-          Xem thêm {filtered.length - showCount} sự kiện…
+          {t('loadMoreEvents', { count: filtered.length - showCount })}
         </button>
       )}
 

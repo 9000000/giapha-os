@@ -1,5 +1,6 @@
 'use server'
 
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getIsAdmin } from '@/utils/supabase/queries'
 import packageJson from '@/package.json'
 import postgres from 'postgres'
@@ -9,6 +10,7 @@ import path from 'node:path'
 const SOURCE_REPOSITORY = 'homielab/giapha-os'
 const SOURCE_BRANCH = 'main'
 const SOURCE_README_URL = `https://github.com/${SOURCE_REPOSITORY}/blob/${SOURCE_BRANCH}/README.md#hướng-dẫn-cập-nhật-source-code`
+const SOURCE_README_EN_URL = `https://github.com/${SOURCE_REPOSITORY}/blob/${SOURCE_BRANCH}/README.en.md#source-code-updates`
 const SOURCE_PACKAGE_URL = `https://raw.githubusercontent.com/${SOURCE_REPOSITORY}/${SOURCE_BRANCH}/package.json`
 
 const MIGRATION_FILES = [
@@ -103,6 +105,9 @@ function compareVersions(left: ParsedVersion, right: ParsedVersion) {
 }
 
 export async function getSourceVersionStatus(): Promise<SourceVersionStatus> {
+  const { locale, t } = await getServerTranslations()
+  const sourceReadmeUrl =
+    locale === 'en' ? SOURCE_README_EN_URL : SOURCE_README_URL
   const currentVersion = parseVersion(packageJson.version)
   const currentVersionLabel =
     typeof packageJson.version === 'string' ? packageJson.version : null
@@ -138,10 +143,8 @@ export async function getSourceVersionStatus(): Promise<SourceVersionStatus> {
             : 'current',
       currentVersion: currentVersionLabel,
       latestVersion: latestVersionLabel,
-      readmeUrl: SOURCE_README_URL,
-      ...(comparison !== null
-        ? {}
-        : { error: 'Không xác định được version trong package.json hiện tại.' })
+      readmeUrl: sourceReadmeUrl,
+      ...(comparison !== null ? {} : { error: t('sourceVersionUnknownError') })
     }
   } catch (error) {
     console.error('Cannot inspect source version:', error)
@@ -149,8 +152,8 @@ export async function getSourceVersionStatus(): Promise<SourceVersionStatus> {
       state: 'unknown',
       currentVersion: currentVersionLabel,
       latestVersion: null,
-      readmeUrl: SOURCE_README_URL,
-      error: 'Không thể kiểm tra version source code trên GitHub.'
+      readmeUrl: sourceReadmeUrl,
+      error: t('sourceVersionFetchError')
     }
   }
 }
@@ -199,6 +202,9 @@ async function ensureMigrationTable(sql: ReturnType<typeof postgres>) {
 }
 
 export async function getMigrationStatus(): Promise<MigrationStatus> {
+  const { locale, t } = await getServerTranslations()
+  const sourceReadmeUrl =
+    locale === 'en' ? SOURCE_README_EN_URL : SOURCE_README_URL
   const isAdmin = await getIsAdmin()
   const definitions = await getMigrationDefinitions()
 
@@ -206,12 +212,12 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
     return {
       configured: Boolean(process.env.SUPABASE_DB_URL),
       databaseReachable: false,
-      error: 'Từ chối truy cập.',
+      error: t('migrationAccessDenied'),
       source: {
         state: 'unknown',
         currentVersion: null,
         latestVersion: null,
-        readmeUrl: SOURCE_README_URL
+        readmeUrl: sourceReadmeUrl
       },
       migrations: definitions.map(({ id, file }) => ({
         id,
@@ -228,7 +234,7 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
     return {
       configured: false,
       databaseReachable: false,
-      error: 'Chưa cấu hình SUPABASE_DB_URL trên server.',
+      error: t('databaseConfigMissing'),
       source,
       migrations: definitions.map(({ id, file }) => ({
         id,
@@ -270,7 +276,7 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
     return {
       configured: true,
       databaseReachable: false,
-      error: 'Không thể kết nối hoặc đọc trạng thái migration.',
+      error: t('migrationStatusError'),
       source,
       migrations: definitions.map(({ id, file }) => ({
         id,
@@ -284,8 +290,9 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
 }
 
 export async function runPendingMigrations() {
+  const { t } = await getServerTranslations()
   const isAdmin = await getIsAdmin()
-  if (!isAdmin) return { success: false, error: 'Từ chối truy cập.' }
+  if (!isAdmin) return { success: false, error: t('migrationAccessDenied') }
 
   const source = await getSourceVersionStatus()
   if (source.state !== 'current') {
@@ -293,8 +300,8 @@ export async function runPendingMigrations() {
       success: false,
       error:
         source.state === 'outdated'
-          ? 'Source code chưa ở version mới nhất. Hãy cập nhật source code rồi thử lại.'
-          : 'Không thể xác minh version source code. Migration đã bị tạm khóa.'
+          ? t('sourceOutdatedError')
+          : t('sourceVersionCheckError')
     }
   }
 
@@ -302,7 +309,7 @@ export async function runPendingMigrations() {
   if (!sql) {
     return {
       success: false,
-      error: 'Chưa cấu hình SUPABASE_DB_URL trên server.'
+      error: t('databaseConfigMissing')
     }
   }
 
@@ -352,8 +359,8 @@ export async function runPendingMigrations() {
       success: true,
       applied: result,
       message: result.length
-        ? `Đã chạy ${result.length} migration.`
-        : 'Database đã ở phiên bản mới nhất.'
+        ? t('migrationsApplied', { count: result.length })
+        : t('databaseAlreadyCurrent')
     }
   } catch (error) {
     console.error('Cannot run pending migrations:', error)
@@ -361,8 +368,10 @@ export async function runPendingMigrations() {
       success: false,
       error:
         error instanceof Error && error.message.startsWith('Migration failed:')
-          ? `Không thể chạy ${error.message.replace('Migration failed: ', '')}.`
-          : 'Không thể chạy migration. Kiểm tra SUPABASE_DB_URL và log server.'
+          ? t('migrationFailed', {
+              file: error.message.replace('Migration failed: ', '')
+            })
+          : t('migrationRunError')
     }
   } finally {
     await sql.end({ timeout: 5 })

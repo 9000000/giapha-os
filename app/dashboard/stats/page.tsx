@@ -1,11 +1,15 @@
 import FamilyStats from '@/components/FamilyStats'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getSupabase } from '@/utils/supabase/queries'
 
-export const metadata = {
-  title: 'Thống kê gia phả'
+export async function generateMetadata() {
+  const { t } = await getServerTranslations()
+
+  return { title: t('statsPageTitle') }
 }
 
 export default async function StatsPage() {
+  const { t } = await getServerTranslations()
   const supabase = await getSupabase()
 
   const { data: persons } = await supabase.from('persons').select('*')
@@ -16,9 +20,9 @@ export default async function StatsPage() {
   return (
     <div className='relative flex w-full flex-1 flex-col pb-12'>
       <div className='relative z-20 mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8'>
-        <h1 className='title'>Thống kê gia phả</h1>
+        <h1 className='title'>{t('statsPageTitle')}</h1>
         <p className='mt-1 text-sm text-stone-500'>
-          Tổng quan số liệu về các thành viên trong dòng họ
+          {t('statsPageDescription')}
         </p>
       </div>
 

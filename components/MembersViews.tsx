@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { useMemberListView } from '@/context/MemberListContext'
 import MemberList from '@/components/MemberList'
 import RootSelector from '@/components/RootSelector'
@@ -15,12 +16,15 @@ const BubbleMapTree = dynamic(
     import('@/components/BubbleMapTree').catch((err) => {
       console.error('Failed to load BubbleMapTree:', err)
       return {
-        default: () => (
-          <div className='absolute inset-0 flex items-center justify-center rounded-2xl border border-stone-200/60 bg-stone-50 p-4 text-center text-stone-500'>
-            Tính năng này không được hỗ trợ trên trình duyệt của bạn. Vui lòng
-            cập nhật hoặc sử dụng trình duyệt khác.
-          </div>
-        )
+        default: function BubbleMapFallback() {
+          const { t } = useI18n()
+
+          return (
+            <div className='absolute inset-0 flex items-center justify-center rounded-2xl border border-stone-200/60 bg-stone-50 p-4 text-center text-stone-500'>
+              {t('unsupportedBrowserNoDetails')}
+            </div>
+          )
+        }
       }
     }),
   { ssr: false }

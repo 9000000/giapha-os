@@ -4,6 +4,7 @@ import { Person, Relationship } from '@/types'
 import { Share2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useMemberListView } from '@/context/MemberListContext'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { MindmapContextData, MindmapNode } from './MindmapNode'
 import MindmapToolbar from './MindmapToolbar'
 
@@ -25,6 +26,7 @@ export default function MindmapTree({
   canEdit
 }: MindmapTreeProps) {
   const { showAvatar, setMemberModalId } = useMemberListView()
+  const { t } = useI18n()
   const [hideDaughtersInLaw, setHideDaughtersInLaw] = useState(false)
   const [hideSonsInLaw, setHideSonsInLaw] = useState(false)
   const [hideDaughters, setHideDaughters] = useState(false)
@@ -81,7 +83,7 @@ export default function MindmapTree({
         <div className='mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-stone-100'>
           <Share2 className='size-8 text-stone-300' />
         </div>
-        <p className='font-medium text-stone-500'>Gia phả trống</p>
+        <p className='font-medium text-stone-500'>{t('emptyFamilyTree')}</p>
       </div>
     )
   }

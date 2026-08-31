@@ -1,8 +1,10 @@
 import DataImportExport from '@/components/DataImportExport'
 import { getProfile } from '@/utils/supabase/queries'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { redirect } from 'next/navigation'
 
 export default async function DataManagementPage() {
+  const { t } = await getServerTranslations()
   const profile = await getProfile()
 
   if (profile?.role !== 'admin' || !profile.is_active) {
@@ -18,11 +20,9 @@ export default async function DataManagementPage() {
       <div className='relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8'>
         <div className='mb-8 flex flex-col items-start justify-between sm:flex-row sm:items-center'>
           <div>
-            <h1 className='title'>Sao lưu & Phục hồi</h1>
+            <h1 className='title'>{t('backupTitle')}</h1>
             <p className='mt-2 max-w-2xl text-sm text-stone-500 sm:text-sm'>
-              Quản lý dữ liệu an toàn. Bạn có thể tải xuống bản sao lưu để lưu
-              trữ hoặc phục hồi lại dữ liệu từ file đã lưu. Tính năng này chỉ
-              dành cho Quản trị viên.
+              {t('backupDescription')}
             </p>
           </div>
         </div>

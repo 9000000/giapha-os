@@ -5,6 +5,7 @@ import { Filter } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useMemberListView } from '@/context/MemberListContext'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import ExportButton from './ExportButton'
 
 export interface BaseToolbarProps {
@@ -49,6 +50,7 @@ export default function BaseToolbar({
   children
 }: BaseToolbarProps) {
   const { showAvatar, setShowAvatar } = useMemberListView()
+  const { t } = useI18n()
   const [showFilters, setShowFilters] = useState(false)
   const filtersRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
@@ -97,7 +99,7 @@ export default function BaseToolbar({
               : 'border-stone-200/60 bg-white/80 text-stone-600 backdrop-blur-md hover:bg-white hover:text-stone-900'
           }`}>
           <Filter className='size-4' />
-          <span className='hidden sm:inline'>Hiển thị</span>
+          <span className='hidden sm:inline'>{t('show')}</span>
         </button>
 
         <AnimatePresence>
@@ -109,7 +111,7 @@ export default function BaseToolbar({
               transition={{ duration: 0.15, ease: 'easeOut' }}
               className='absolute top-full right-0 z-50 mt-2 flex w-48 flex-col gap-3 rounded-3xl border border-border bg-surface/95 p-4 backdrop-blur-xl'>
               <div className='mb-1 text-sm font-medium text-stone-400'>
-                HIỂN THỊ
+                {t('display')}
               </div>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
@@ -118,7 +120,7 @@ export default function BaseToolbar({
                   onChange={(e) => setShowAvatar(!e.target.checked)}
                   className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
-                Tối giản
+                {t('minimal')}
               </label>
               {setHideExpandButtons && (
                 <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
@@ -128,12 +130,12 @@ export default function BaseToolbar({
                     onChange={(e) => setHideExpandButtons(e.target.checked)}
                     className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                   />
-                  Ẩn nút đóng/mở
+                  {t('hideExpandCollapse')}
                 </label>
               )}
               {setAutoCollapseLevel && (
                 <label className='flex cursor-pointer items-center justify-between gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
-                  <span>Số thế hệ</span>
+                  <span>{t('generations')}</span>
                   <input
                     type='number'
                     min={0}
@@ -150,7 +152,7 @@ export default function BaseToolbar({
 
               <div className='my-1 flex h-px w-full items-center gap-2 bg-stone-100 font-medium text-stone-400'></div>
               <div className='mb-1 text-sm font-medium text-stone-400'>
-                LỌC DỮ LIỆU
+                {t('filters')}
               </div>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
@@ -159,7 +161,7 @@ export default function BaseToolbar({
                   onChange={(e) => setHideDaughtersInLaw(e.target.checked)}
                   className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
-                Ẩn dâu
+                {t('hideDaughtersInLaw')}
               </label>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
@@ -168,7 +170,7 @@ export default function BaseToolbar({
                   onChange={(e) => setHideSonsInLaw(e.target.checked)}
                   className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
-                Ẩn rể
+                {t('hideSonsInLaw')}
               </label>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
@@ -177,7 +179,7 @@ export default function BaseToolbar({
                   onChange={(e) => setHideDaughters(e.target.checked)}
                   className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
-                Ẩn con gái
+                {t('hideDaughters')}
               </label>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
@@ -186,7 +188,7 @@ export default function BaseToolbar({
                   onChange={(e) => setHideSons(e.target.checked)}
                   className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
-                Ẩn con trai
+                {t('hideSons')}
               </label>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
@@ -195,7 +197,7 @@ export default function BaseToolbar({
                   onChange={(e) => setHideMales(e.target.checked)}
                   className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
-                Ẩn nam
+                {t('hideMales')}
               </label>
               <label className='flex cursor-pointer items-center gap-2 text-sm text-stone-600 transition-colors select-none hover:text-stone-900'>
                 <input
@@ -204,7 +206,7 @@ export default function BaseToolbar({
                   onChange={(e) => setHideFemales(e.target.checked)}
                   className='size-4 cursor-pointer rounded text-amber-600 focus:ring-amber-500'
                 />
-                Ẩn nữ
+                {t('hideFemales')}
               </label>
             </motion.div>
           )}

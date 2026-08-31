@@ -1,10 +1,14 @@
 import { getSupabase, getIsAdmin } from '@/utils/supabase/queries'
+import { getServerTranslations } from '@/lib/i18n/server'
 import GalleryClient from '@/components/GalleryClient'
 import { getGalleryStoragePath } from '@/utils/supabase/storage-path'
 
-export const metadata = {
-  title: 'Phòng trưng bày | Gia Phả OS',
-  description: 'Lưu giữ và chia sẻ hình ảnh, kỷ niệm dòng họ'
+export async function generateMetadata() {
+  const { t } = await getServerTranslations()
+  return {
+    title: `${t('galleryTitle')} | Gia Phả OS`,
+    description: t('galleryDescription')
+  }
 }
 
 export default async function GalleryPage() {

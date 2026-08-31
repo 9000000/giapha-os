@@ -1,10 +1,12 @@
 import config from '@/app/config'
 import DashboardHeader from '@/components/DashboardHeader'
 import Footer from '@/components/Footer'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import LogoutButton from '@/components/LogoutButton'
 import { UserProvider } from '@/components/UserProvider'
 import { getProfile, getUser } from '@/utils/supabase/queries'
 import Link from 'next/link'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
@@ -13,6 +15,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const { t } = await getServerTranslations()
   const user = await getUser()
 
   if (!user) {
@@ -33,8 +36,11 @@ export default async function DashboardLayout({
                 </h1>
               </Link>
             </div>
-            <div className='w-32'>
-              <LogoutButton />
+            <div className='flex items-center gap-3'>
+              <LanguageSwitcher />
+              <div className='w-32'>
+                <LogoutButton />
+              </div>
             </div>
           </div>
         </header>
@@ -55,16 +61,11 @@ export default async function DashboardLayout({
               </svg>
             </div>
             <h2 className='mb-2 font-serif text-2xl font-semibold text-stone-800'>
-              Tài khoản chờ duyệt
+              {t('pendingTitle')}
             </h2>
-            <p className='text-stone-600'>
-              Tài khoản của bạn đã được đăng ký thành công. Tuy nhiên, hệ thống
-              yêu cầu Quản trị viên kích hoạt tài khoản của bạn trước khi bạn có
-              thể xem các thông tin gia đình.
-            </p>
+            <p className='text-stone-600'>{t('pendingDescription')}</p>
             <p className='mt-4 text-sm text-stone-500 italic'>
-              Vui lòng liên hệ lại với người quản trị dòng họ để được cấp quyền
-              sớm nhất.
+              {t('pendingNote')}
             </p>
           </div>
         </main>

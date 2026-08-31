@@ -1,11 +1,13 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Check, ClipboardCopy } from 'lucide-react'
 import { useState } from 'react'
 
 export default function CopyButton({ content }: { content: string }) {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useI18n()
 
   const handleCopy = async () => {
     try {
@@ -14,9 +16,7 @@ export default function CopyButton({ content }: { content: string }) {
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy text: ', err)
-      setError(
-        'Không thể copy. Trình duyệt của bạn có thể không hỗ trợ tính năng này.'
-      )
+      setError(t('copyError'))
       setTimeout(() => setError(null), 3000)
     }
   }
@@ -33,12 +33,12 @@ export default function CopyButton({ content }: { content: string }) {
         {copied ? (
           <>
             <Check className='size-5' />
-            Đã Copy thành công!
+            {t('copySuccess')}
           </>
         ) : (
           <>
             <ClipboardCopy className='size-5' />
-            Copy toàn bộ SQL
+            {t('copyAllSql')}
           </>
         )}
       </button>

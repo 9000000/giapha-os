@@ -1,11 +1,14 @@
 import KinshipFinder from '@/components/KinshipFinder'
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getSupabase } from '@/utils/supabase/queries'
 
-export const metadata = {
-  title: 'Tra cứu danh xưng'
+export async function generateMetadata() {
+  const { t } = await getServerTranslations()
+  return { title: t('kinshipPageTitle') }
 }
 
 export default async function KinshipPage() {
+  const { t } = await getServerTranslations()
   const supabase = await getSupabase()
 
   const { data: persons } = await supabase
@@ -22,9 +25,9 @@ export default async function KinshipPage() {
   return (
     <div className='relative flex w-full flex-1 flex-col pb-12'>
       <div className='relative z-20 mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 lg:px-8'>
-        <h1 className='title'>Tra cứu danh xưng</h1>
+        <h1 className='title'>{t('kinshipPageTitle')}</h1>
         <p className='mt-1 text-sm text-stone-500'>
-          Chọn hai thành viên để tự động tính cách gọi theo quan hệ gia phả
+          {t('kinshipPageDescription')}
         </p>
       </div>
 

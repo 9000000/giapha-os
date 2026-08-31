@@ -1,6 +1,7 @@
 'use client'
 
 import { GalleryItem } from '@/types'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Clock, LayoutGrid, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -19,6 +20,7 @@ export default function GalleryClient({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null)
   const router = useRouter()
+  const { t } = useI18n()
 
   const handleUploadSuccess = () => {
     setIsModalOpen(false)
@@ -47,9 +49,9 @@ export default function GalleryClient({
       <div className='mb-8 flex flex-col items-stretch justify-between gap-4 sm:mb-12 sm:flex-row sm:items-center'>
         <div className='flex items-center gap-3'>
           <div>
-            <h1 className='title'>Phòng trưng bày</h1>
+            <h1 className='title'>{t('galleryTitle')}</h1>
             <p className='mt-2 text-sm text-stone-500 sm:text-sm'>
-              Lưu giữ những kỷ niệm và khoảnh khắc đáng nhớ
+              {t('galleryDescription')}
             </p>
           </div>
         </div>
@@ -64,9 +66,9 @@ export default function GalleryClient({
                   ? 'bg-white text-stone-900 shadow-xs'
                   : 'text-stone-500 hover:text-stone-800'
               }`}
-              title='Chế độ lưới'>
+              title={t('gridView')}>
               <LayoutGrid className='size-4' />
-              <span className='xs:inline hidden'>Lưới</span>
+              <span className='xs:inline hidden'>{t('gridView')}</span>
             </button>
             <button
               onClick={() => setViewMode('timeline')}
@@ -75,9 +77,9 @@ export default function GalleryClient({
                   ? 'bg-white text-stone-900 shadow-xs'
                   : 'text-stone-500 hover:text-stone-800'
               }`}
-              title='Chế độ dòng thời gian'>
+              title={t('timelineView')}>
               <Clock className='size-4' />
-              <span className='xs:inline hidden'>Dòng thời gian</span>
+              <span className='xs:inline hidden'>{t('timelineView')}</span>
             </button>
           </div>
 
@@ -86,7 +88,7 @@ export default function GalleryClient({
               onClick={() => setIsModalOpen(true)}
               className='btn-primary whitespace-nowrap'>
               <Plus className='size-5' />
-              <span>Thêm hình ảnh</span>
+              <span>{t('addImage')}</span>
             </button>
           )}
         </div>

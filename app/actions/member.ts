@@ -1,5 +1,6 @@
 'use server'
 
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getProfile, getSupabase } from '@/utils/supabase/queries'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -8,8 +9,9 @@ const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export async function deleteMemberProfile(memberId: string) {
+  const { t } = await getServerTranslations()
   if (!UUID_PATTERN.test(memberId)) {
-    return { error: 'Hồ sơ không hợp lệ.' }
+    return { error: t('invalidProfile') }
   }
 
   const profile = await getProfile()
@@ -20,7 +22,7 @@ export async function deleteMemberProfile(memberId: string) {
     (profile.role !== 'admin' && profile.role !== 'editor')
   ) {
     return {
-      error: 'Từ chối truy cập. Chỉ Admin hoặc Editor mới có quyền xoá hồ sơ.'
+      error: t('memberDeleteAccessDenied')
     }
   }
 
@@ -33,13 +35,12 @@ export async function deleteMemberProfile(memberId: string) {
 
   if (relationshipError) {
     console.error('Error checking relationships:', relationshipError)
-    return { error: 'Lỗi kiểm tra mối quan hệ gia đình.' }
+    return { error: t('relationshipCheckError') }
   }
 
   if (relationships && relationships.length > 0) {
     return {
-      error:
-        'Không thể xoá. Vui lòng xoá hết các mối quan hệ gia đình của người này trước.'
+      error: t('memberHasRelationships')
     }
   }
 
@@ -51,7 +52,7 @@ export async function deleteMemberProfile(memberId: string) {
 
   if (deleteError) {
     console.error('Error deleting person:', deleteError)
-    return { error: 'Đã xảy ra lỗi khi xoá hồ sơ.' }
+    return { error: t('memberDeleteError') }
   }
 
   // 4. Revalidate and redirect
@@ -63,8 +64,9 @@ export async function updateDescendantGenerationsAction(
   personId: string,
   generationDelta: number
 ) {
+  const { t } = await getServerTranslations()
   if (!UUID_PATTERN.test(personId)) {
-    return { error: 'Hồ sơ không hợp lệ.' }
+    return { error: t('invalidProfile') }
   }
 
   if (
@@ -74,7 +76,7 @@ export async function updateDescendantGenerationsAction(
   ) {
     return generationDelta === 0
       ? { success: true }
-      : { error: 'Giá trị thay đổi thế hệ không hợp lệ.' }
+      : { error: t('invalidGenerationDelta') }
   }
 
   const profile = await getProfile()
@@ -85,7 +87,7 @@ export async function updateDescendantGenerationsAction(
     (profile.role !== 'admin' && profile.role !== 'editor')
   ) {
     return {
-      error: 'Từ chối truy cập. Chỉ Admin hoặc Editor mới có quyền chỉnh sửa.'
+      error: t('memberEditAccessDenied')
     }
   }
 
@@ -97,7 +99,7 @@ export async function updateDescendantGenerationsAction(
 
   if (relError) {
     console.error('Error fetching relationships:', relError)
-    return { error: 'Lỗi lấy danh sách quan hệ' }
+    return { error: t('relationshipsFetchError') }
   }
 
   // Build children map (person_a is parent, person_b is child)
@@ -132,7 +134,7 @@ export async function updateDescendantGenerationsAction(
 
   if (personsError) {
     console.error('Error fetching persons:', personsError)
-    return { error: 'Lỗi lấy thông tin thế hệ' }
+    return { error: t('generationsFetchError') }
   }
 
   // 4. Update each descendant's generation
@@ -154,7 +156,7 @@ export async function updateDescendantGenerationsAction(
   }
 
   if (hasError) {
-    return { error: 'Có lỗi xảy ra khi cập nhật một số thế hệ sau' }
+    return { error: t('descendantGenerationUpdateError') }
   }
 
   return { success: true }

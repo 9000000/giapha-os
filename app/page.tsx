@@ -1,4 +1,5 @@
 import Footer from '@/components/Footer'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import LandingHero from '@/components/LandingHero'
 import config from './config'
 
@@ -12,6 +13,10 @@ export default function HomePage() {
       <div className='pointer-events-none absolute inset-x-0 top-0 flex h-screen justify-center overflow-hidden'>
         <div className='absolute top-[-10%] right-[-5%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-amber-300/20 mix-blend-multiply blur-[100px]' />
         <div className='absolute top-[20%] left-[-10%] h-[60vw] max-h-[800px] w-[60vw] max-w-[800px] rounded-full bg-rose-200/20 mix-blend-multiply blur-[120px]' />
+      </div>
+
+      <div className='absolute top-6 right-6 z-20'>
+        <LanguageSwitcher />
       </div>
 
       <main className='relative z-10 flex w-full flex-1 flex-col items-center justify-center px-4 py-20 md:py-32'>

@@ -1,3 +1,4 @@
+import { getServerTranslations } from '@/lib/i18n/server'
 import { getTodayLunar } from '@/utils/dateHelpers'
 import { computeEvents } from '@/utils/eventHelpers'
 import { getIsAdmin, getSupabase } from '@/utils/supabase/queries'
@@ -22,25 +23,23 @@ import Link from 'next/link'
 const eventTypeConfig = {
   birthday: {
     icon: Cake,
-    label: 'Sinh nhật',
     color: 'text-amber-600',
     bg: 'bg-amber-50'
   },
   death_anniversary: {
     icon: Flower2,
-    label: 'Ngày giỗ',
     color: 'text-purple-600',
     bg: 'bg-purple-50'
   },
   custom_event: {
     icon: Star,
-    label: 'Sự kiện',
     color: 'text-emerald-600',
     bg: 'bg-emerald-50'
   }
 }
 
 export default async function DashboardLaunchpad() {
+  const { t } = await getServerTranslations()
   const isAdmin = await getIsAdmin()
   const supabase = await getSupabase()
 
@@ -65,26 +64,17 @@ export default async function DashboardLaunchpad() {
   /* ── Feature lists ────────────────────────────────────────────── */
   const publicFeatures = [
     {
-      title: 'Cây gia phả',
-      description: 'Xem và tương tác với sơ đồ dòng họ',
+      title: t('familyTree'),
+      description: t('familyTreeDescription'),
       icon: <Network className='size-8 text-amber-600' />,
       href: '/dashboard/members',
       bgColor: 'bg-amber-50',
       borderColor: 'border-amber-200/60',
       hoverColor: 'hover:border-amber-400 '
     },
-    // {
-    //   title: "Sự kiện",
-    //   description: "Quản lý ngày giỗ, họp họ và các dịp quan trọng",
-    //   icon: <CalendarClock className="size-8 text-emerald-600" />,
-    //   href: "/dashboard/events",
-    //   bgColor: "bg-emerald-50",
-    //   borderColor: "border-emerald-200/60",
-    //   hoverColor: "hover:border-emerald-400 ",
-    // },
     {
-      title: 'Tra cứu danh xưng',
-      description: 'Hệ thống gọi tên họ hàng chuẩn xác',
+      title: t('kinship'),
+      description: t('kinshipDescription'),
       icon: <GitMerge className='size-8 text-blue-600' />,
       href: '/dashboard/kinship',
       bgColor: 'bg-blue-50',
@@ -92,8 +82,8 @@ export default async function DashboardLaunchpad() {
       hoverColor: 'hover:border-blue-400 '
     },
     {
-      title: 'Thống kê gia phả',
-      description: 'Tổng quan dữ liệu và biểu đồ phân tích',
+      title: t('statsPageTitle'),
+      description: t('statisticsDescription'),
       icon: <BarChart2 className='size-8 text-purple-600' />,
       href: '/dashboard/stats',
       bgColor: 'bg-purple-50',
@@ -101,8 +91,8 @@ export default async function DashboardLaunchpad() {
       hoverColor: 'hover:border-purple-400 '
     },
     {
-      title: 'Phòng trưng bày',
-      description: 'Lưu giữ và chia sẻ hình ảnh, kỷ niệm dòng họ',
+      title: t('galleryTitle'),
+      description: t('galleryDescriptionShort'),
       icon: <ImageIcon className='size-8 text-pink-600' />,
       href: '/dashboard/gallery',
       bgColor: 'bg-pink-50',
@@ -110,8 +100,8 @@ export default async function DashboardLaunchpad() {
       hoverColor: 'hover:border-pink-400 '
     },
     {
-      title: 'Giới thiệu & Liên hệ',
-      description: 'Thông tin về ứng dụng và đội ngũ phát triển',
+      title: t('about'),
+      description: t('aboutDescriptionShort'),
       icon: <Info className='size-8 text-stone-600' />,
       href: '/about',
       bgColor: 'bg-stone-50',
@@ -122,8 +112,8 @@ export default async function DashboardLaunchpad() {
 
   const adminFeatures = [
     {
-      title: 'Quản lý người dùng',
-      description: 'Phê duyệt tài khoản và phân quyền',
+      title: t('manageUsers'),
+      description: t('manageUsersDescription'),
       icon: <Users className='size-8 text-rose-600' />,
       href: '/dashboard/users',
       bgColor: 'bg-rose-50',
@@ -131,8 +121,8 @@ export default async function DashboardLaunchpad() {
       hoverColor: 'hover:border-rose-400 '
     },
     {
-      title: 'Thứ tự gia phả',
-      description: 'Sắp xếp và xem cấu trúc hệ thống',
+      title: t('lineageOrder'),
+      description: t('lineageDescription'),
       icon: <Network className='size-8 text-indigo-600' />,
       href: '/dashboard/lineage',
       bgColor: 'bg-indigo-50',
@@ -140,8 +130,8 @@ export default async function DashboardLaunchpad() {
       hoverColor: 'hover:border-indigo-400 '
     },
     {
-      title: 'Sao lưu & Phục hồi',
-      description: 'Xuất/Nhập dữ liệu toàn hệ thống',
+      title: t('backupRestore'),
+      description: t('backupDescriptionShort'),
       icon: <Database className='size-8 text-teal-600' />,
       href: '/dashboard/data',
       bgColor: 'bg-teal-50',
@@ -149,8 +139,8 @@ export default async function DashboardLaunchpad() {
       hoverColor: 'hover:border-teal-400 '
     },
     {
-      title: 'Nâng cấp hệ thống',
-      description: 'Kiểm tra và đồng bộ source code, database',
+      title: t('upgrade'),
+      description: t('upgradeDescriptionShort'),
       icon: <ArrowUpCircle className='size-8 text-amber-600' />,
       href: '/dashboard/upgrade',
       bgColor: 'bg-amber-50',
@@ -161,10 +151,6 @@ export default async function DashboardLaunchpad() {
 
   return (
     <main className='mx-auto flex w-full max-w-7xl flex-1 flex-col p-4 sm:p-8'>
-      {/* <div className="mb-8 sm:mb-12 text-center sm:text-left">
-        <h1 className="title">Bảng điều khiển</h1>
-      </div> */}
-
       {/* ── Today's Date & Upcoming Events ─────────────────── */}
       <Link
         href='/dashboard/events'
@@ -184,14 +170,14 @@ export default async function DashboardLaunchpad() {
               </p>
               <div className='mt-3 inline-flex items-center gap-2 rounded-full border border-stone-100 bg-stone-50 px-3.5 py-1.5'>
                 <span className='text-sm font-medium text-stone-500'>
-                  Âm lịch:
+                  {t('dashboardTodayLunar')}
                 </span>
                 <span className='text-sm font-medium text-stone-700'>
                   {lunar.lunarDayStr}
                 </span>
               </div>
               <p className='mt-2 flex items-center justify-center gap-1 pl-1 text-sm font-medium text-stone-500 md:justify-start'>
-                Năm {lunar.lunarYear}
+                {t('lunarYear', { year: lunar.lunarYear })}
               </p>
             </div>
           </div>
@@ -206,7 +192,7 @@ export default async function DashboardLaunchpad() {
                       <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75'></span>
                       <span className='relative inline-flex size-2 rounded-full bg-amber-500'></span>
                     </span>
-                    Sự kiện 30 ngày tới ({upcomingEvents.length})
+                    {t('upcomingEvents', { count: upcomingEvents.length })}
                   </p>
                   <ArrowRight className='size-5 text-stone-300 transition-all duration-300 group-hover:translate-x-1 group-hover:text-stone-500' />
                 </div>
@@ -228,10 +214,12 @@ export default async function DashboardLaunchpad() {
                           </span>
                           <span className='block pt-0.5 text-sm font-medium text-stone-500'>
                             {evt.daysUntil === 0
-                              ? 'Hôm nay'
+                              ? t('today')
                               : evt.daysUntil === 1
-                                ? 'Ngày mai'
-                                : `${evt.daysUntil} ngày nữa`}{' '}
+                                ? t('tomorrow')
+                                : t('daysFromNow', {
+                                    count: evt.daysUntil
+                                  })}{' '}
                             · {evt.eventDateLabel}
                           </span>
                         </div>
@@ -241,7 +229,9 @@ export default async function DashboardLaunchpad() {
                 </div>
                 {upcomingEvents.length > 4 && (
                   <p className='mt-2 text-center text-sm font-medium text-stone-400 sm:text-left'>
-                    + {upcomingEvents.length - 4} sự kiện khác đang chờ...
+                    {t('moreEvents', {
+                      count: upcomingEvents.length - 4
+                    })}
                   </p>
                 )}
               </div>
@@ -251,10 +241,10 @@ export default async function DashboardLaunchpad() {
                   <CalendarDays className='size-6' />
                 </div>
                 <p className='px-4 text-center font-medium text-stone-500'>
-                  Không có sự kiện nào trong 30 ngày tới.
+                  {t('noUpcomingEvents')}
                 </p>
                 <div className='mt-1 flex items-center gap-2 text-sm font-medium text-stone-400 transition-colors group-hover:text-stone-600'>
-                  <span>Xem sự kiện trong năm</span>
+                  <span>{t('viewYearEvents')}</span>
                   <ArrowRight className='size-4 transition-transform group-hover:translate-x-1' />
                 </div>
               </div>
@@ -266,10 +256,6 @@ export default async function DashboardLaunchpad() {
       {/* ── Feature Grid ──────────────────────────────────── */}
       <div className='space-y-12'>
         <section>
-          {/* <h3 className="text-xl font-serif font-semibold text-stone-700 mb-6 flex items-center gap-2">
-            <span className="w-8 h-px bg-stone-300 rounded-full"></span>
-            Chức năng chung
-          </h3> */}
           <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3'>
             {publicFeatures.map((feat) => (
               <Link
@@ -295,7 +281,7 @@ export default async function DashboardLaunchpad() {
           <section>
             <h3 className='mb-6 flex items-center gap-2 font-serif text-xl font-semibold text-rose-800'>
               <span className='h-px w-8 rounded-full bg-rose-200'></span>
-              Quản trị viên
+              {t('adminSection')}
             </h3>
             <div className='grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3'>
               {adminFeatures.map((feat) => (

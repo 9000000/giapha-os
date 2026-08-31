@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { motion } from 'framer-motion'
 import { Circle, List, ListTree, Network } from 'lucide-react'
 import { useMemberListView } from '@/context/MemberListContext'
@@ -7,27 +8,28 @@ import { useMemberListView } from '@/context/MemberListContext'
 export type ViewMode = 'list' | 'tree' | 'mindmap' | 'bubble'
 
 export default function ViewToggle() {
+  const { t } = useI18n()
   const { view: currentView, setView } = useMemberListView()
 
   const tabs = [
     {
       id: 'list',
-      label: 'Danh sách',
+      label: t('viewList'),
       icon: <List className='size-6 sm:size-4' />
     },
     {
       id: 'tree',
-      label: 'Sơ đồ cây',
+      label: t('viewTree'),
       icon: <Network className='size-6 sm:size-4' />
     },
     {
       id: 'mindmap',
-      label: 'Mindmap',
+      label: t('viewMindmap'),
       icon: <ListTree className='size-6 sm:size-4' />
     },
     {
       id: 'bubble',
-      label: 'Bong bóng',
+      label: t('viewBubble'),
       icon: <Circle className='size-6 sm:size-4' />
     }
   ] as const

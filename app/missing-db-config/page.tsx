@@ -1,11 +1,15 @@
 'use client'
 
 import Footer from '@/components/Footer'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Database, Settings, Terminal } from 'lucide-react'
 import Link from 'next/link'
 
 export default function MissingDBConfigPage() {
+  const { t } = useI18n()
+
   return (
     <div className='relative flex min-h-screen flex-col overflow-hidden bg-[#fafaf9] select-none selection:bg-amber-200 selection:text-amber-900'>
       {/* Decorative background grid and blurs */}
@@ -13,6 +17,10 @@ export default function MissingDBConfigPage() {
       <div className='pointer-events-none absolute inset-x-0 top-0 flex h-screen justify-center overflow-hidden'>
         <div className='absolute top-[-10%] right-[-5%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-red-300/20 mix-blend-multiply blur-[100px]' />
         <div className='absolute bottom-[0%] left-[-10%] h-[60vw] max-h-[800px] w-[60vw] max-w-[800px] rounded-full bg-amber-200/20 mix-blend-multiply blur-[120px]' />
+      </div>
+
+      <div className='absolute top-6 right-6 z-20'>
+        <LanguageSwitcher />
       </div>
 
       <div className='relative z-10 flex w-full flex-1 items-center justify-center px-4 py-12'>
@@ -27,11 +35,10 @@ export default function MissingDBConfigPage() {
             </div>
             <div>
               <h2 className='text-2xl font-semibold text-stone-900 sm:text-3xl'>
-                Chưa kết nối cơ sở dữ liệu
+                {t('dbMissingTitle')}
               </h2>
               <p className='font-medium text-stone-500'>
-                Ứng dụng hiện chưa được cấu hình biến môi trường kết nối đến
-                Supabase.
+                {t('dbMissingDescription')}
               </p>
             </div>
           </div>
@@ -40,12 +47,12 @@ export default function MissingDBConfigPage() {
             <div className='rounded-2xl border border-stone-200 bg-stone-50 p-6'>
               <h3 className='mb-4 flex items-center gap-2 font-semibold text-stone-900'>
                 <Settings className='size-5 text-stone-500' />
-                Hướng dẫn khắc phục:
+                {t('troubleshooting')}
               </h3>
 
               <ol className='list-inside list-decimal space-y-4 text-stone-600'>
                 <li className='leading-relaxed'>
-                  Đăng nhập vào{' '}
+                  {t('signInTo')}{' '}
                   <a
                     href='https://supabase.com/dashboard/project/_/settings/api-keys'
                     target='_blank'
@@ -55,16 +62,10 @@ export default function MissingDBConfigPage() {
                   </a>
                   .
                 </li>
+                <li className='leading-relaxed'>{t('getKeys')}</li>
+                <li className='leading-relaxed'>{t('createEnv')}</li>
                 <li className='leading-relaxed'>
-                  Lấy thông tin <b>Project URL</b> và <b>Publishable key</b>{' '}
-                  (project cũ có thể dùng key <b>anon</b> trong tab Legacy API
-                  Keys).
-                </li>
-                <li className='leading-relaxed'>
-                  Tạo file <code>.env.local</code> ở thư mục gốc của dự án.
-                </li>
-                <li className='leading-relaxed'>
-                  Thêm cấu hình sau vào file:
+                  {t('addConfig')}
                   <div className='mt-3 flex items-start gap-3 overflow-x-auto rounded-xl bg-stone-900 p-4 font-mono text-sm text-stone-100'>
                     <Terminal className='mt-0.5 size-5 shrink-0 text-stone-400' />
                     <pre>
@@ -76,7 +77,8 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key`}
                   </div>
                 </li>
                 <li className='leading-relaxed'>
-                  Khởi động lại server: <code>npm run dev</code> (hoặc bun dev).
+                  {t('restartServer')} <code>npm run dev</code> ({t('orBunDev')}
+                  ).
                 </li>
               </ol>
             </div>
@@ -85,7 +87,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key`}
               <Link
                 href='/'
                 className='rounded-xl bg-amber-500 px-6 py-3 font-medium text-white shadow-sm transition-colors hover:bg-amber-600'>
-                Tải lại trang sau khi cấu hình
+                {t('reloadAfterConfig')}
               </Link>
             </div>
           </div>
@@ -96,7 +98,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key`}
         href='/'
         className='absolute top-6 left-6 z-20 flex items-center gap-2 rounded-full border border-stone-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-stone-500 transition-all duration-300 hover:border-stone-300 hover:text-stone-900'>
         <ArrowLeft className='size-4' />
-        Trang chủ
+        {t('home')}
       </Link>
 
       <Footer className='relative z-10 mt-auto border-none bg-transparent' />

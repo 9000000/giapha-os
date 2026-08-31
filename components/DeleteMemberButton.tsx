@@ -1,6 +1,7 @@
 'use client'
 
 import { deleteMemberProfile } from '@/app/actions/member'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { AlertCircle, X } from 'lucide-react'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { useState } from 'react'
@@ -14,15 +15,12 @@ export default function DeleteMemberButton({
   memberId,
   className = ''
 }: DeleteMemberButtonProps) {
+  const { t } = useI18n()
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleDelete = async () => {
-    if (
-      !window.confirm(
-        'Bạn có chắc chắn muốn xoá hồ sơ này không? Hành động này không thể hoàn tác.'
-      )
-    ) {
+    if (!window.confirm(t('deleteProfileConfirm'))) {
       return
     }
 
@@ -41,9 +39,7 @@ export default function DeleteMemberButton({
         throw err
       }
       console.error('Delete failed:', err)
-      setError(
-        err instanceof Error ? err.message : 'Đã xảy ra lỗi khi xoá hồ sơ.'
-      )
+      setError(err instanceof Error ? err.message : t('deleteProfileError'))
       setIsDeleting(false)
     }
   }
@@ -54,7 +50,7 @@ export default function DeleteMemberButton({
         onClick={handleDelete}
         disabled={isDeleting}
         className='inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-red-100 px-4 py-4 text-sm font-medium text-red-800 transition-all duration-300 hover:-translate-y-1 hover:bg-red-200 hover:shadow-soft-hover disabled:cursor-not-allowed disabled:opacity-50'>
-        {isDeleting ? 'Đang xoá...' : 'Xoá hồ sơ'}
+        {isDeleting ? t('deletingProfile') : t('deleteProfile')}
       </button>
 
       {error && (

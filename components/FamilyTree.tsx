@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useMemberListView } from '@/context/MemberListContext'
 import { usePanZoom } from '@/hooks/usePanZoom'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person, Relationship } from '@/types'
 import { Minus, Plus } from 'lucide-react'
 import FamilyNodeCard from './FamilyNodeCard'
@@ -40,6 +41,7 @@ export default function FamilyTree({
   )
 
   const { showAvatar } = useMemberListView()
+  const { t } = useI18n()
 
   const {
     scale,
@@ -233,7 +235,11 @@ export default function FamilyTree({
                     isRingVisible={idx === 0}
                     isPlusVisible={idx > 0}
                     person={spouseData.person}
-                    role={spouseData.person.gender === 'male' ? 'Chồng' : 'Vợ'}
+                    role={
+                      spouseData.person.gender === 'male'
+                        ? t('inLawMale')
+                        : t('inLawFemale')
+                    }
                     note={spouseData.note}
                     level={level}
                   />
@@ -258,7 +264,7 @@ export default function FamilyTree({
                   }
                 }}
                 className='absolute -bottom-3 left-1/2 z-100 flex size-6 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border border-stone-200/80 bg-white text-stone-500 transition-colors hover:border-amber-300 hover:text-amber-600'
-                title={isCollapsed ? 'Mở rộng' : 'Thu gọn'}>
+                title={isCollapsed ? t('expand') : t('collapse')}>
                 {isCollapsed ? (
                   <Plus className='h-3.5 w-3.5' />
                 ) : (
@@ -285,9 +291,7 @@ export default function FamilyTree({
 
   if (roots.length === 0)
     return (
-      <div className='p-10 text-center text-stone-500'>
-        Không tìm thấy dữ liệu.
-      </div>
+      <div className='p-10 text-center text-stone-500'>{t('noTreeData')}</div>
     )
 
   return (

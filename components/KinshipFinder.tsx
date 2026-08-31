@@ -1,5 +1,7 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
+import type { TranslationKey } from '@/lib/i18n/messages'
 import { computeKinship } from '@/utils/kinshipHelpers'
 import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
@@ -62,6 +64,7 @@ function PersonSelector({
   persons: PersonNode[]
   disabledId?: string
 }) {
+  const { t } = useI18n()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
 
@@ -120,7 +123,7 @@ function PersonSelector({
         </div>
 
         <span className='truncate font-medium'>
-          {selected ? selected.full_name : 'Chọn thành viên...'}
+          {selected ? selected.full_name : t('selectMember')}
         </span>
         {selected?.birth_year && (
           <span className='shrink-0 text-sm text-stone-400'>
@@ -142,7 +145,7 @@ function PersonSelector({
                 <Search className='absolute top-1/2 left-3 size-4 -translate-y-1/2 text-stone-400' />
                 <input
                   autoFocus
-                  placeholder='Tìm tên...'
+                  placeholder={t('searchName')}
                   className='w-full rounded-xl border border-stone-200 py-2 pr-4 pl-9 text-sm focus:border-amber-400 focus:outline-none sm:text-sm'
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -152,7 +155,7 @@ function PersonSelector({
             <div className='max-h-52 overflow-y-auto'>
               {filtered.length === 0 ? (
                 <p className='py-6 text-center text-sm text-stone-400'>
-                  Không tìm thấy
+                  {t('noSearchResults')}
                 </p>
               ) : (
                 filtered.map((p) => (
@@ -200,7 +203,7 @@ function PersonSelector({
                     )}
                     {p.generation != null && (
                       <span className='shrink-0 rounded-md bg-emerald-50 px-1.5 py-0.5 text-sm text-emerald-600'>
-                        Đ.{p.generation}
+                        {t('generationLabel', { generation: p.generation })}
                       </span>
                     )}
                   </button>
@@ -215,73 +218,37 @@ function PersonSelector({
 }
 
 // ── Kinship reference table data ──────────────────────────────────────────────
-const KINSHIP_TERMS = [
-  {
-    relation: 'Bố / Mẹ',
-    desc: '1 bậc trên (dòng trực hệ)',
-    example: 'Bố, ba, má...'
-  },
-  {
-    relation: 'Ông / Bà',
-    desc: '2 bậc trên (dòng trực hệ)',
-    example: 'Ông nội, bà ngoại...'
-  },
-  {
-    relation: 'Cụ / Kỵ / Sơ...',
-    desc: '3 bậc trên trở lên',
-    example: 'Cụ cố, cụ kỵ...'
-  },
-  {
-    relation: 'Con / Cháu / Chắt...',
-    desc: 'Các bậc dưới trực hệ',
-    example: 'Con, cháu, chắt, chít...'
-  },
-  {
-    relation: 'Anh / Chị / Em họ',
-    desc: 'Cùng thế hệ, khác nhánh',
-    example: 'Dựa vào thứ bậc của nhánh bố/mẹ'
-  },
-  {
-    relation: 'Bác / Chú / Cô',
-    desc: 'Anh/chị/em của bố (Bên Nội)',
-    example: 'Bác (anh), Chú (em trai), Cô (chị em gái)'
-  },
-  {
-    relation: 'Cậu / Dì',
-    desc: 'Anh/chị/em của mẹ (Bên Ngoại)',
-    example: 'Cậu (anh em trai), Dì (chị em gái)'
-  },
-  {
-    relation: 'Thím / Mợ / Dượng',
-    desc: 'Vợ/chồng của chú, cậu, cô, dì',
-    example: 'Thím (vợ chú), Mợ (vợ cậu), Dượng (chồng cô/dì)'
-  }
+const KINSHIP_TERMS: [TranslationKey, TranslationKey, TranslationKey][] = [
+  ['kinshipTerm1Relation', 'kinshipTerm1Desc', 'kinshipTerm1Example'],
+  ['kinshipTerm2Relation', 'kinshipTerm2Desc', 'kinshipTerm2Example'],
+  ['kinshipTerm3Relation', 'kinshipTerm3Desc', 'kinshipTerm3Example'],
+  ['kinshipTerm4Relation', 'kinshipTerm4Desc', 'kinshipTerm4Example'],
+  ['kinshipTerm5Relation', 'kinshipTerm5Desc', 'kinshipTerm5Example'],
+  ['kinshipTerm6Relation', 'kinshipTerm6Desc', 'kinshipTerm6Example'],
+  ['kinshipTerm7Relation', 'kinshipTerm7Desc', 'kinshipTerm7Example'],
+  ['kinshipTerm8Relation', 'kinshipTerm8Desc', 'kinshipTerm8Example']
 ]
 
 // ── Regional kinship terms ────────────────────────────────────────────────────
-type RegionalTerm = {
-  reference: string
-  other: string
-}
-
-const REGIONAL_TERMS: RegionalTerm[] = [
-  { reference: 'Bố', other: 'ba, tía, thầy, bọ' },
-  { reference: 'Mẹ', other: 'má, mạ, u, bu, bầm' },
-  { reference: 'Ông (nội / ngoại)', other: 'ôn' },
-  { reference: 'Bà (nội / ngoại)', other: 'mệ' },
-  { reference: 'Anh trai', other: 'eng, anh hai' },
-  { reference: 'Chị gái', other: 'chị hai' },
-  { reference: 'Em', other: 'mi, út' },
-  { reference: 'Bác gái (vợ bác)', other: 'bác' },
-  { reference: 'Cô (em gái bố)', other: 'o' },
-  { reference: 'Thím (vợ chú)', other: 'mự' },
-  { reference: 'Con rể', other: 'rể' },
-  { reference: 'Con dâu', other: 'dâu' },
-  { reference: 'Thông gia', other: 'sui gia' }
+const REGIONAL_TERMS: [TranslationKey, TranslationKey][] = [
+  ['regionalTerm1Reference', 'regionalTerm1Other'],
+  ['regionalTerm2Reference', 'regionalTerm2Other'],
+  ['regionalTerm3Reference', 'regionalTerm3Other'],
+  ['regionalTerm4Reference', 'regionalTerm4Other'],
+  ['regionalTerm5Reference', 'regionalTerm5Other'],
+  ['regionalTerm6Reference', 'regionalTerm6Other'],
+  ['regionalTerm7Reference', 'regionalTerm7Other'],
+  ['regionalTerm8Reference', 'regionalTerm8Other'],
+  ['regionalTerm9Reference', 'regionalTerm9Other'],
+  ['regionalTerm10Reference', 'regionalTerm10Other'],
+  ['regionalTerm11Reference', 'regionalTerm11Other'],
+  ['regionalTerm12Reference', 'regionalTerm12Other'],
+  ['regionalTerm13Reference', 'regionalTerm13Other']
 ]
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function KinshipFinder({ persons, relationships }: Props) {
+  const { t } = useI18n()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -358,7 +325,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
       <div className='rounded-2xl border border-stone-200/60 bg-white/80 p-4 sm:p-6'>
         <div className='flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:gap-4'>
           <PersonSelector
-            label='Thành viên A'
+            label={t('memberA')}
             selected={personA}
             onSelect={(p) => updateUrl(p.id, p2Id)}
             persons={persons}
@@ -366,12 +333,12 @@ export default function KinshipFinder({ persons, relationships }: Props) {
           />
           <button
             onClick={swap}
-            title='Đổi chỗ'
+            title={t('swapMembers')}
             className='flex size-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-100 text-stone-500 transition-all hover:bg-amber-100 hover:text-amber-600 sm:mb-0.5'>
             <ArrowLeftRight className='size-4 rotate-90 sm:rotate-0' />
           </button>
           <PersonSelector
-            label='Thành viên B'
+            label={t('memberB')}
             selected={personB}
             onSelect={(p) => updateUrl(p1Id, p.id)}
             persons={persons}
@@ -390,11 +357,11 @@ export default function KinshipFinder({ persons, relationships }: Props) {
             exit={{ opacity: 0 }}
             className='py-16 text-center text-stone-400'>
             <Users className='mx-auto mb-3 size-12 opacity-30' />
-            <p className='font-medium'>Chọn hai thành viên để tính quan hệ</p>
+            <p className='font-medium'>{t('chooseTwoMembers')}</p>
           </motion.div>
         ) : result === null ? (
           <motion.div key='same' className='py-8 text-center text-stone-400'>
-            Hãy chọn hai người khác nhau.
+            {t('chooseDifferentMembers')}
           </motion.div>
         ) : (
           <motion.div
@@ -418,7 +385,10 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 transition={{ delay: 0.1 }}
                 className='rounded-2xl border border-stone-200/60 bg-white/90 p-5'>
                 <p className='mb-3 text-sm font-medium text-stone-400'>
-                  {personA.full_name} gọi {personB.full_name} là
+                  {t('callsAs', {
+                    name: personA.full_name,
+                    other: personB.full_name
+                  })}
                 </p>
                 <p className='font-serif text-sm font-medium text-amber-600'>
                   {result.aCallsB}
@@ -431,7 +401,10 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 transition={{ delay: 0.15 }}
                 className='rounded-2xl border border-stone-200/60 bg-white/90 p-5'>
                 <p className='mb-3 text-sm font-medium text-stone-400'>
-                  {personB.full_name} gọi {personA.full_name} là
+                  {t('callsAs', {
+                    name: personB.full_name,
+                    other: personA.full_name
+                  })}
                 </p>
                 <p className='font-serif text-sm font-medium text-amber-600'>
                   {result.bCallsA}
@@ -449,7 +422,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className='mb-4 flex items-center gap-2'>
                   <GitMerge className='size-4 text-stone-400' />
                   <p className='text-sm font-medium text-stone-400'>
-                    Phân tích con đường quan hệ
+                    {t('relationPathAnalysis')}
                   </p>
                 </div>
                 <div className='space-y-4'>
@@ -473,8 +446,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
             {(result.aCallsB.includes('/') ||
               result.aCallsB.includes('họ hàng')) && (
               <p className='px-1 text-sm text-stone-400 italic'>
-                * Danh xưng chính xác dựa trên giới tính, thứ tự sinh của các
-                nhánh và vế Nội/Ngoại.
+                {t('kinshipDisclaimer')}
               </p>
             )}
           </motion.div>
@@ -494,7 +466,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
             }}
             className={`flex items-center gap-2 text-sm font-medium transition-colors ${showGuide ? 'text-amber-600' : 'text-stone-500 hover:text-amber-600'}`}>
             <Info className='size-4' />
-            Hướng dẫn sử dụng
+            {t('usageGuide')}
           </button>
           <button
             onClick={() => {
@@ -506,7 +478,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
             }}
             className={`flex items-center gap-2 text-sm font-medium transition-colors ${showReference ? 'text-amber-600' : 'text-stone-500 hover:text-amber-600'}`}>
             <BookOpen className='size-4' />
-            Bảng danh xưng
+            {t('kinshipReference')}
           </button>
           <button
             onClick={() => {
@@ -518,7 +490,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
             }}
             className={`flex items-center gap-2 text-sm font-medium transition-colors ${showRegional ? 'text-amber-600' : 'text-stone-500 hover:text-amber-600'}`}>
             <ArrowLeftRight className='size-4' />
-            Quy đổi danh xưng
+            {t('regionalTerms')}
           </button>
         </div>
 
@@ -536,34 +508,28 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className='rounded-2xl border border-blue-100 bg-blue-50/60 p-5'>
                   <p className='mb-3 flex items-center gap-2 text-sm font-medium text-blue-700'>
                     <Info className='size-4' />
-                    Cách hoạt động
+                    {t('howItWorks')}
                   </p>
                   <ol className='space-y-2 text-sm text-blue-800'>
                     <li className='flex gap-2'>
                       <span className='shrink-0 font-medium'>1.</span>
-                      Hệ thống xây dựng đồ thị gia phả từ toàn bộ quan hệ huyết
-                      thống và hôn nhân.
+                      {t('guideStep1')}
                     </li>
                     <li className='flex gap-2'>
                       <span className='shrink-0 font-medium'>2.</span>
-                      Tìm <strong>Tổ tiên chung gần nhất (LCA)</strong> để xác
-                      định khoảng cách thế hệ.
+                      {t('guideStep2')}
                     </li>
                     <li className='flex gap-2'>
                       <span className='shrink-0 font-medium'>3.</span>
-                      Xác định <strong>vế Nội/Ngoại</strong> dựa trên giới tính
-                      của tổ tiên tại điểm rẽ nhánh.
+                      {t('guideStep3')}
                     </li>
                     <li className='flex gap-2'>
                       <span className='shrink-0 font-medium'>4.</span>
-                      So sánh <strong>thứ bậc (seniority)</strong> giữa các
-                      nhanh từ tổ tiên chung để quyết định quan hệ
-                      &quot;Anh/Em&quot; hoặc &quot;Bác/Chú&quot;.
+                      {t('guideStep4')}
                     </li>
                     <li className='flex gap-2'>
                       <span className='shrink-0 font-medium'>5.</span>
-                      Tra bảng danh xưng tiếng Việt chuyên sâu bao gồm cả các
-                      mối quan hệ thông qua hôn nhân.
+                      {t('guideStep5')}
                     </li>
                   </ol>
                 </div>
@@ -572,23 +538,20 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className='rounded-2xl border border-amber-100 bg-amber-50/60 p-5'>
                   <p className='mb-2 flex items-center gap-2 text-sm font-medium text-amber-700'>
                     <Info className='size-4' />
-                    Yêu cầu dữ liệu để kết quả chính xác
+                    {t('dataRequirements')}
                   </p>
                   <ul className='space-y-1.5 text-sm text-amber-800'>
                     <li className='flex gap-2'>
                       <span className='shrink-0 text-amber-400'>•</span>
-                      Nhập đầy đủ quan hệ <strong>Bố/Mẹ - Con</strong> và{' '}
-                      <strong>Kết hôn</strong>.
+                      {t('dataRequirement1')}
                     </li>
                     <li className='flex gap-2'>
                       <span className='shrink-0 text-amber-400'>•</span>
-                      <strong>Giới tính</strong> chính xác để phân biệt Cô/Dì,
-                      Chú/Cậu.
+                      {t('dataRequirement2')}
                     </li>
                     <li className='flex gap-2'>
                       <span className='shrink-0 text-amber-400'>•</span>
-                      <strong>Thứ tự sinh (Birth Order)</strong> là yếu tố then
-                      chốt để phân định thứ bậc Anh/Em trong dòng họ.
+                      {t('dataRequirement3')}
                     </li>
                   </ul>
                 </div>
@@ -609,21 +572,21 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80'>
                   <div className='border-b border-stone-100 bg-stone-50/50 px-5 py-3'>
                     <p className='text-sm font-medium text-stone-600'>
-                      Bảng danh xưng tham khảo
+                      {t('referenceTableTitle')}
                     </p>
                   </div>
                   <div className='divide-y divide-stone-100'>
                     {KINSHIP_TERMS.map((row) => (
                       <div
-                        key={row.relation}
+                        key={row[0]}
                         className='flex items-start gap-4 px-5 py-3'>
                         <span className='w-48 shrink-0 text-sm font-medium text-amber-700'>
-                          {row.relation}
+                          {t(row[0])}
                         </span>
                         <div className='min-w-0'>
-                          <p className='text-sm text-stone-600'>{row.desc}</p>
+                          <p className='text-sm text-stone-600'>{t(row[1])}</p>
                           <p className='mt-0.5 text-sm text-stone-400'>
-                            {row.example}
+                            {t(row[2])}
                           </p>
                         </div>
                       </div>
@@ -647,8 +610,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className='overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80'>
                   <div className='border-b border-stone-100 bg-stone-50/50 px-5 py-3'>
                     <p className='text-sm font-medium text-stone-600'>
-                      Danh xưng các khu vực ở Việt Nam vô cùng phong phú và đa
-                      dạng, dưới đây là một số ví dụ:
+                      {t('regionalDescription')}
                     </p>
                   </div>
                   <div className='overflow-x-auto'>
@@ -656,23 +618,23 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                       <thead className='border-b border-stone-100 bg-stone-50/30 text-sm text-stone-500'>
                         <tr>
                           <th className='w-1/2 border-r border-stone-100 px-5 py-3 font-medium text-emerald-700'>
-                            Tham Chiếu
+                            {t('referenceColumn')}
                           </th>
                           <th className='w-1/2 px-5 py-3 font-medium text-amber-700'>
-                            Cách gọi khác
+                            {t('alternateNames')}
                           </th>
                         </tr>
                       </thead>
                       <tbody className='divide-y divide-stone-100'>
-                        {REGIONAL_TERMS.map((row, i) => (
+                        {REGIONAL_TERMS.map((row) => (
                           <tr
-                            key={i}
+                            key={row[0]}
                             className='transition-colors hover:bg-stone-50/50'>
                             <td className='border-r border-stone-100/50 px-5 py-3 font-medium text-stone-700'>
-                              {row.reference}
+                              {t(row[0])}
                             </td>
                             <td className='px-5 py-3 text-stone-600'>
-                              {row.other}
+                              {t(row[1])}
                             </td>
                           </tr>
                         ))}
@@ -685,22 +647,14 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                 <div className='rounded-2xl border border-blue-100 bg-blue-50/60 p-5'>
                   <p className='mb-4 flex items-center gap-2 text-sm font-medium text-blue-700'>
                     <Info className='size-4' />
-                    Một số lưu ý thú vị
+                    {t('regionalFactsTitle')}
                   </p>
                   <div className='mt-5 border-t border-blue-200/50 pt-4'>
                     <p className='font-medium text-blue-900'>
-                      Hệ thống xưng hô Việt rất &quot;vai vế&quot;
+                      {t('regionalFactsHeading')}
                     </p>
                     <p className='mt-2 leading-relaxed'>
-                      Tiếng Việt không chỉ phân biệt{' '}
-                      <strong>tuổi, giới tính, bên nội/ngoại</strong> mà còn
-                      phân biệt{' '}
-                      <strong>
-                        thứ bậc trong gia đình, lớn/nhỏ hơn cha mẹ, quan hệ qua
-                        hôn nhân
-                      </strong>
-                      . Nên đây là một trong những hệ thống danh xưng phức tạp
-                      nhất châu Á.
+                      {t('regionalFactsDescription')}
                     </p>
                   </div>
                 </div>

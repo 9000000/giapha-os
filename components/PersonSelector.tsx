@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -26,11 +27,11 @@ export default function PersonSelector({
   persons,
   selectedId,
   onSelect,
-  placeholder = 'Chọn người...',
-  label = 'Gốc hiển thị',
+  placeholder,
+  label,
   className = 'w-full sm:w-72',
   showAllOption = false,
-  allOptionLabel = 'Toàn bộ dữ liệu'
+  allOptionLabel
 }: {
   persons: Person[]
   selectedId?: string | null
@@ -41,6 +42,10 @@ export default function PersonSelector({
   showAllOption?: boolean
   allOptionLabel?: string
 }) {
+  const { t } = useI18n()
+  const resolvedPlaceholder = placeholder ?? t('choosePerson')
+  const resolvedLabel = label ?? t('displayRoot')
+  const resolvedAllOptionLabel = allOptionLabel ?? t('allData')
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -122,15 +127,15 @@ export default function PersonSelector({
         <div className='min-w-0 flex-1 text-left'>
           {label && (
             <p className='mb-0.5 text-sm leading-none font-medium text-stone-400'>
-              {label}
+              {resolvedLabel}
             </p>
           )}
           <p className='truncate leading-tight font-medium text-stone-800 select-none'>
             {currentPerson
               ? `${currentPerson.full_name} ${currentPerson.birth_year ? `(${currentPerson.birth_year})` : ''}`
               : showAllOption && !selectedId
-                ? allOptionLabel
-                : placeholder}
+                ? resolvedAllOptionLabel
+                : resolvedPlaceholder}
           </p>
         </div>
 
@@ -157,7 +162,7 @@ export default function PersonSelector({
                 <input
                   type='text'
                   className='w-full rounded-lg border border-stone-200/80 bg-white py-2 pr-3 pl-9 text-sm text-stone-900 placeholder-stone-400 transition-all outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20'
-                  placeholder='Tìm thành viên...'
+                  placeholder={t('searchMembers')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   autoFocus
@@ -181,7 +186,7 @@ export default function PersonSelector({
                   <div className='min-w-0 flex-1 text-left'>
                     <p
                       className={`truncate ${selectedId === null ? 'font-medium' : 'font-medium group-hover/item:text-stone-900'}`}>
-                      {allOptionLabel}
+                      {resolvedAllOptionLabel}
                     </p>
                   </div>
                   {selectedId === null && (
@@ -241,7 +246,9 @@ export default function PersonSelector({
                           </p>
                           {person.generation != null && (
                             <p className='text-sm font-medium text-stone-400'>
-                              Đời thứ {person.generation}
+                              {t('generationLabel', {
+                                generation: person.generation
+                              })}
                             </p>
                           )}
                         </div>
@@ -259,10 +266,10 @@ export default function PersonSelector({
                     <Search className='size-5 text-stone-300' />
                   </div>
                   <div className='text-sm font-medium text-stone-600'>
-                    Không tìm thấy kết quả
+                    {t('noSearchResults')}
                   </div>
                   <div className='text-sm text-stone-400'>
-                    Thử tìm với tên khác
+                    {t('tryOtherName')}
                   </div>
                 </div>
               )}

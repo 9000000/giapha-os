@@ -1,6 +1,7 @@
 'use client'
 
 import { GalleryItem } from '@/types'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import dayjs from 'dayjs'
 import { CalendarDays, Maximize2, X, Clock } from 'lucide-react'
 import { useState, useMemo } from 'react'
@@ -24,6 +25,7 @@ export default function GalleryGrid({
   onEdit,
   onDeleteSuccess
 }: GalleryGridProps) {
+  const { t } = useI18n()
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -72,16 +74,16 @@ export default function GalleryGrid({
 
     if (undatedItems.length > 0) {
       groups.push({
-        year: 'Kỷ niệm khác',
+        year: t('otherMemories'),
         items: undatedItems
       })
     }
 
     return groups
-  }, [items, viewMode])
+  }, [items, viewMode, t])
 
   const handleDelete = async (item: GalleryItem) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa hình ảnh này?')) return
+    if (!confirm(t('deleteImageConfirm'))) return
     setIsDeleting(true)
     try {
       const supabase = createClient()
@@ -104,7 +106,7 @@ export default function GalleryGrid({
       if (onDeleteSuccess) onDeleteSuccess(item.id)
     } catch (err) {
       console.error('Error deleting gallery item', err)
-      alert('Đã xảy ra lỗi khi xóa hình ảnh.')
+      alert(t('deleteImageError'))
     } finally {
       setIsDeleting(false)
     }
@@ -117,12 +119,9 @@ export default function GalleryGrid({
           <Maximize2 className='size-8 text-stone-300' />
         </div>
         <h3 className='mb-2 text-xl font-semibold text-stone-700'>
-          Chưa có hình ảnh nào
+          {t('noImages')}
         </h3>
-        <p className='max-w-sm text-stone-500'>
-          Hãy là người đầu tiên thêm hình ảnh để lưu giữ những kỷ niệm đẹp của
-          dòng họ.
-        </p>
+        <p className='max-w-sm text-stone-500'>{t('noImagesHint')}</p>
       </div>
     )
   }
@@ -279,15 +278,13 @@ export default function GalleryGrid({
                     </p>
                   </div>
                 ) : (
-                  <p className='text-stone-400 italic'>
-                    Không có nội dung mô tả.
-                  </p>
+                  <p className='text-stone-400 italic'>{t('noDescription')}</p>
                 )}
               </div>
 
               <div className='flex items-center justify-between border-t border-stone-100 bg-stone-50 p-6 text-sm font-medium text-stone-400'>
                 <span>
-                  Đã thêm vào{' '}
+                  {t('addedOn')}{' '}
                   {dayjs(selectedItem.created_at).format('DD/MM/YYYY')}
                 </span>
 
@@ -299,13 +296,13 @@ export default function GalleryGrid({
                         if (onEdit) onEdit(selectedItem)
                       }}
                       className='rounded-lg bg-stone-100/80 px-4 py-2 text-sm font-medium text-stone-700 shadow-sm transition-all hover:bg-stone-200 hover:text-stone-900'>
-                      Sửa
+                      {t('edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(selectedItem)}
                       disabled={isDeleting}
                       className='rounded-md bg-red-100 px-4 py-2 text-sm font-medium text-red-800 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50'>
-                      {isDeleting ? 'Đang xóa...' : 'Xóa'}
+                      {isDeleting ? t('deleting') : t('delete')}
                     </button>
                   </div>
                 )}

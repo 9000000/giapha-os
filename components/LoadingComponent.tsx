@@ -1,6 +1,10 @@
+'use client'
+
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Loader2 } from 'lucide-react'
 
 export default function LoadingComponent() {
+  const { t } = useI18n()
   return (
     <main className='mx-auto flex max-w-5xl flex-1 flex-col items-center justify-center overflow-auto bg-stone-50/50 p-4'>
       <div className='flex flex-col items-center justify-center space-y-4'>
@@ -11,7 +15,7 @@ export default function LoadingComponent() {
           </div>
         </div>
         <p className='animate-pulse font-medium text-stone-500'>
-          Đang tải dữ liệu gia phả...
+          {t('loadingFamilyTree')}
         </p>
       </div>
     </main>

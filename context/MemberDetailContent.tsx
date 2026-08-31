@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import DefaultAvatar from '@/components/DefaultAvatar'
 import RelationshipManager from '@/components/RelationshipManager'
 import { Person } from '@/types'
@@ -41,6 +42,7 @@ export default function MemberDetailContent({
   isAdmin,
   canEdit = false
 }: MemberDetailContentProps) {
+  const { t } = useI18n()
   const [isNoteExpanded, setIsNoteExpanded] = useState(false)
   const [relStats, setRelStats] = useState<{
     biologicalChildren: number
@@ -163,7 +165,7 @@ export default function MemberDetailContent({
               {fullPerson.full_name}
               {isDeceased && (
                 <span className='rounded-md border border-stone-200/80 bg-stone-100/50 px-2 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-stone-500 sm:text-sm'>
-                  Đã mất
+                  {t('deceased')}
                 </span>
               )}
               {person.is_in_law && (
@@ -176,28 +178,28 @@ export default function MemberDetailContent({
                         : 'border-stone-200/60 bg-stone-50/50 text-stone-700'
                   }`}>
                   {person.gender === 'female'
-                    ? 'Dâu'
+                    ? t('daughterInLaw')
                     : person.gender === 'male'
-                      ? 'Rể'
-                      : 'Khách'}
+                      ? t('sonInLaw')
+                      : t('inLawOther')}
                 </span>
               )}
               {person.birth_order != null && (
                 <span className='rounded-md border border-amber-200/60 bg-amber-50/60 px-2 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-amber-700 sm:text-sm'>
                   {person.birth_order === 1
-                    ? 'Con trưởng'
-                    : `Con thứ ${person.birth_order}`}
+                    ? t('firstChild')
+                    : t('nthChild', { count: person.birth_order })}
                 </span>
               )}
               {person.generation != null && (
                 <span className='rounded-md border border-emerald-200/60 bg-emerald-50/60 px-2 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-emerald-700 sm:text-sm'>
-                  Đời thứ {person.generation}
+                  {t('generationLabel', { generation: person.generation })}
                 </span>
               )}
             </h1>
             {person.other_names && (
               <p className='mt-1.5 text-sm font-medium text-stone-600 italic sm:text-sm'>
-                Tên khác:{' '}
+                {t('otherNames')}:{' '}
                 <span className='font-medium text-stone-700 not-italic'>
                   {person.other_names}
                 </span>
@@ -213,7 +215,7 @@ export default function MemberDetailContent({
                   <div className='flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]'></span>
                     <h3 className='text-base font-semibold text-stone-400'>
-                      Sinh
+                      {t('birth')}
                     </h3>
                   </div>
                   <div className='flex items-center gap-1'>
@@ -224,7 +226,7 @@ export default function MemberDetailContent({
                         person.birth_day
                       ) && (
                         <span className='rounded-md border border-rose-200/60 bg-rose-50 px-1.5 py-0.5 font-sans text-sm font-medium whitespace-nowrap text-rose-700'>
-                          Tuổi{' '}
+                          {t('zodiacAge')}{' '}
                           {getZodiacAnimal(
                             person.birth_year,
                             person.birth_month,
@@ -254,13 +256,13 @@ export default function MemberDetailContent({
                     person.birth_day) && (
                     <p className='flex items-center gap-1.5 text-sm font-medium text-stone-500'>
                       <span className='rounded border border-stone-200/60 bg-stone-50/80 px-1.5 py-0.5 text-sm'>
-                        Âm lịch
+                        {t('lunar')}
                       </span>
                       {getLunarDateString(
                         person.birth_year,
                         person.birth_month,
                         person.birth_day
-                      ) || 'Chưa rõ'}
+                      ) || t('unknownDate')}
                     </p>
                   )}
                 </div>
@@ -274,7 +276,7 @@ export default function MemberDetailContent({
                   <div className='mb-2 flex items-center gap-2'>
                     <span className='size-2 rounded-full bg-stone-400 shadow-[0_0_8px_rgba(156,163,175,0.5)]'></span>
                     <h3 className='text-base font-semibold text-stone-400'>
-                      Mất
+                      {t('death')}
                     </h3>
                   </div>
                   <div className='space-y-1.5 border-l-2 border-stone-100 pl-4'>
@@ -291,7 +293,7 @@ export default function MemberDetailContent({
                             person.death_lunar_year,
                             person.death_lunar_month,
                             person.death_lunar_day
-                          ) || 'Chưa rõ'}
+                          ) || t('unknownDate')}
                     </p>
                     {(person.death_year ||
                       person.death_month ||
@@ -301,7 +303,7 @@ export default function MemberDetailContent({
                       person.death_lunar_day) && (
                       <p className='flex items-center gap-1.5 text-sm font-medium text-stone-500'>
                         <span className='rounded border border-stone-200/60 bg-stone-50/80 px-1.5 py-0.5 text-sm'>
-                          Âm lịch
+                          {t('lunar')}
                         </span>
                         {person.death_lunar_day ||
                         person.death_lunar_month ||
@@ -315,7 +317,7 @@ export default function MemberDetailContent({
                               person.death_year,
                               person.death_month,
                               person.death_day
-                            ) || 'Chưa rõ'}
+                            ) || t('unknownDate')}
                       </p>
                     )}
                   </div>
@@ -345,16 +347,16 @@ export default function MemberDetailContent({
                       <p className='text-sm font-medium text-amber-800/60'>
                         {ageData.isDeceased
                           ? ageData.age >= 60
-                            ? 'Hưởng thọ'
-                            : 'Hưởng dương'
-                          : 'Tuổi'}
+                            ? t('longevity')
+                            : t('livedYears')
+                          : t('zodiacAge')}
                       </p>
                     </div>
                     <div className='relative z-10 pl-4'>
                       <p className='bg-linear-to-br from-amber-700 to-amber-900 bg-clip-text text-sm font-medium text-transparent sm:text-sm'>
                         {ageData.age}
                         <span className='ml-1.5 text-sm font-medium text-amber-700/60 sm:text-sm'>
-                          tuổi
+                          {t('yearsOldLabel')}
                         </span>
                       </p>
                     </div>
@@ -376,7 +378,7 @@ export default function MemberDetailContent({
                     <div className='mb-3 flex items-center gap-2'>
                       <span className='size-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]'></span>
                       <h3 className='text-base font-semibold text-stone-400'>
-                        Hậu duệ
+                        {t('descendants')}
                       </h3>
                     </div>
                     <div className='grid grid-cols-1 gap-3 sm:grid-cols-3'>
@@ -389,7 +391,7 @@ export default function MemberDetailContent({
                             </div>
                             <div className='flex-1'>
                               <p className='text-sm leading-tight font-medium text-stone-500'>
-                                Con ruột
+                                {t('biologicalChildren')}
                               </p>
                               <p className='mt-0.5 text-sm leading-none font-medium text-stone-700'>
                                 {relStats.biologicalChildren}
@@ -423,7 +425,7 @@ export default function MemberDetailContent({
                               <UserPlus className='size-4' />
                             </div>
                             <p className='text-sm font-medium text-stone-500'>
-                              Dâu / Rể
+                              {t('inLaws')}
                             </p>
                           </div>
 
@@ -431,7 +433,7 @@ export default function MemberDetailContent({
                             {relStats.daughterInLaw > 0 && (
                               <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
-                                  Con dâu
+                                  {t('daughterInLawChild')}
                                 </span>
                                 <span className='font-medium text-stone-700'>
                                   {relStats.daughterInLaw}
@@ -441,7 +443,7 @@ export default function MemberDetailContent({
                             {relStats.sonInLaw > 0 && (
                               <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
-                                  Con rể
+                                  {t('sonInLawChild')}
                                 </span>
                                 <span className='font-medium text-stone-700'>
                                   {relStats.sonInLaw}
@@ -461,7 +463,7 @@ export default function MemberDetailContent({
                               <Baby className='size-4' />
                             </div>
                             <p className='text-sm font-medium text-stone-500'>
-                              Cháu
+                              {t('grandchildren')}
                             </p>
                           </div>
 
@@ -469,7 +471,7 @@ export default function MemberDetailContent({
                             {relStats.paternalGrandchildren > 0 && (
                               <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
-                                  Cháu nội
+                                  {t('paternalGrandchildren')}
                                 </span>
                                 <span className='font-medium text-stone-700'>
                                   {relStats.paternalGrandchildren}
@@ -479,7 +481,7 @@ export default function MemberDetailContent({
                             {relStats.maternalGrandchildren > 0 && (
                               <div className='flex items-center justify-between text-sm'>
                                 <span className='font-medium text-stone-500'>
-                                  Cháu ngoại
+                                  {t('maternalGrandchildren')}
                                 </span>
                                 <span className='font-medium text-stone-700'>
                                   {relStats.maternalGrandchildren}
@@ -502,7 +504,7 @@ export default function MemberDetailContent({
             <motion.section layout variants={itemVariants}>
               <h2 className='mb-4 flex items-center gap-2 text-base font-semibold text-stone-800 sm:text-lg'>
                 <Info className='size-5 text-amber-600' />
-                Ghi chú
+                {t('notes')}
               </h2>
               <div className='relative overflow-hidden rounded-2xl border border-stone-200/60 bg-white/80 p-5 backdrop-blur-sm sm:p-6'>
                 {note ? (
@@ -533,7 +535,7 @@ export default function MemberDetailContent({
                         onClick={() => setIsNoteExpanded(!isNoteExpanded)}
                         className='group relative z-10 mt-4 flex w-fit items-center gap-1.5 text-sm font-medium text-amber-600 transition-colors hover:text-amber-700'>
                         <span className='underline decoration-amber-600/30 underline-offset-4 group-hover:decoration-amber-700'>
-                          {isNoteExpanded ? 'Thu gọn' : 'Xem thêm'}
+                          {isNoteExpanded ? t('collapse') : t('showMore')}
                         </span>
                         <motion.div
                           animate={{ rotate: isNoteExpanded ? 180 : 0 }}
@@ -545,7 +547,7 @@ export default function MemberDetailContent({
                   </div>
                 ) : (
                   <p className='text-sm text-stone-400 italic sm:text-sm'>
-                    Chưa có ghi chú.
+                    {t('noNotes')}
                   </p>
                 )}
               </div>
@@ -554,7 +556,7 @@ export default function MemberDetailContent({
             <motion.section layout variants={itemVariants}>
               <h2 className='mb-4 flex items-center gap-2 text-base font-semibold text-stone-800 sm:text-lg'>
                 <Users className='size-5 text-amber-600' />
-                Gia đình
+                {t('family')}
               </h2>
               <div className='relative z-0 rounded-2xl border border-stone-200/60 bg-white/80 p-4 backdrop-blur-sm sm:p-6'>
                 <RelationshipManager
@@ -576,41 +578,42 @@ export default function MemberDetailContent({
                     <span className='rounded-lg border border-amber-200/50 bg-amber-100/80 p-1.5 text-amber-700'>
                       🔒
                     </span>
-                    Thông tin liên hệ
+                    {t('contactInfo')}
                   </h3>
                   <dl className='space-y-4 text-sm sm:text-sm'>
                     <div>
                       <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
-                        <Phone className='h-3.5 w-3.5' /> Số điện thoại
+                        <Phone className='h-3.5 w-3.5' /> {t('phoneNumber')}
                       </dt>
                       <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.phone_number as string) || (
                           <span className='font-normal text-stone-400'>
-                            Chưa cập nhật
+                            {t('notUpdated')}
                           </span>
                         )}
                       </dd>
                     </div>
                     <div>
                       <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
-                        <Briefcase className='h-3.5 w-3.5' /> Nghề nghiệp
+                        <Briefcase className='h-3.5 w-3.5' /> {t('occupation')}
                       </dt>
                       <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.occupation as string) || (
                           <span className='font-normal text-stone-400'>
-                            Chưa cập nhật
+                            {t('notUpdated')}
                           </span>
                         )}
                       </dd>
                     </div>
                     <div>
                       <dt className='mb-1 flex items-center gap-1.5 text-sm font-medium text-stone-500'>
-                        <MapPin className='h-3.5 w-3.5' /> Nơi ở hiện tại
+                        <MapPin className='h-3.5 w-3.5' />{' '}
+                        {t('currentResidence')}
                       </dt>
                       <dd className='rounded-lg border border-stone-200/60 bg-white px-3 py-2 font-medium text-stone-900'>
                         {(fullPerson.current_residence as string) || (
                           <span className='font-normal text-stone-400'>
-                            Chưa cập nhật
+                            {t('notUpdated')}
                           </span>
                         )}
                       </dd>
@@ -621,7 +624,7 @@ export default function MemberDetailContent({
                 <div className='flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-200 bg-stone-50/50 p-5 text-center'>
                   <span className='text-sm opacity-50'>🔒</span>
                   <p className='text-sm font-medium text-stone-500'>
-                    Thông tin liên hệ chỉ hiển thị với Quản trị viên.
+                    {t('contactAdminOnly')}
                   </p>
                 </div>
               )}

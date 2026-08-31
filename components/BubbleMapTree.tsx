@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person, Relationship } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
 import { buildAdjacencyLists, getFilteredTreeData } from '@/utils/treeHelpers'
@@ -35,6 +36,7 @@ export default function BubbleMapTree({
   relationships,
   roots
 }: BubbleMapTreeProps) {
+  const { t } = useI18n()
   const containerRef = useRef<HTMLDivElement>(null)
   const fullscreenRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -515,8 +517,7 @@ export default function BubbleMapTree({
     return (
       <div className='absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl border border-stone-200/60 bg-stone-50 p-4 text-center'>
         <span className='text-stone-500'>
-          Tính năng này không được hỗ trợ trên trình duyệt của bạn (
-          {error.message}). Vui lòng cập nhật hoặc sử dụng trình duyệt khác.
+          {t('unsupportedBrowser', { error: error.message })}
         </span>
       </div>
     )
@@ -539,8 +540,8 @@ export default function BubbleMapTree({
           type='button'
           onClick={() => changeZoom(Math.max(0.1, zoomLevel - 0.1))}
           className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
-          aria-label='Thu nhỏ sơ đồ'
-          title='Thu nhỏ'>
+          aria-label={t('zoomOut')}
+          title={t('zoomOut')}>
           <Minus className='size-4' />
         </button>
         <input
@@ -551,8 +552,8 @@ export default function BubbleMapTree({
           value={zoomLevel}
           onChange={(event) => changeZoom(Number(event.currentTarget.value))}
           className='h-1.5 w-20 cursor-pointer accent-amber-600 sm:w-28'
-          aria-label='Mức phóng to sơ đồ'
-          title='Mức phóng to'
+          aria-label={t('zoomLevel')}
+          title={t('zoomLevel')}
         />
         <span className='w-10 text-center text-sm font-medium text-stone-500 tabular-nums'>
           {Math.round(zoomLevel * 100)}%
@@ -561,8 +562,8 @@ export default function BubbleMapTree({
           type='button'
           onClick={() => changeZoom(Math.min(4, zoomLevel + 0.1))}
           className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
-          aria-label='Phóng to sơ đồ'
-          title='Phóng to'>
+          aria-label={t('zoomIn')}
+          title={t('zoomIn')}>
           <Plus className='size-4' />
         </button>
         <div className='mx-0.5 h-5 w-px bg-stone-200' aria-hidden='true' />
@@ -570,8 +571,8 @@ export default function BubbleMapTree({
           type='button'
           onClick={resetZoom}
           className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
-          aria-label='Đặt lại mức zoom'
-          title='Đặt lại zoom'>
+          aria-label={t('resetZoomLevel')}
+          title={t('resetZoomLevel')}>
           <RotateCcw className='size-4' />
         </button>
         <div className='mx-0.5 h-5 w-px bg-stone-200' aria-hidden='true' />
@@ -579,9 +580,9 @@ export default function BubbleMapTree({
           type='button'
           onClick={toggleFullscreen}
           className='flex size-8 items-center justify-center rounded-lg text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 focus:ring-2 focus:ring-amber-400 focus:outline-none'
-          aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+          aria-label={isFullscreen ? t('exitFullscreen') : t('fullscreen')}
           aria-pressed={isFullscreen}
-          title={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}>
+          title={isFullscreen ? t('exitFullscreen') : t('fullscreen')}>
           {isFullscreen ? (
             <Minimize2 className='size-4' />
           ) : (

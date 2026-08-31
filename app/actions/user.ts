@@ -1,5 +1,6 @@
 'use server'
 
+import { getServerTranslations } from '@/lib/i18n/server'
 import { UserRole } from '@/types'
 import { getSupabase } from '@/utils/supabase/queries'
 import { revalidatePath } from 'next/cache'
@@ -36,19 +37,20 @@ export async function deleteUser(userId: string) {
 }
 
 export async function adminCreateUser(formData: FormData) {
+  const { t } = await getServerTranslations()
   const email = formData.get('email')?.toString()
   const password = formData.get('password')?.toString()
   const role = formData.get('role')?.toString() || 'member'
 
   if (role !== 'admin' && role !== 'editor' && role !== 'member') {
-    return { error: 'Vai trò không hợp lệ.' }
+    return { error: t('invalidUserRole') }
   }
 
   const isActiveStr = formData.get('is_active')?.toString()
   const isActive = isActiveStr === 'false' ? false : true
 
   if (!email || !password) {
-    return { error: 'Email và mật khẩu là bắt buộc.' }
+    return { error: t('emailPasswordRequired') }
   }
 
   const supabase = await getSupabase()

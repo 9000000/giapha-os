@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
 import { getAvatarBg } from '@/utils/styleHelprs'
@@ -13,6 +14,7 @@ interface PersonCardProps {
 }
 
 export default function PersonCard({ person }: PersonCardProps) {
+  const { t } = useI18n()
   const { setMemberModalId } = useMemberListView()
 
   const isDeceased = person.is_deceased
@@ -98,27 +100,27 @@ export default function PersonCard({ person }: PersonCardProps) {
                         : 'border-stone-200/60 bg-stone-50 text-stone-700'
                   }`}>
                   {person.gender === 'male'
-                    ? 'Rể'
+                    ? t('inLawMale')
                     : person.gender === 'female'
-                      ? 'Dâu'
-                      : 'Khách'}
+                      ? t('inLawFemale')
+                      : t('inLawOther')}
                 </span>
               )}
               {person.birth_order != null && (
                 <span className='inline-flex items-center rounded-md border border-amber-200/60 bg-amber-50 px-2 py-0.5 text-sm font-medium text-amber-700 sm:text-sm'>
                   {person.birth_order === 1
-                    ? 'Con trưởng'
-                    : `Con thứ ${person.birth_order}`}
+                    ? t('firstChild')
+                    : t('nthChild', { count: person.birth_order })}
                 </span>
               )}
               {person.generation != null && (
                 <span className='inline-flex items-center rounded-md border border-emerald-200/60 bg-emerald-50 px-2 py-0.5 text-sm font-medium text-emerald-700 sm:text-sm'>
-                  Đời thứ {person.generation}
+                  {t('generationLabel', { generation: person.generation })}
                 </span>
               )}
               {isDeceased && (
                 <span className='inline-flex items-center rounded-md border border-stone-200/60 bg-stone-100 px-2 py-0.5 text-sm font-medium text-stone-500 sm:text-sm'>
-                  Đã mất
+                  {t('deceased')}
                 </span>
               )}
             </div>

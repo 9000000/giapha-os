@@ -7,6 +7,7 @@ import {
   toggleUserStatus
 } from '@/app/actions/user'
 import config from '@/app/config'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { AdminUserData, UserRole } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Trash } from 'lucide-react'
@@ -26,6 +27,7 @@ export default function AdminUserList({
   initialUsers,
   currentUserId
 }: AdminUserListProps) {
+  const { t } = useI18n()
   const isDemo =
     typeof window !== 'undefined' &&
     window.location.hostname === config.demoDomain
@@ -45,10 +47,7 @@ export default function AdminUserList({
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     if (isDemo) {
-      showNotification(
-        'Đây là tài khoản demo cho mọi người sử dụng, vui lòng không thay đổi thông tin này.',
-        'info'
-      )
+      showNotification(t('adminDemoNotice'), 'info')
       return
     }
     try {
@@ -63,12 +62,10 @@ export default function AdminUserList({
       setUsers(
         users.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
       )
-      showNotification('Đã cập nhật vai trò người dùng thành công.', 'success')
+      showNotification(t('adminRoleUpdated'), 'success')
     } catch (error: unknown) {
       const msg =
-        error instanceof Error
-          ? error.message
-          : 'Lỗi không xác định khi đổi quyền'
+        error instanceof Error ? error.message : t('adminUnknownRoleError')
       showNotification(msg, 'error')
     } finally {
       setLoadingId(null)
@@ -77,10 +74,7 @@ export default function AdminUserList({
 
   const handleStatusChange = async (userId: string, newStatus: boolean) => {
     if (isDemo) {
-      showNotification(
-        'Đây là tài khoản demo cho mọi người sử dụng, vui lòng không thay đổi thông tin này.',
-        'info'
-      )
+      showNotification(t('adminDemoNotice'), 'info')
       return
     }
     try {
@@ -96,14 +90,12 @@ export default function AdminUserList({
         users.map((u) => (u.id === userId ? { ...u, is_active: newStatus } : u))
       )
       showNotification(
-        `Đã ${newStatus ? 'duyệt' : 'khoá'} người dùng thành công.`,
+        t(newStatus ? 'adminStatusUpdated' : 'adminStatusLocked'),
         'success'
       )
     } catch (error: unknown) {
       const msg =
-        error instanceof Error
-          ? error.message
-          : 'Lỗi không xác định khi đổi trạng thái'
+        error instanceof Error ? error.message : t('adminUnknownStatusError')
       showNotification(msg, 'error')
     } finally {
       setLoadingId(null)
@@ -112,18 +104,10 @@ export default function AdminUserList({
 
   const handleDelete = async (userId: string) => {
     if (isDemo) {
-      showNotification(
-        'Đây là tài khoản demo cho mọi người sử dụng, vui lòng không thay đổi thông tin này.',
-        'info'
-      )
+      showNotification(t('adminDemoNotice'), 'info')
       return
     }
-    if (
-      !confirm(
-        'Bạn có chắc chắn muốn xóa user này khỏi hệ thống vĩnh viễn không?'
-      )
-    )
-      return
+    if (!confirm(t('adminConfirmDelete'))) return
     try {
       setLoadingId(userId)
       const result = await deleteUser(userId)
@@ -134,12 +118,10 @@ export default function AdminUserList({
       }
 
       setUsers(users.filter((u) => u.id !== userId))
-      showNotification('Đã xóa người dùng thành công.', 'success')
+      showNotification(t('adminDeleted'), 'success')
     } catch (error: unknown) {
       const msg =
-        error instanceof Error
-          ? error.message
-          : 'Lỗi không xác định khi xoá user'
+        error instanceof Error ? error.message : t('adminUnknownDeleteError')
       showNotification(msg, 'error')
     } finally {
       setLoadingId(null)
@@ -149,10 +131,7 @@ export default function AdminUserList({
   const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (isDemo) {
-      showNotification(
-        'Đây là trang demo, chức năng tạo người dùng bị hạn chế.',
-        'info'
-      )
+      showNotification(t('adminDemoCreateNotice'), 'info')
       setIsCreateModalOpen(false)
       return
     }
@@ -166,17 +145,12 @@ export default function AdminUserList({
         return
       }
 
-      showNotification(
-        'Tạo người dùng thành công! Họ có thể đăng nhập ngay bây giờ.',
-        'success'
-      )
+      showNotification(t('adminCreated'), 'success')
       setIsCreateModalOpen(false)
       setTimeout(() => window.location.reload(), 1500)
     } catch (error: unknown) {
       const msg =
-        error instanceof Error
-          ? error.message
-          : 'Lỗi không xác định khi tạo user'
+        error instanceof Error ? error.message : t('adminUnknownCreateError')
       showNotification(msg, 'error')
     } finally {
       setIsCreating(false)
@@ -261,7 +235,7 @@ export default function AdminUserList({
               d='M12 4v16m8-8H4'
             />
           </svg>
-          Thêm người dùng
+          {t('adminAddUser')}
         </button>
       </div>
 
@@ -271,19 +245,19 @@ export default function AdminUserList({
             <thead className='border-b border-stone-200/60 bg-stone-50/50'>
               <tr>
                 <th className='px-6 py-4 text-sm font-medium text-stone-500'>
-                  Email
+                  {t('adminEmail')}
                 </th>
                 <th className='px-6 py-4 text-sm font-medium text-stone-500'>
-                  Vai trò
+                  {t('adminRole')}
                 </th>
                 <th className='px-6 py-4 text-sm font-medium text-stone-500'>
-                  Trạng thái
+                  {t('adminStatus')}
                 </th>
                 <th className='px-6 py-4 text-sm font-medium text-stone-500'>
-                  Ngày tạo
+                  {t('adminCreatedAt')}
                 </th>
                 <th className='px-6 py-4 text-right text-sm font-medium text-stone-500'>
-                  Thao tác
+                  {t('adminActions')}
                 </th>
               </tr>
             </thead>
@@ -305,7 +279,11 @@ export default function AdminUserList({
                               ? 'border border-sky-200 bg-sky-100 text-sky-800'
                               : 'border border-stone-200 bg-stone-100 text-stone-600'
                         }`}>
-                        {user.role}
+                        {user.role === 'admin'
+                          ? t('adminAdminRole')
+                          : user.role === 'editor'
+                            ? t('adminEditorRole')
+                            : t('adminMemberRole')}
                       </span>
                     ) : (
                       <select
@@ -315,9 +293,9 @@ export default function AdminUserList({
                         }
                         disabled={loadingId === user.id}
                         className='rounded-md border border-stone-200 bg-stone-50 px-2 py-1 text-sm text-stone-700 transition-colors outline-none hover:border-stone-300 focus:border-amber-500 focus:ring-amber-500 disabled:opacity-50'>
-                        <option value='admin'>Admin</option>
-                        <option value='editor'>Editor</option>
-                        <option value='member'>Member</option>
+                        <option value='admin'>{t('adminAdminRole')}</option>
+                        <option value='editor'>{t('adminEditorRole')}</option>
+                        <option value='member'>{t('adminMemberRole')}</option>
                       </select>
                     )}
                   </td>
@@ -341,11 +319,11 @@ export default function AdminUserList({
                       title={
                         user.id !== currentUserId
                           ? user.is_active
-                            ? 'Nhấn để khoá'
-                            : 'Nhấn để duyệt'
-                          : 'Không thể thay đổi trạng thái của chính bạn'
+                            ? t('adminClickToLock')
+                            : t('adminClickToApprove')
+                          : t('adminSelfStatusDisabled')
                       }>
-                      {user.is_active ? 'Đã duyệt' : 'Chờ duyệt'}
+                      {user.is_active ? t('adminApproved') : t('adminPending')}
                     </button>
                   </td>
                   <td className='px-6 py-4 text-stone-500'>
@@ -355,7 +333,7 @@ export default function AdminUserList({
                     {user.id !== currentUserId && (
                       <div className='flex items-center justify-end gap-2'>
                         <button
-                          title='Xoá người dùng'
+                          title={t('adminDeleteUser')}
                           disabled={loadingId === user.id}
                           onClick={() => handleDelete(user.id)}
                           className='rounded-md p-1.5 text-stone-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50'>
@@ -364,7 +342,9 @@ export default function AdminUserList({
                       </div>
                     )}
                     {user.id === currentUserId && (
-                      <span className='text-sm text-stone-400 italic'>Bạn</span>
+                      <span className='text-sm text-stone-400 italic'>
+                        {t('adminYou')}
+                      </span>
                     )}
                   </td>
                 </tr>
@@ -374,7 +354,7 @@ export default function AdminUserList({
                   <td
                     colSpan={4}
                     className='px-6 py-8 text-center text-stone-500'>
-                    Không tìm thấy người dùng nào.
+                    {t('adminNoUsers')}
                   </td>
                 </tr>
               )}
@@ -389,7 +369,7 @@ export default function AdminUserList({
           <div className='w-full max-w-md transform overflow-hidden rounded-2xl border border-stone-200/60 bg-white/95 backdrop-blur-xl transition-all'>
             <div className='flex items-center justify-between border-b border-stone-100/80 bg-stone-50/50 px-6 py-5'>
               <h3 className='font-serif text-xl font-semibold text-stone-800'>
-                Tạo người dùng mới
+                {t('adminCreateTitle')}
               </h3>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
@@ -413,7 +393,7 @@ export default function AdminUserList({
               <div className='space-y-4'>
                 <div>
                   <label className='mb-1 block text-sm font-medium text-stone-700'>
-                    Email <span className='text-red-500'>*</span>
+                    {t('adminEmail')} <span className='text-red-500'>*</span>
                   </label>
                   <input
                     type='email'
@@ -426,7 +406,7 @@ export default function AdminUserList({
 
                 <div>
                   <label className='mb-1 block text-sm font-medium text-stone-700'>
-                    Mật khẩu <span className='text-red-500'>*</span>
+                    {t('password')} <span className='text-red-500'>*</span>
                   </label>
                   <input
                     type='password'
@@ -434,34 +414,34 @@ export default function AdminUserList({
                     required
                     minLength={6}
                     className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
-                    placeholder='Ít nhất 6 ký tự'
+                    placeholder={t('adminPasswordMinLength')}
                   />
                 </div>
 
                 <div>
                   <label className='mb-1 block text-sm font-medium text-stone-700'>
-                    Vai trò
+                    {t('adminRole')}
                   </label>
                   <select
                     name='role'
                     className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     defaultValue='member'>
-                    <option value='member'>Thành viên (Member)</option>
-                    <option value='editor'>Biên tập (Editor)</option>
-                    <option value='admin'>Quản trị viên (Admin)</option>
+                    <option value='member'>{t('adminMemberRole')}</option>
+                    <option value='editor'>{t('adminEditorRole')}</option>
+                    <option value='admin'>{t('adminAdminRole')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className='mb-1 block text-sm font-medium text-stone-700'>
-                    Trạng thái
+                    {t('adminStatus')}
                   </label>
                   <select
                     name='is_active'
                     className='w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 placeholder-stone-400 transition-colors focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none sm:py-2.5'
                     defaultValue='true'>
-                    <option value='true'>Đã duyệt (Active)</option>
-                    <option value='false'>Chờ duyệt (Pending)</option>
+                    <option value='true'>{t('adminApproved')}</option>
+                    <option value='false'>{t('adminPending')}</option>
                   </select>
                 </div>
               </div>
@@ -471,13 +451,13 @@ export default function AdminUserList({
                   type='button'
                   onClick={() => setIsCreateModalOpen(false)}
                   className='btn'>
-                  Hủy
+                  {t('adminCancel')}
                 </button>
                 <button
                   type='submit'
                   disabled={isCreating}
                   className='btn-primary'>
-                  {isCreating ? 'Đang tạo...' : 'Tạo người dùng'}
+                  {isCreating ? t('adminCreating') : t('adminCreateUser')}
                 </button>
               </div>
             </form>

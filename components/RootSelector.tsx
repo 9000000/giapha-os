@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person } from '@/types'
 import { useMemberListView } from '@/context/MemberListContext'
 import PersonSelector from './PersonSelector'
@@ -11,6 +12,7 @@ export default function RootSelector({
   persons: Person[]
   currentRootId: string
 }) {
+  const { t } = useI18n()
   const { setRootId } = useMemberListView()
 
   return (
@@ -20,8 +22,8 @@ export default function RootSelector({
       onSelect={(id) => {
         if (id) setRootId(id)
       }}
-      placeholder='Chọn người...'
-      label='Gốc hiển thị'
+      placeholder={t('choosePerson')}
+      label={t('displayRoot')}
       className='w-full sm:w-72'
     />
   )

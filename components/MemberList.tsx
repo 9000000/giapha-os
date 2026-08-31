@@ -5,6 +5,7 @@ import { Person, Relationship } from '@/types'
 import { ArrowUpDown, Filter, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useMemberListView } from '@/context/MemberListContext'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 
 export default function MemberList({
   initialPersons,
@@ -16,6 +17,7 @@ export default function MemberList({
   canEdit?: boolean
 }) {
   const { setShowCreateMember } = useMemberListView()
+  const { t } = useI18n()
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOption, setSortOption] = useState('generation_asc')
 
@@ -273,7 +275,7 @@ export default function MemberList({
               <Search className='absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-stone-400 transition-colors group-focus-within:text-amber-500' />
               <input
                 type='text'
-                placeholder='Tìm kiếm thành viên...'
+                placeholder={t('searchMembers')}
                 className='w-full rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-4 pl-10 text-stone-900 placeholder-stone-400 transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -286,13 +288,13 @@ export default function MemberList({
                   className='w-full appearance-none rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-8 pl-9 text-sm font-medium text-stone-700 transition-all hover:border-amber-300 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:outline-none sm:w-40'
                   value={filterOption}
                   onChange={(e) => setFilterOption(e.target.value)}>
-                  <option value='all'>Tất cả</option>
-                  <option value='male'>Nam</option>
-                  <option value='female'>Nữ</option>
-                  <option value='in_law_female'>Dâu</option>
-                  <option value='in_law_male'>Rể</option>
-                  <option value='deceased'>Đã mất</option>
-                  <option value='first_child'>Con trưởng</option>
+                  <option value='all'>{t('all')}</option>
+                  <option value='male'>{t('male')}</option>
+                  <option value='female'>{t('female')}</option>
+                  <option value='in_law_female'>{t('daughterInLaw')}</option>
+                  <option value='in_law_male'>{t('sonInLaw')}</option>
+                  <option value='deceased'>{t('deceased')}</option>
+                  <option value='first_child'>{t('firstChild')}</option>
                 </select>
                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2'>
                   <svg
@@ -315,16 +317,14 @@ export default function MemberList({
                   className='w-full appearance-none rounded-xl border border-stone-200/80 bg-white/90 py-2.5 pr-8 pl-9 text-sm font-medium text-stone-700 transition-all hover:border-amber-300 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:outline-none sm:w-52'
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}>
-                  <option value='birth_asc'>Năm sinh (Tăng dần)</option>
-                  <option value='birth_desc'>Năm sinh (Giảm dần)</option>
-                  <option value='name_asc'>Tên (A-Z)</option>
-                  <option value='name_desc'>Tên (Z-A)</option>
-                  <option value='updated_desc'>Cập nhật (Mới nhất)</option>
-                  <option value='updated_asc'>Cập nhật (Cũ nhất)</option>
-                  <option value='generation_asc'>Theo thế hệ (Tăng dần)</option>
-                  <option value='generation_desc'>
-                    Theo thế hệ (Giảm dần)
-                  </option>
+                  <option value='birth_asc'>{t('birthAsc')}</option>
+                  <option value='birth_desc'>{t('birthDesc')}</option>
+                  <option value='name_asc'>{t('nameAsc')}</option>
+                  <option value='name_desc'>{t('nameDesc')}</option>
+                  <option value='updated_desc'>{t('updatedDesc')}</option>
+                  <option value='updated_asc'>{t('updatedAsc')}</option>
+                  <option value='generation_asc'>{t('generationAsc')}</option>
+                  <option value='generation_desc'>{t('generationDesc')}</option>
                 </select>
                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2'>
                   <svg
@@ -347,7 +347,7 @@ export default function MemberList({
               onClick={() => setShowCreateMember(true)}
               className='btn-primary'>
               <Plus className='size-4' strokeWidth={2.5} />
-              Thêm thành viên
+              {t('addMember')}
             </button>
           )}
         </div>
@@ -388,7 +388,9 @@ export default function MemberList({
                     <div className='flex items-center gap-3'>
                       <div className='h-px flex-1 bg-stone-200'></div>
                       <h3 className='rounded-full border border-amber-200/50 bg-amber-50 px-4 py-1.5 font-serif text-lg font-semibold text-amber-800'>
-                        {gen === '0' ? 'Chưa xác định đời' : `Đời thứ ${gen}`}
+                        {gen === '0'
+                          ? t('unknownGeneration')
+                          : t('generationOf', { generation: gen })}
                       </h3>
                       <div className='h-px flex-1 bg-stone-200'></div>
                     </div>
@@ -420,9 +422,9 @@ export default function MemberList({
                                 .join(' & ')
 
                               const label = parentNames
-                                ? `Con của: ${parentNames}`
+                                ? t('childOf', { parents: parentNames })
                                 : familiesMap.size > 1
-                                  ? `Gia đình ${idx + 1}`
+                                  ? t('familyNumber', { number: idx + 1 })
                                   : null
 
                               if (!label) return null
@@ -599,9 +601,7 @@ export default function MemberList({
         )
       ) : (
         <div className='py-12 text-center text-stone-400 italic'>
-          {initialPersons.length > 0
-            ? 'Không tìm thấy thành viên phù hợp.'
-            : 'Chưa có thành viên nào. Hãy thêm thành viên đầu tiên.'}
+          {initialPersons.length > 0 ? t('noMatchingMembers') : t('noMembers')}
         </div>
       )}
     </>

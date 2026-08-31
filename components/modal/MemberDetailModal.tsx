@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import MemberForm from '@/components/MemberForm'
 import { useUser } from '@/components/UserProvider'
 import MemberDetailContent from '@/context/MemberDetailContent'
@@ -12,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
 export default function MemberDetailModal() {
+  const { t } = useI18n()
   const {
     memberModalId: memberId,
     setMemberModalId,
@@ -51,7 +53,7 @@ export default function MemberDetailModal() {
           .single()
 
         if (personError || !personData) {
-          throw new Error('Không thể tải thông tin thành viên.')
+          throw new Error(t('memberLoadError'))
         }
         setPerson(personData)
 
@@ -69,12 +71,12 @@ export default function MemberDetailModal() {
       } catch (err) {
         console.error('Error fetching member details:', err)
         // @ts-expect-error - err is caught as unknown, but we check for message
-        setError(err?.message || 'Đã xảy ra lỗi hệ thống.')
+        setError(err?.message || t('systemError'))
       } finally {
         setLoading(false)
       }
     },
-    [isAdmin, supabase]
+    [isAdmin, supabase, t]
   )
 
   // Sync state with URL parameter or create mode
@@ -183,7 +185,9 @@ export default function MemberDetailModal() {
                   }}
                   className='inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-stone-200/50 bg-stone-100/80 px-3 py-2.5 text-sm font-medium text-stone-700 transition-all duration-300 hover:-translate-y-1 hover:bg-stone-200'>
                   <ArrowLeft className='size-4' />
-                  <span className='hidden sm:inline'>Quay lại</span>
+                  <span className='hidden sm:inline'>
+                    {t('backToPrevious')}
+                  </span>
                 </button>
               ) : (
                 canEdit &&
@@ -193,13 +197,15 @@ export default function MemberDetailModal() {
                       href={`/dashboard/members/${person.id}`}
                       className='btn-amber text-sm'>
                       <ExternalLink className='size-4' />
-                      <span className='hidden sm:inline'>Xem</span>
+                      <span className='hidden sm:inline'>{t('view')}</span>
                     </Link>
                     <button
                       onClick={() => setIsEditing(true)}
                       className='btn-amber text-sm'>
                       <Edit2 className='size-4' />
-                      <span className='hidden sm:inline'>Chỉnh sửa</span>
+                      <span className='hidden sm:inline'>
+                        {t('editMember')}
+                      </span>
                     </button>
                   </>
                 )
@@ -207,7 +213,7 @@ export default function MemberDetailModal() {
               <button
                 onClick={closeModal}
                 className='flex size-10 items-center justify-center rounded-full border border-stone-200/50 bg-stone-100/80 text-stone-600 transition-colors hover:bg-stone-200 hover:text-stone-900'
-                aria-label='Đóng'>
+                aria-label={t('close')}>
                 <X className='size-5' />
               </button>
             </div>
@@ -222,7 +228,9 @@ export default function MemberDetailModal() {
                   transition={{ duration: 0.2 }}
                   className='flex min-h-125 flex-1 flex-col items-center justify-center gap-4'>
                   <div className='size-10 animate-spin rounded-full border-4 border-amber-600 border-t-transparent'></div>
-                  <p className='font-medium text-stone-500'>Đang tải...</p>
+                  <p className='font-medium text-stone-500'>
+                    {t('loadingMember')}
+                  </p>
                 </motion.div>
               ) : error ? (
                 <motion.div
@@ -239,7 +247,7 @@ export default function MemberDetailModal() {
                   <button
                     onClick={closeModal}
                     className='btn mt-2 rounded-full'>
-                    Đóng
+                    {t('close')}
                   </button>
                 </motion.div>
               ) : isEditing && formInitialData ? (
@@ -252,7 +260,7 @@ export default function MemberDetailModal() {
                   transition={{ duration: 0.2 }}
                   className='custom-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:px-8'>
                   <h2 className='mb-6 font-serif text-xl font-semibold text-stone-800'>
-                    Chỉnh sửa thành viên
+                    {t('editMember')}
                   </h2>
                   <MemberForm
                     initialData={
@@ -276,7 +284,7 @@ export default function MemberDetailModal() {
                   transition={{ duration: 0.2 }}
                   className='custom-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:px-8'>
                   <h2 className='mb-6 font-serif text-xl font-semibold text-stone-800'>
-                    Thêm thành viên mới
+                    {t('newMember')}
                   </h2>
                   <MemberForm
                     isAdmin={isAdmin}

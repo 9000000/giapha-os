@@ -2,12 +2,15 @@ import { MemberListProvider } from '@/context/MemberListContext'
 import EventsList from '@/components/EventsList'
 import MemberDetailModal from '@/components/modal/MemberDetailModal'
 import { getSupabase } from '@/utils/supabase/queries'
+import { getServerTranslations } from '@/lib/i18n/server'
 
-export const metadata = {
-  title: 'Sự kiện gia phả'
+export async function generateMetadata() {
+  const { t } = await getServerTranslations()
+  return { title: t('eventsTitle') }
 }
 
 export default async function EventsPage() {
+  const { t } = await getServerTranslations()
   const supabase = await getSupabase()
 
   const [personsRes, customEventsRes] = await Promise.all([
@@ -28,9 +31,9 @@ export default async function EventsPage() {
     <MemberListProvider>
       <div className='relative flex w-full flex-1 flex-col pb-12'>
         <div className='relative z-20 mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 lg:px-8'>
-          <h1 className='title'>Sự kiện gia phả</h1>
+          <h1 className='title'>{t('eventsTitle')}</h1>
           <p className='mt-1 text-sm text-stone-500'>
-            Sinh nhật, ngày giỗ (âm lịch) và các sự kiện tuỳ chỉnh
+            {t('eventsDescription')}
           </p>
         </div>
 

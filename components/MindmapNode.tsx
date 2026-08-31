@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Person, Relationship } from '@/types'
 import { getAvatarUrl } from '@/utils/avatar'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -51,6 +52,7 @@ export const MindmapNode = memo(
     isLast?: boolean
     ctx: MindmapContextData
   }) => {
+    const { t } = useI18n()
     const data = getTreeData(personId, ctx)
     const [isExpanded, setIsExpanded] = useState(
       ctx.autoCollapseLevel > 0 ? level < ctx.autoCollapseLevel : level < 2
@@ -109,7 +111,7 @@ export const MindmapNode = memo(
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className='flex size-5 items-center justify-center rounded border border-stone-200 bg-white text-stone-500 transition-colors hover:bg-amber-50 hover:text-amber-600 focus:outline-none'
-                aria-label={isExpanded ? 'Thu gọn' : 'Mở rộng'}>
+                aria-label={isExpanded ? t('collapse') : t('expand')}>
                 {isExpanded ? (
                   <ChevronDown strokeWidth={2.5} className='h-3.5 w-3.5' />
                 ) : (
@@ -171,9 +173,9 @@ export const MindmapNode = memo(
                           />
                         </svg>
                         <span className='truncate'>
-                          {data.person.birth_year || 'Chưa rõ'}
+                          {data.person.birth_year || t('unknownDate')}
                           {data.person.is_deceased &&
-                            ` → ${data.person.death_lunar_year || data.person.death_year || 'Chưa rõ'}`}
+                            ` → ${data.person.death_lunar_year || data.person.death_year || t('unknownDate')}`}
                         </span>
                       </span>
                       {(data.person.is_deceased || data.person.is_in_law) && (
@@ -188,10 +190,10 @@ export const MindmapNode = memo(
                                     : 'border-stone-200/60 bg-stone-50 text-stone-700'
                               }`}>
                               {data.person.gender === 'male'
-                                ? 'Rể'
+                                ? t('inLawMale')
                                 : data.person.gender === 'female'
-                                  ? 'Dâu'
-                                  : 'Khách'}
+                                  ? t('inLawFemale')
+                                  : t('inLawOther')}
                             </span>
                           )}
                         </div>
@@ -214,8 +216,8 @@ export const MindmapNode = memo(
                             title={
                               spouseData.note ||
                               (spouseData.person.gender === 'male'
-                                ? 'Chồng'
-                                : 'Vợ')
+                                ? t('inLawMale')
+                                : t('inLawFemale'))
                             }>
                             {ctx.showAvatar && (
                               <div

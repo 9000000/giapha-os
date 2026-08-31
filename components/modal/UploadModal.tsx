@@ -1,5 +1,6 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { createClient } from '@/utils/supabase/client'
 import { uploadGalleryImage } from '@/utils/supabase/storage'
 import { getGalleryStoragePath } from '@/utils/supabase/storage-path'
@@ -23,6 +24,7 @@ export default function UploadModal({
   onSuccess,
   initialData
 }: UploadModalProps) {
+  const { t } = useI18n()
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -49,7 +51,7 @@ export default function UploadModal({
     const selected = e.target.files?.[0]
     if (selected) {
       if (selected.size > 10 * 1024 * 1024) {
-        setError('File size must be less than 10MB')
+        setError(t('fileTooLarge10'))
         return
       }
       setFile(selected)
@@ -76,11 +78,11 @@ export default function UploadModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!initialData && !file) {
-      setError('Vui lòng chọn ảnh.')
+      setError(t('chooseImageError'))
       return
     }
     if (!title) {
-      setError('Vui lòng nhập tiêu đề.')
+      setError(t('enterImageTitle'))
       return
     }
 
@@ -97,7 +99,7 @@ export default function UploadModal({
       if (file) {
         const { path, error: uploadError } = await uploadGalleryImage(file)
         if (uploadError || !path) {
-          throw new Error('Lỗi khi tải ảnh lên. Vui lòng thử lại.')
+          throw new Error(t('uploadError'))
         }
         finalPath = path
       }
@@ -135,7 +137,7 @@ export default function UploadModal({
       resetForm()
       onSuccess()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi.')
+      setError(err instanceof Error ? err.message : t('systemError'))
     } finally {
       setIsUploading(false)
     }
@@ -189,16 +191,14 @@ export default function UploadModal({
                 onClick={handleClose}
                 disabled={isUploading}
                 className='flex size-10 items-center justify-center rounded-full border border-stone-200/50 bg-stone-100/80 text-stone-600 transition-colors hover:bg-stone-200 hover:text-stone-900 disabled:cursor-not-allowed disabled:opacity-50'
-                aria-label='Đóng'>
+                aria-label={t('close')}>
                 <X className='size-5' />
               </button>
             </div>
 
             <div className='custom-scrollbar flex-1 overflow-y-auto px-4 pt-16 pb-8 sm:px-8'>
               <h2 className='mb-6 font-serif text-xl font-semibold text-stone-800'>
-                {initialData
-                  ? 'Chỉnh sửa hình ảnh'
-                  : 'Thêm vào Phòng trưng bày'}
+                {initialData ? t('editImage') : t('addToGallery')}
               </h2>
 
               <form
@@ -216,7 +216,7 @@ export default function UploadModal({
                       <Image
                         unoptimized
                         src={preview}
-                        alt='Preview'
+                        alt={t('imagePreview')}
                         width={800}
                         height={600}
                         className='mx-auto max-h-64 rounded-lg object-contain shadow-sm'
@@ -239,10 +239,10 @@ export default function UploadModal({
                       </div>
                       <div>
                         <p className='text-sm font-medium text-stone-700'>
-                          Kéo thả ảnh vào đây, hoặc click để chọn
+                          {t('chooseImage')}
                         </p>
                         <p className='mt-1 text-sm text-stone-500'>
-                          Hỗ trợ JPG, PNG, WEBP (Max 10MB)
+                          {t('imageUploadHint')}
                         </p>
                       </div>
                     </div>
@@ -266,8 +266,7 @@ export default function UploadModal({
                 <div className='space-y-4'>
                   <div>
                     <label className='mb-1.5 block text-sm font-medium text-stone-700'>
-                      Tiêu đề ảnh / Sự kiện{' '}
-                      <span className='text-red-500'>*</span>
+                      {t('imageTitle')} <span className='text-red-500'>*</span>
                     </label>
                     <input
                       type='text'
@@ -275,13 +274,13 @@ export default function UploadModal({
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       className={inputClasses}
-                      placeholder='Ví dụ: Lễ mừng thọ ông nội'
+                      placeholder={t('imageTitlePlaceholder')}
                     />
                   </div>
 
                   <div>
                     <label className='mb-1.5 block text-sm font-medium text-stone-700'>
-                      Ngày diễn ra
+                      {t('eventDate')}
                     </label>
                     <input
                       type='date'
@@ -293,14 +292,14 @@ export default function UploadModal({
 
                   <div>
                     <label className='mb-1.5 block text-sm font-medium text-stone-700'>
-                      Nội dung kỷ niệm
+                      {t('eventDescription')}
                     </label>
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={3}
                       className={`${inputClasses} resize-none`}
-                      placeholder='Kể lại câu chuyện đằng sau bức ảnh...'
+                      placeholder={t('descriptionPlaceholder')}
                     />
                   </div>
                 </div>
@@ -311,7 +310,7 @@ export default function UploadModal({
                     onClick={handleClose}
                     disabled={isUploading}
                     className='btn'>
-                    Hủy bỏ
+                    {t('restoreCancel')}
                   </button>
                   <button
                     type='submit'
@@ -321,12 +320,12 @@ export default function UploadModal({
                     {isUploading ? (
                       <>
                         <Loader2 className='size-4 animate-spin' />
-                        Đang lưu...
+                        {t('savingEvent')}
                       </>
                     ) : initialData ? (
-                      'Lưu thay đổi'
+                      t('saveChanges')
                     ) : (
-                      'Lưu hình ảnh'
+                      t('saveImage')
                     )}
                   </button>
                 </div>

@@ -27,11 +27,15 @@ export const getProfile = cache(async (userId?: string) => {
   }
 
   const supabase = await getSupabase()
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', id)
     .single()
+
+  if (error) {
+    console.error(`Cannot load profile for user ${id}:`, error.message)
+  }
 
   return profile as Profile | null
 })

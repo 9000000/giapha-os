@@ -1,18 +1,28 @@
 -- ============================================================
 -- Seed File cho Gia Pha OS
--- Dòng họ: VẠN (Họ hư cấu, không đại diện cho người thật nào)
--- 4 Đời, ~27 thành viên, đủ quan hệ để test mọi tính năng
--- CẢNH BÁO: TRUNCATE toàn bộ dữ liệu hiện có trước khi chạy
+-- Dòng họ: VẠN (hư cấu, không đại diện cho người thật nào)
+-- 4 Đời, 27 thành viên, 43 quan hệ, 3 sự kiện mẫu —
+-- đủ quan hệ để test mọi tính năng (kể cả trang Sự kiện)
+-- ============================================================
+-- CÁCH DÙNG
+--   • Supabase SQL Editor: dán toàn bộ file rồi Run.
+--   • psql: psql "$SUPABASE_DB_URL" -f docs/seed.sql
+-- File này KHÔNG nằm trong migration runner — chỉ chạy thủ công.
+-- CẢNH BÁO: Xóa sạch persons, relationships, person_details_private
+--   và custom_events hiện có. KHÔNG đụng profiles, auth, gallery.
+--   Toàn bộ chạy trong 1 transaction: hỏng giữa chừng thì không có
+--   gì thay đổi.
 -- ============================================================
 
-TRUNCATE TABLE relationships CASCADE;
-TRUNCATE TABLE person_details_private CASCADE;
-TRUNCATE TABLE persons CASCADE;
+BEGIN;
+
+TRUNCATE TABLE public.custom_events, public.person_details_private,
+               public.relationships, public.persons CASCADE;
 
 -- ============================================================
 -- ĐỜI 1 — TỔ TIÊN (Sinh ~1900-1920)
 -- ============================================================
-INSERT INTO persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
+INSERT INTO public.persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
 VALUES
 (
   '10000000-0000-0000-0000-000000000001',
@@ -30,7 +40,7 @@ VALUES
 -- ============================================================
 -- ĐỜI 2 — ÔNG BÀ (Sinh ~1930-1950)
 -- ============================================================
-INSERT INTO persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
+INSERT INTO public.persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
 VALUES
 -- Nhánh Trưởng (ở lại quê Bắc)
 (
@@ -69,7 +79,7 @@ VALUES
 -- ============================================================
 -- ĐỜI 3 — BỐ MẸ / CÔ CHÚ (Sinh ~1955-1975)
 -- ============================================================
-INSERT INTO persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
+INSERT INTO public.persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
 VALUES
 -- Con của ông Thuận & bà Dịu (nhánh Bắc)
 (
@@ -93,7 +103,7 @@ VALUES
 (
   '30000000-0000-0000-0000-000000000004',
   'Tề Văn Chính',
-  'female', 1959, 5, 18, NULL, NULL, NULL, NULL, NULL, NULL, FALSE, TRUE, 3, NULL,
+  'male', 1959, 5, 18, NULL, NULL, NULL, NULL, NULL, NULL, FALSE, TRUE, 3, NULL,
   'Chồng của bác Cẩm. Làm luật sư, điềm tĩnh và hay đọc sách lịch sử. [Nhân vật hư cấu]'
 ),
 (
@@ -131,7 +141,7 @@ VALUES
 -- ============================================================
 -- ĐỜI 4 — CHÁU CHẮT (Sinh ~1988-2010)
 -- ============================================================
-INSERT INTO persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
+INSERT INTO public.persons (id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, death_lunar_year, death_lunar_month, death_lunar_day, is_deceased, is_in_law, generation, birth_order, note)
 VALUES
 -- Con của anh Trí & bà Dịu Hiền
 (
@@ -156,7 +166,7 @@ VALUES
   '40000000-0000-0000-0000-000000000004',
   'Vạn Trí Khang',
   'male', 1998, 1, 30, NULL, NULL, NULL, NULL, NULL, NULL, FALSE, FALSE, 4, 3,
-  'Cậu út của anh Trí. Sinh viên Kinh tế, thích bóng đá và chơi guitar. [Nhân vật hư cấu]'
+  'Con trai út của anh Trí. Sinh viên Kinh tế, thích bóng đá và chơi guitar. [Nhân vật hư cấu]'
 ),
 -- Con của bác Cẩm & chú Chính
 (
@@ -208,7 +218,7 @@ VALUES
 -- ============================================================
 -- THÔNG TIN RIÊNG TƯ (Admin only)
 -- ============================================================
-INSERT INTO person_details_private (person_id, phone_number, occupation, current_residence)
+INSERT INTO public.person_details_private (person_id, phone_number, occupation, current_residence)
 VALUES
 ('30000000-0000-0000-0000-000000000001', '09xx xxx 001', 'Kỹ sư xây dựng (đã nghỉ hưu)', 'Hà Đông, Hà Nội'),
 ('30000000-0000-0000-0000-000000000002', '09xx xxx 002', 'Giáo viên Văn (đã nghỉ hưu)', 'Hà Đông, Hà Nội'),
@@ -228,11 +238,11 @@ VALUES
 -- ============================================================
 
 -- Đời 1: Hôn nhân tổ tiên
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('marriage', '10000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000002');
 
 -- Đời 1 → Đời 2
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001'),
 ('biological_child', '10000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001'),
 ('biological_child', '10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000003'),
@@ -241,12 +251,12 @@ INSERT INTO relationships (type, person_a, person_b) VALUES
 ('biological_child', '10000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000004');
 
 -- Đời 2: Hôn nhân
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('marriage', '20000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000002'),
 ('marriage', '20000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000005');
 
 -- Đời 2 → Đời 3 (nhánh ông Thuận & bà Dịu)
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '20000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000001'),
 ('biological_child', '20000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000001'),
 ('biological_child', '20000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000003'),
@@ -255,21 +265,21 @@ INSERT INTO relationships (type, person_a, person_b) VALUES
 ('biological_child', '20000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000005');
 
 -- Đời 2 → Đời 3 (nhánh ông Viễn & bà Khéo)
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '20000000-0000-0000-0000-000000000004', '30000000-0000-0000-0000-000000000007'),
 ('biological_child', '20000000-0000-0000-0000-000000000005', '30000000-0000-0000-0000-000000000007'),
 ('biological_child', '20000000-0000-0000-0000-000000000004', '30000000-0000-0000-0000-000000000008'),
 ('biological_child', '20000000-0000-0000-0000-000000000005', '30000000-0000-0000-0000-000000000008');
 
 -- Đời 3: Hôn nhân
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('marriage', '30000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002'),
 ('marriage', '30000000-0000-0000-0000-000000000003', '30000000-0000-0000-0000-000000000004'),
 ('marriage', '30000000-0000-0000-0000-000000000005', '30000000-0000-0000-0000-000000000006'),
 ('marriage', '30000000-0000-0000-0000-000000000008', '30000000-0000-0000-0000-000000000009');
 
 -- Đời 3 → Đời 4 (con anh Trí & bà Dịu Hiền)
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '30000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001'),
 ('biological_child', '30000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000001'),
 ('biological_child', '30000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000003'),
@@ -278,37 +288,79 @@ INSERT INTO relationships (type, person_a, person_b) VALUES
 ('biological_child', '30000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000004');
 
 -- Đời 3 → Đời 4 (con bác Cẩm & chú Chính)
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '30000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000005'),
 ('biological_child', '30000000-0000-0000-0000-000000000004', '40000000-0000-0000-0000-000000000005'),
 ('biological_child', '30000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000006'),
 ('biological_child', '30000000-0000-0000-0000-000000000004', '40000000-0000-0000-0000-000000000006');
 
 -- Đời 3 → Đời 4 (con chú Mộc & thím Lam)
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '30000000-0000-0000-0000-000000000005', '40000000-0000-0000-0000-000000000007'),
 ('biological_child', '30000000-0000-0000-0000-000000000006', '40000000-0000-0000-0000-000000000007'),
 ('biological_child', '30000000-0000-0000-0000-000000000005', '40000000-0000-0000-0000-000000000008'),
 ('biological_child', '30000000-0000-0000-0000-000000000006', '40000000-0000-0000-0000-000000000008');
 
 -- Đời 3 → Đời 4 (con anh Tuệ - nhánh HCM)
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '30000000-0000-0000-0000-000000000007', '40000000-0000-0000-0000-000000000009');
 
 -- Đời 3 → Đời 4 (con cô Thanh & anh Kiến - nhánh HCM)
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('biological_child', '30000000-0000-0000-0000-000000000008', '40000000-0000-0000-0000-000000000010'),
 ('biological_child', '30000000-0000-0000-0000-000000000009', '40000000-0000-0000-0000-000000000010'),
 ('biological_child', '30000000-0000-0000-0000-000000000008', '40000000-0000-0000-0000-000000000011'),
 ('biological_child', '30000000-0000-0000-0000-000000000009', '40000000-0000-0000-0000-000000000011');
 
 -- Đời 4: Hôn nhân
-INSERT INTO relationships (type, person_a, person_b) VALUES
+INSERT INTO public.relationships (type, person_a, person_b) VALUES
 ('marriage', '40000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000002');
 
 -- ============================================================
+-- SỰ KIỆN MẪU (trang Sự kiện)
+-- created_by để NULL: seed chạy ngoài phiên đăng nhập nên không gắn
+-- với tài khoản nào; cột cho phép NULL và UI không hiển thị người tạo.
+-- ============================================================
+INSERT INTO public.custom_events (name, content, event_date, location, created_by) VALUES
+(
+  'Dọn dẹp nhà thờ họ',
+  'Toàn họ về quê dọn dẹp nhà thờ, chăm sóc mộ phần tổ tiên và rà soát lại gia phả trước kỳ giỗ tổ. [Sự kiện mẫu]',
+  '2026-04-25',
+  'Nhà thờ họ Vạn, Hà Đông, Hà Nội',
+  NULL
+),
+(
+  'Giỗ cố Vạn Công Thuận',
+  'Giỗ thường niên cố ông Thuận (1930–2008), đúng ngày giỗ ghi trong gia phả. Cả nhánh Nam cố gắng về sớm một ngày, các gia đình chuẩn bị hương hoa. [Sự kiện mẫu]',
+  '2026-11-30',
+  'Nhà thờ họ Vạn, Hà Đông, Hà Nội',
+  NULL
+),
+(
+  'Tất niên và họp mặt cuối năm',
+  'Năm nay nhánh Nam đăng cai: cả họ sum họp ăn Tất niên tại TP.HCM, ôn lại gia phả và thống nhất lịch giỗ cho năm mới. [Sự kiện mẫu]',
+  '2027-02-05',
+  'Quận 7, TP.HCM',
+  NULL
+);
+
+COMMIT;
+
+-- ============================================================
+-- KIỂM TRA SAU KHI CHẠY — cột "thuc_te" phải khớp cột "mong_doi"
+-- ============================================================
+SELECT 'persons' AS bang, COUNT(*) AS thuc_te, 27 AS mong_doi
+  FROM public.persons
+UNION ALL
+SELECT 'relationships', COUNT(*), 43 FROM public.relationships
+UNION ALL
+SELECT 'person_details_private', COUNT(*), 10 FROM public.person_details_private
+UNION ALL
+SELECT 'custom_events', COUNT(*), 3 FROM public.custom_events;
+
+-- ============================================================
 -- END OF SEED
--- Dòng họ Vạn (hư cấu): 4 đời, 27 thành viên
+-- Dòng họ Vạn (hư cấu): 4 đời, 27 thành viên, 43 quan hệ, 3 sự kiện
 -- Nhánh Bắc (Hà Nội) + Nhánh Nam (TP.HCM)
 -- Tất cả nhân vật, tên, số điện thoại đều là HƯ CẤU
 -- ============================================================

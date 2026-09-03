@@ -29,7 +29,21 @@ DROP FUNCTION IF EXISTS public.get_admin_users() CASCADE;
 DROP FUNCTION IF EXISTS public.handle_first_user_confirmation() CASCADE;
 DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
 DROP FUNCTION IF EXISTS public.is_admin() CASCADE;
+DROP FUNCTION IF EXISTS public.is_active_user() CASCADE;
+DROP FUNCTION IF EXISTS public.is_editor() CASCADE;
 DROP FUNCTION IF EXISTS public.handle_updated_at() CASCADE;
+DROP FUNCTION IF EXISTS private.set_user_active_status(uuid, boolean) CASCADE;
+DROP FUNCTION IF EXISTS private.admin_create_user(text, text, text, boolean) CASCADE;
+DROP FUNCTION IF EXISTS private.delete_user(uuid) CASCADE;
+DROP FUNCTION IF EXISTS private.set_user_role(uuid, text) CASCADE;
+DROP FUNCTION IF EXISTS private.get_admin_users() CASCADE;
+DROP FUNCTION IF EXISTS private.handle_first_user_confirmation() CASCADE;
+DROP FUNCTION IF EXISTS private.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS private.is_admin() CASCADE;
+DROP FUNCTION IF EXISTS private.is_active_user() CASCADE;
+DROP FUNCTION IF EXISTS private.is_editor() CASCADE;
+DROP FUNCTION IF EXISTS private.handle_updated_at() CASCADE;
+DROP SCHEMA IF EXISTS private CASCADE;
 
 -- 4. DROP CUSTOM TYPES
 DROP TYPE IF EXISTS public.admin_user_data CASCADE;

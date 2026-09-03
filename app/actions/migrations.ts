@@ -18,7 +18,8 @@ const MIGRATION_FILES = [
   'docs/migrations/20260312015736_add_lunar_death_date.sql',
   'docs/migrations/20260320230020_add_editor_permission.sql',
   'docs/migrations/20260524125731_add_gallery.sql',
-  'docs/migrations/20260831140135_security_and_approval_hardening.sql'
+  'docs/migrations/20260831140135_security_and_approval_hardening.sql',
+  'docs/migrations/20260901000000_security_definer_and_rls_hardening.sql'
 ] as const
 
 const MIGRATION_TABLE = 'public.app_migrations'
@@ -198,6 +199,12 @@ async function ensureMigrationTable(sql: ReturnType<typeof postgres>) {
     );
     ALTER TABLE ${MIGRATION_TABLE} ENABLE ROW LEVEL SECURITY;
     REVOKE ALL ON ${MIGRATION_TABLE} FROM PUBLIC, anon, authenticated;
+    DROP POLICY IF EXISTS "No client access to app migrations" ON ${MIGRATION_TABLE};
+    CREATE POLICY "No client access to app migrations"
+      ON ${MIGRATION_TABLE}
+      FOR ALL TO anon, authenticated
+      USING (false)
+      WITH CHECK (false);
   `)
 }
 
@@ -324,6 +331,12 @@ export async function runPendingMigrations() {
         );
         ALTER TABLE ${MIGRATION_TABLE} ENABLE ROW LEVEL SECURITY;
         REVOKE ALL ON ${MIGRATION_TABLE} FROM PUBLIC, anon, authenticated;
+        DROP POLICY IF EXISTS "No client access to app migrations" ON ${MIGRATION_TABLE};
+        CREATE POLICY "No client access to app migrations"
+          ON ${MIGRATION_TABLE}
+          FOR ALL TO anon, authenticated
+          USING (false)
+          WITH CHECK (false);
         SELECT pg_advisory_xact_lock(hashtext('giapha_os_app_migrations'));
       `)
 
